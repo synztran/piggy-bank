@@ -1,0 +1,90 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes: dark --default;
+}
+
+@theme {
+  --color-glacier-primary: #7dd3fc;
+  --color-glacier-bg: #0a0e1a;
+  --color-glacier-tertiary: #c8a0f0;
+  --color-glacier-surface: #0f1524;
+  --color-glacier-surface-container: #141c2e;
+  --color-glacier-surface-container-low: #111828;
+  --color-glacier-surface-variant: #1a2438;
+  --color-glacier-on-surface: #e0e8f0;
+  --color-glacier-on-surface-variant: #a0b4c4;
+  --color-glacier-outline: #4a6070;
+  --color-glacier-outline-variant: #2a3a48;
+  --page-scroll-bg: transparent;
+  --root-bg: transparent;
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  /* :root, [data-theme] {
+    background: var(--page-scroll-bg, var(--root-bg));
+    color: var(--color-base-content);
+  } */
+
+  body {
+    background-color: #0a0e1a;
+    color: #e0e8f0;
+    font-family: "Inter", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    background: rgba(15, 21, 36, 0.6);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(125, 211, 252, 0.1);
+  }
+
+  .glass-panel-elevated {
+    background: rgba(15, 21, 36, 0.75);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(125, 211, 252, 0.15);
+  }
+
+  .glass-input {
+    background: rgba(20, 28, 46, 0.4);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(125, 211, 252, 0.1);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .glass-input:focus {
+    border-color: rgba(125, 211, 252, 0.5);
+    box-shadow: 0 0 15px rgba(125, 211, 252, 0.1);
+    outline: none;
+  }
+
+  .glacier-glow {
+    box-shadow: 0 0 30px rgba(125, 211, 252, 0.05);
+  }
+
+  .glacier-glow-hover:hover {
+    box-shadow: 0 0 30px rgba(125, 211, 252, 0.15);
+  }
+
+  .text-glacier-primary {
+    color: #7dd3fc;
+  }
+
+  .text-glacier-tertiary {
+    color: #c8a0f0;
+  }
+
+  .text-glacier-on-surface {
+    color: #e0e8f0;
+  }
+
+  .text-glacier-on-surface-variant {
+    color: #a0b4c4;
+  }
+}

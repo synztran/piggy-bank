@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Glacier Pay - Dashboard (Updated)</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-tertiary-fixed": "#1a002e",
+              "on-primary": "#001f2e",
+              "surface-container-high": "#1a2438",
+              "on-tertiary-container": "#e8d0ff",
+              "on-secondary-fixed-variant": "#2a4a5e",
+              "tertiary": "#c8a0f0",
+              "surface-container-lowest": "#0a0e1a",
+              "surface-container-highest": "#202c42",
+              "primary": "#7dd3fc",
+              "inverse-surface": "#e0e8f0",
+              "on-primary-fixed-variant": "#004d73",
+              "primary-container": "#0e4d6e",
+              "secondary-container": "#1a3a4e",
+              "error-container": "#3d1414",
+              "surface-bright": "#1a2438",
+              "primary-fixed-dim": "#7dd3fc",
+              "outline": "#4a6070",
+              "surface-variant": "#1a2438",
+              "on-error": "#1a0000",
+              "outline-variant": "#2a3a48",
+              "on-surface-variant": "#a0b4c4",
+              "on-tertiary": "#1a002e",
+              "tertiary-fixed": "#e8d0ff",
+              "surface-dim": "#0f1524",
+              "on-primary-container": "#c8eaff",
+              "surface-container": "#141c2e",
+              "surface": "#0f1524",
+              "tertiary-fixed-dim": "#c8a0f0",
+              "on-tertiary-fixed-variant": "#4d2a73",
+              "on-secondary-container": "#c0d8e8",
+              "on-background": "#e0e8f0",
+              "on-primary-fixed": "#001f2e",
+              "secondary-fixed": "#c0d8e8",
+              "on-surface": "#e0e8f0",
+              "inverse-primary": "#0a4c6e",
+              "on-secondary": "#001f2e",
+              "error": "#ff6b6b",
+              "background": "#0a0e1a",
+              "on-secondary-fixed": "#0d1f2b",
+              "surface-tint": "#7dd3fc",
+              "surface-container-low": "#111828",
+              "primary-fixed": "#c8eaff",
+              "inverse-on-surface": "#0a0e1a",
+              "secondary-fixed-dim": "#88b4cc",
+              "secondary": "#88b4cc",
+              "on-error-container": "#ffb3b3",
+              "tertiary-container": "#3d2060"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .glass-card {
+        background: rgba(15, 21, 36, 0.6);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(125, 211, 252, 0.1);
+      }
+      .glass-card-elevated {
+        background: rgba(15, 21, 36, 0.75);
+        backdrop-filter: blur(24px);
+        border: 1px solid rgba(125, 211, 252, 0.15);
+      }
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary/30 min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-slate-950/60 backdrop-blur-lg border-b border-sky-400/10 shadow-[0_0_30px_rgba(125,211,252,0.05)] flex justify-between items-center px-6 h-16">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center border border-primary/30">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">ac_unit</span>
+</div>
+<h1 class="text-xl font-bold text-sky-300 tracking-wider font-headline">Glacier Pay</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-sky-400/10 transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-slate-100">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full border border-sky-400/30 overflow-hidden">
+<img alt="User profile photo" class="w-full h-full object-cover" data-alt="close-up portrait of a professional individual with soft studio lighting and a clean neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWQKNrgz4CDhrN_2b0sh4YrlFt7uhjdCT3VWbK64YmMFNU74ABDqw8nxeHdK_pv-M1s2zn5mY6_tsST0BIUCveoq7aGh_k0Bkxx1EeUb45D3fAOrECEKWlV2mrgumDbZsAOYmnG6t-zNfzayDQe6id1EeyzMgHlnIeduG8rfCsJQmwHrWF-whSnycXZX-6Unfs_Y2eVn5wWYGbjWBBmJ-MXtgQUBiTNM2nfTFiGT3FMoBU4qCBso-j2cLGo4_WUUz5TUHvmBO082V4"/>
+</div>
+</div>
+</header>
+<main class="pt-24 px-6 max-w-7xl mx-auto space-y-8">
+<!-- Welcome Section & Hero -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Balance Card -->
+<div class="lg:col-span-2 glass-card-elevated rounded-xl p-8 relative overflow-hidden flex flex-col justify-between min-h-[240px]">
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+<div class="relative z-10">
+<p class="text-on-surface-variant text-sm font-medium tracking-wide uppercase">CURRENT BALANCE</p>
+<h2 class="text-5xl font-extrabold text-on-surface mt-2 tracking-tight">124,500,000 <span class="text-primary text-2xl font-normal">$</span></h2>
+</div>
+<div class="relative z-10 flex gap-4 mt-8">
+<button class="flex-1 bg-primary/10 border border-primary/20 text-primary py-3 rounded-lg font-semibold hover:bg-primary/20 transition-all active:scale-95 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">add_circle</span> Deposit
+                    </button>
+<button class="flex-1 bg-on-surface/5 border border-on-surface/10 text-on-surface py-3 rounded-lg font-semibold hover:bg-on-surface/10 transition-all active:scale-95 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">send</span> Transfer
+                    </button>
+</div>
+</div>
+<!-- Total Paid This Month (New Section) -->
+<div class="glass-card rounded-xl p-8 border-l-4 border-l-primary flex flex-col justify-center">
+<div class="flex items-center gap-3 mb-4">
+<div class="p-2 bg-primary/10 rounded-lg">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">payments</span>
+</div>
+<p class="text-on-surface-variant text-sm font-bold uppercase tracking-widest">TOTAL SPENT THIS MONTH</p>
+</div>
+<h3 class="text-3xl font-bold text-on-surface">12,840,000 <span class="text-on-surface-variant text-lg font-medium">$</span></h3>
+<div class="mt-4 flex items-center gap-2">
+<span class="flex items-center text-error text-sm font-medium">
+<span class="material-symbols-outlined text-sm">arrow_upward</span> 12%
+                    </span>
+<span class="text-on-surface-variant text-xs">vs last month</span>
+</div>
+<div class="mt-6 w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[65%] rounded-full shadow-[0_0_10px_rgba(125,211,252,0.5)]"></div>
+</div>
+<p class="text-[10px] text-on-surface-variant mt-2">65% of monthly limit</p>
+</div>
+</section>
+<!-- Insights Bento Grid -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<div class="glass-card rounded-xl p-6 flex flex-col gap-4 group hover:border-primary/30 transition-all">
+<span class="material-symbols-outlined text-tertiary text-3xl">insights</span>
+<div>
+<h4 class="font-bold text-on-surface">Spending Insights</h4>
+<p class="text-sm text-on-surface-variant mt-1">Your spending on Dining increased by 15% this week.</p>
+</div>
+</div>
+<div class="glass-card rounded-xl p-6 flex flex-col gap-4 group hover:border-primary/30 transition-all">
+<span class="material-symbols-outlined text-primary text-3xl">savings</span>
+<div>
+<h4 class="font-bold text-on-surface">Savings Goal</h4>
+<p class="text-sm text-on-surface-variant mt-1">You reached 80% of "Buy Macbook Pro" goal.</p>
+</div>
+</div>
+<div class="glass-card rounded-xl p-6 flex flex-col gap-4 group hover:border-primary/30 transition-all md:col-span-2">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-sky-300 text-3xl">verified_user</span>
+<span class="text-[10px] bg-primary/20 text-primary px-2 py-1 rounded-full font-bold">SECURE</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface">Secure Transactions</h4>
+<p class="text-sm text-on-surface-variant mt-1">All your transactions are encrypted with the latest Glacier Shield technology.</p>
+</div>
+</div>
+</section>
+<!-- Recent Transactions -->
+<section class="glass-card rounded-xl overflow-hidden">
+<div class="p-6 flex justify-between items-center border-b border-sky-400/10">
+<h3 class="font-bold text-lg text-on-surface">Recent Transactions</h3>
+<button class="text-primary text-sm font-semibold hover:underline">View All</button>
+</div>
+<div class="divide-y divide-sky-400/10">
+<!-- Transaction Item 1 -->
+<div class="p-4 flex items-center justify-between hover:bg-sky-400/5 transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-surface-container-highest flex items-center justify-center border border-white/5">
+<span class="material-symbols-outlined text-primary">shopping_bag</span>
+</div>
+<div>
+<p class="font-semibold text-on-surface">WinMart Supermarket</p>
+<p class="text-xs text-on-surface-variant">Today, 14:20 • Shopping</p>
+</div>
+</div>
+<p class="font-bold text-on-surface">- 450,000 $</p>
+</div>
+<!-- Transaction Item 2 -->
+<div class="p-4 flex items-center justify-between hover:bg-sky-400/5 transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-surface-container-highest flex items-center justify-center border border-white/5">
+<span class="material-symbols-outlined text-tertiary">restaurant</span>
+</div>
+<div>
+<p class="font-semibold text-on-surface">The Coffee House</p>
+<p class="text-xs text-on-surface-variant">Yesterday, 09:15 • Dining</p>
+</div>
+</div>
+<p class="font-bold text-on-surface">- 85,000 $</p>
+</div>
+<!-- Transaction Item 3 -->
+<div class="p-4 flex items-center justify-between hover:bg-sky-400/5 transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-surface-container-highest flex items-center justify-center border border-white/5">
+<span class="material-symbols-outlined text-green-400">account_balance_wallet</span>
+</div>
+<div>
+<p class="font-semibold text-on-surface">October Salary</p>
+<p class="text-xs text-on-surface-variant">25 Oct, 08:00 • Income</p>
+</div>
+</div>
+<p class="font-bold text-primary">+ 35,000,000 $</p>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-slate-900/75 backdrop-blur-3xl border-t border-sky-400/15 shadow-[0_-4px_24px_rgba(0,0,0,0.4)] z-50 rounded-t-2xl">
+<a class="flex flex-col items-center justify-center text-sky-300 bg-sky-400/10 rounded-xl px-4 py-1 transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-['Inter'] text-[10px] font-medium uppercase tracking-widest mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 hover:text-sky-200 transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span class="font-['Inter'] text-[10px] font-medium uppercase tracking-widest mt-1">Accounts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 hover:text-sky-200 transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-['Inter'] text-[10px] font-medium uppercase tracking-widest mt-1">History</span>
+</a>
+</nav>
+</body></html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Add/Update Funding Source - Glacier Pay</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-tertiary-fixed": "#1a002e",
+              "on-primary": "#001f2e",
+              "surface-container-high": "#1a2438",
+              "on-tertiary-container": "#e8d0ff",
+              "on-secondary-fixed-variant": "#2a4a5e",
+              "tertiary": "#c8a0f0",
+              "surface-container-lowest": "#0a0e1a",
+              "surface-container-highest": "#202c42",
+              "primary": "#7dd3fc",
+              "inverse-surface": "#e0e8f0",
+              "on-primary-fixed-variant": "#004d73",
+              "primary-container": "#0e4d6e",
+              "secondary-container": "#1a3a4e",
+              "error-container": "#3d1414",
+              "surface-bright": "#1a2438",
+              "primary-fixed-dim": "#7dd3fc",
+              "outline": "#4a6070",
+              "surface-variant": "#1a2438",
+              "on-error": "#1a0000",
+              "outline-variant": "#2a3a48",
+              "on-surface-variant": "#a0b4c4",
+              "on-tertiary": "#1a002e",
+              "tertiary-fixed": "#e8d0ff",
+              "surface-dim": "#0f1524",
+              "on-primary-container": "#c8eaff",
+              "surface-container": "#141c2e",
+              "surface": "#0f1524",
+              "tertiary-fixed-dim": "#c8a0f0",
+              "on-tertiary-fixed-variant": "#4d2a73",
+              "on-secondary-container": "#c0d8e8",
+              "on-background": "#e0e8f0",
+              "on-primary-fixed": "#001f2e",
+              "secondary-fixed": "#c0d8e8",
+              "on-surface": "#e0e8f0",
+              "inverse-primary": "#0a4c6e",
+              "on-secondary": "#001f2e",
+              "error": "#ff6b6b",
+              "background": "#0a0e1a",
+              "on-secondary-fixed": "#0d1f2b",
+              "surface-tint": "#7dd3fc",
+              "surface-container-low": "#111828",
+              "primary-fixed": "#c8eaff",
+              "inverse-on-surface": "#0a0e1a",
+              "secondary-fixed-dim": "#88b4cc",
+              "secondary": "#88b4cc",
+              "on-error-container": "#ffb3b3",
+              "tertiary-container": "#3d2060"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(15, 21, 36, 0.6);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(125, 211, 252, 0.1);
+        }
+        .glass-panel-elevated {
+            background: rgba(15, 21, 36, 0.75);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(125, 211, 252, 0.15);
+        }
+        body {
+            background-color: #0a0e1a;
+            color: #e0e8f0;
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 w-full bg-slate-950/60 backdrop-blur-lg border-b border-sky-400/10 shadow-[0_0_30px_rgba(125,211,252,0.05)]">
+<div class="flex items-center gap-3">
+<button class="text-slate-100 active:scale-95 duration-200 hover:bg-sky-400/10 p-2 rounded-full">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="text-xl font-bold text-sky-300 tracking-wider font-['Inter']">Glacier Pay</h1>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-slate-400">notifications</span>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-sky-400/20">
+<img alt="User profile photo" data-alt="close-up portrait of a professional person with a friendly expression, soft studio lighting, cool blue background tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDh5yIt7f0AMdZrkUiHFPor5B78DIK77WuLQxQPDDp-iQtLUQRc5hSZlDzjCGaTQFiK_67NlMxt24y977lqGvWqpGPxk3nn16nJ3fE47IvXkzwabznc5aRL1bGxcvzjPptCbN-KUqfOvot_9p8sos7bzuc3EZK9GbwuQbG51HdDY0o65fvBHk6wUUYetxUK7r1B_VTBHQ3sJKig3CR4Uy87a1mxtGC2MFDswia7gpFwhc8diAaJWUzHtw3PqJC4HfvA_1oxdlCVUC9E"/>
+</div>
+</div>
+</header>
+<main class="pt-24 px-6 max-w-2xl mx-auto">
+<div class="mb-8">
+<h2 class="text-3xl font-semibold tracking-tight text-on-surface">Add/Update Funding Source</h2>
+<p class="text-on-surface-variant mt-2">Manage your bank accounts, credit cards, or cash.</p>
+</div>
+<!-- Form Section with Glassmorphism -->
+<div class="glass-panel rounded-xl p-8 space-y-8 shadow-[0_0_30px_rgba(125,211,252,0.05)]">
+<!-- Preview Card -->
+<div class="relative h-48 w-full rounded-xl overflow-hidden glass-panel-elevated p-6 flex flex-col justify-between group transition-all duration-300">
+<div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent pointer-events-none"></div>
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-4xl text-primary" data-icon="account_balance">account_balance</span>
+<div class="text-right">
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant">STATUS</p>
+<p class="text-primary font-bold">Active</p>
+</div>
+</div>
+<div>
+<p class="text-sm text-on-surface-variant font-medium uppercase tracking-widest">ACCOUNT NAME</p>
+<p class="text-2xl font-bold tracking-tight text-on-surface">Unnamed</p>
+</div>
+<div class="flex justify-between items-end">
+<div>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant">CURRENT BALANCE</p>
+<p class="text-xl font-bold text-primary">$0</p>
+</div>
+<img alt="Card Logo" class="h-6 opacity-50 grayscale" data-alt="minimalist payment card logo with clean lines and translucent effects" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAS3EOrRxlbpaxL0dfBRXcCJAY9zwYmcjhXy1XEuxjz05xQkiO8dtEZvdvmw03cnBlulbdlKHizw7xa1kBx5vh5g7CUl6Y23WEeZivuWoknSQwk4SZUp-brWYgdkZKN0l-B7Ez-ZDHWNet7Oc8QB-HB6FPiqDWUEB0EBzcs4fLinBkmBN_s8ekJDuvY8_irh6S2KO5UbCEw15aplENL4qUAiFzJKmbKtuWsWK0qDZFg04HdNfurD6eBLQhLTJYZbMXqE9gYG7DMIwpz"/>
+</div>
+</div>
+<!-- Input Fields -->
+<form class="space-y-6">
+<!-- Account Name -->
+<div class="space-y-2">
+<label class="block text-sm font-medium text-on-surface-variant ml-1">Source Name</label>
+<div class="relative">
+<input class="w-full bg-slate-900/40 border border-sky-400/10 rounded-lg px-4 py-3 text-on-surface placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all" placeholder="e.g. Personal Bank" type="text"/>
+</div>
+</div>
+<!-- Account Type Grid -->
+<div class="space-y-2">
+<label class="block text-sm font-medium text-on-surface-variant ml-1">Account Type</label>
+<div class="grid grid-cols-3 gap-3">
+<button class="flex flex-col items-center justify-center p-4 rounded-lg bg-sky-400/10 border border-primary text-primary transition-all active:scale-95" type="button">
+<span class="material-symbols-outlined mb-2" data-icon="account_balance">account_balance</span>
+<span class="text-[11px] font-semibold uppercase tracking-wider">BANK</span>
+</button>
+<button class="flex flex-col items-center justify-center p-4 rounded-lg bg-slate-900/40 border border-sky-400/10 text-on-surface-variant hover:border-primary/40 transition-all active:scale-95" type="button">
+<span class="material-symbols-outlined mb-2" data-icon="credit_card">credit_card</span>
+<span class="text-[11px] font-semibold uppercase tracking-wider">CREDIT CARD</span>
+</button>
+<button class="flex flex-col items-center justify-center p-4 rounded-lg bg-slate-900/40 border border-sky-400/10 text-on-surface-variant hover:border-primary/40 transition-all active:scale-95" type="button">
+<span class="material-symbols-outlined mb-2" data-icon="payments">payments</span>
+<span class="text-[11px] font-semibold uppercase tracking-wider">CASH</span>
+</button>
+</div>
+</div>
+<!-- Initial Balance -->
+<div class="space-y-2">
+<label class="block text-sm font-medium text-on-surface-variant ml-1">Initial Balance</label>
+<div class="relative flex items-center">
+<span class="absolute left-4 text-primary font-bold">$</span>
+<input class="w-full bg-slate-900/40 border border-sky-400/10 rounded-lg pl-10 pr-4 py-3 text-on-surface text-xl font-bold placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all" placeholder="0" type="number"/>
+</div>
+</div>
+<!-- Advanced Options (Asymmetric Layout Hint) -->
+<div class="pt-4 border-t border-sky-400/5">
+<button class="flex items-center gap-2 text-primary/70 hover:text-primary transition-colors text-sm font-medium" type="button">
+<span class="material-symbols-outlined text-sm">settings</span>
+                        Advanced Settings
+                    </button>
+</div>
+</form>
+</div>
+<!-- Action Buttons -->
+<div class="mt-8 flex gap-4">
+<button class="flex-1 py-4 px-6 rounded-xl font-bold uppercase tracking-widest text-sm bg-primary text-on-primary hover:bg-sky-200 transition-all active:scale-95 duration-200 shadow-lg shadow-primary/20">
+                SAVE INFO
+            </button>
+<button class="px-6 rounded-xl font-bold uppercase tracking-widest text-sm border border-sky-400/20 text-on-surface-variant hover:bg-sky-400/5 transition-all active:scale-95">
+                CANCEL
+            </button>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-slate-900/75 backdrop-blur-3xl border-t border-sky-400/15 shadow-[0_-4px_24px_rgba(0,0,0,0.4)] rounded-t-2xl z-50">
+<a class="flex flex-col items-center justify-center text-slate-500 hover:text-sky-200 transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-['Inter'] text-[10px] font-medium uppercase tracking-widest mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-sky-300 bg-sky-400/10 rounded-xl px-4 py-1 active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+<span class="font-['Inter'] text-[10px] font-medium uppercase tracking-widest mt-1">Accounts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 hover:text-sky-200 transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-['Inter'] text-[10px] font-medium uppercase tracking-widest mt-1">History</span>
+</a>
+</nav>
+</body></html>

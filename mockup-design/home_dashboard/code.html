@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "tertiary-fixed-dim": "#c8a0f0",
+              "on-error-container": "#ffb3b3",
+              "primary-fixed-dim": "#7dd3fc",
+              "secondary-fixed": "#c0d8e8",
+              "inverse-on-surface": "#0a0e1a",
+              "on-secondary": "#001f2e",
+              "on-primary-fixed-variant": "#004d73",
+              "tertiary-fixed": "#e8d0ff",
+              "outline-variant": "#2a3a48",
+              "surface-container-high": "#1a2438",
+              "surface-dim": "#0f1524",
+              "on-error": "#1a0000",
+              "error-container": "#3d1414",
+              "surface-bright": "#1a2438",
+              "error": "#ff6b6b",
+              "on-secondary-container": "#c0d8e8",
+              "primary-container": "#0e4d6e",
+              "on-tertiary": "#1a002e",
+              "on-secondary-fixed-variant": "#2a4a5e",
+              "outline": "#4a6070",
+              "on-tertiary-fixed-variant": "#4d2a73",
+              "surface-container": "#141c2e",
+              "on-tertiary-fixed": "#1a002e",
+              "on-primary-container": "#c8eaff",
+              "surface-tint": "#7dd3fc",
+              "tertiary": "#c8a0f0",
+              "secondary": "#88b4cc",
+              "inverse-surface": "#e0e8f0",
+              "surface-container-highest": "#202c42",
+              "surface-container-lowest": "#0a0e1a",
+              "primary-fixed": "#c8eaff",
+              "primary": "#7dd3fc",
+              "on-primary-fixed": "#001f2e",
+              "secondary-container": "#1a3a4e",
+              "on-surface": "#e0e8f0",
+              "tertiary-container": "#3d2060",
+              "surface": "#0f1524",
+              "on-tertiary-container": "#e8d0ff",
+              "inverse-primary": "#0a4c6e",
+              "surface-container-low": "#111828",
+              "on-secondary-fixed": "#0d1f2b",
+              "on-primary": "#001f2e",
+              "surface-variant": "#1a2438",
+              "background": "#0a0e1a",
+              "secondary-fixed-dim": "#88b4cc",
+              "on-surface-variant": "#a0b4c4",
+              "on-background": "#e0e8f0"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0a0e1a;
+            color: #e0e8f0;
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-panel {
+            background: rgba(15, 21, 36, 0.6);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(125, 211, 252, 0.1);
+        }
+        .glass-panel-elevated {
+            background: rgba(15, 21, 36, 0.75);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(125, 211, 252, 0.15);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-slate-950/60 backdrop-blur-xl border-b border-sky-400/10 shadow-[0_0_30px_rgba(125,211,252,0.05)]">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full overflow-hidden border border-sky-400/30">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="Close-up portrait of a professional man with a friendly expression in soft studio lighting with a neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuALcE2N0cnoc2yWCblyezLRaKzL72BMehw6BnrKHsrt-FK-fNYifV16XI8xxOfEDe_f_UBiYx4Uk_LCgQZ-pkTlqS3eks5Ua5nudLoChRq7_IwQjQt0OnU-b06L-5kxAPsdzN3FyNB597lux7VE0MDBv8NWV45CreHTriMgmtQLJMSD7gNUfzeV5AfkrEO5md4gDTRtzmLwWRH4gtUPFqoWM8HTFnvnVNRWPXqxNymReVpy1U852xp6dw3I1BKRcqC4A-B4p-Vn2ImZ"/>
+</div>
+<span class="text-xl font-bold text-sky-300 drop-shadow-[0_0_10px_rgba(125,211,252,0.3)] font-inter tracking-tight">Glacier Pay</span>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-sky-400/10 transition-colors text-sky-300 active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</header>
+<main class="pt-24 px-6 max-w-2xl mx-auto space-y-8">
+<!-- Hero Balance Card -->
+<section class="relative group">
+<div class="absolute -inset-0.5 bg-gradient-to-r from-sky-500/20 to-purple-500/20 rounded-xl blur opacity-30 group-hover:opacity-50 transition duration-1000"></div>
+<div class="relative glass-panel-elevated p-8 rounded-xl shadow-[0_0_40px_rgba(125,211,252,0.1)] overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-sky-400/5 rounded-full blur-3xl -mr-10 -mt-10"></div>
+<div class="flex justify-between items-start mb-6">
+<div>
+<p class="text-on-surface-variant text-sm font-medium tracking-wide uppercase">Current Balance</p>
+<h1 class="text-4xl font-extrabold text-on-surface mt-1 tracking-tight">$12,840.<span class="text-2xl text-on-surface-variant">50</span></h1>
+</div>
+<div class="flex items-center gap-2 bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full text-xs font-semibold">
+<span class="material-symbols-outlined text-sm" data-icon="trending_up">trending_up</span>
+                        +2.4%
+                    </div>
+</div>
+<!-- Quick Actions -->
+<div class="flex gap-4">
+<button class="flex-1 glass-panel hover:bg-sky-400/10 text-sky-300 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all active:scale-95 border-sky-400/20">
+<span class="material-symbols-outlined text-lg" data-icon="sync">sync</span>
+                        Update Balance
+                    </button>
+<button class="flex-1 bg-primary/20 hover:bg-primary/30 border border-primary/30 text-primary py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all active:scale-95">
+<span class="material-symbols-outlined text-lg" data-icon="add">add</span>
+                        Quick Add
+                    </button>
+</div>
+</div>
+</section>
+<!-- Spending Insights Bento Section -->
+<section class="space-y-4">
+<div class="flex justify-between items-end">
+<h2 class="text-xl font-bold text-on-surface tracking-tight">Spending Insights</h2>
+<button class="text-primary text-sm font-medium hover:underline">View All</button>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<!-- Food Category -->
+<div class="glass-panel p-5 rounded-xl flex flex-col justify-between min-h-[140px] hover:border-sky-400/30 transition-colors">
+<div class="flex justify-between items-start">
+<div class="p-2 bg-orange-500/10 rounded-lg text-orange-400">
+<span class="material-symbols-outlined" data-icon="restaurant">restaurant</span>
+</div>
+<span class="text-xs font-medium text-on-surface-variant">32%</span>
+</div>
+<div>
+<p class="text-on-surface-variant text-sm">Food</p>
+<p class="text-lg font-bold text-on-surface">$1,420</p>
+</div>
+<div class="w-full bg-slate-800 h-1 rounded-full mt-2 overflow-hidden">
+<div class="bg-orange-400 h-full w-[32%] shadow-[0_0_8px_rgba(251,146,60,0.5)]"></div>
+</div>
+</div>
+<!-- Travel Category -->
+<div class="glass-panel p-5 rounded-xl flex flex-col justify-between min-h-[140px] hover:border-sky-400/30 transition-colors">
+<div class="flex justify-between items-start">
+<div class="p-2 bg-sky-500/10 rounded-lg text-sky-400">
+<span class="material-symbols-outlined" data-icon="flight_takeoff">flight_takeoff</span>
+</div>
+<span class="text-xs font-medium text-on-surface-variant">18%</span>
+</div>
+<div>
+<p class="text-on-surface-variant text-sm">Travel</p>
+<p class="text-lg font-bold text-on-surface">$850</p>
+</div>
+<div class="w-full bg-slate-800 h-1 rounded-full mt-2 overflow-hidden">
+<div class="bg-sky-400 h-full w-[18%] shadow-[0_0_8px_rgba(125,211,252,0.5)]"></div>
+</div>
+</div>
+<!-- Subscriptions - Wide Card -->
+<div class="col-span-2 glass-panel p-5 rounded-xl flex items-center justify-between hover:border-sky-400/30 transition-colors">
+<div class="flex items-center gap-4">
+<div class="p-2 bg-purple-500/10 rounded-lg text-purple-400">
+<span class="material-symbols-outlined" data-icon="subscriptions">subscriptions</span>
+</div>
+<div>
+<p class="text-on-surface-variant text-sm">Subscriptions</p>
+<p class="text-lg font-bold text-on-surface">$420 <span class="text-xs font-normal text-on-surface-variant">/mo</span></p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-xs text-on-surface-variant mb-1">Total count</p>
+<div class="flex -space-x-2">
+<div class="w-6 h-6 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-[8px] font-bold">N</div>
+<div class="w-6 h-6 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-[8px] font-bold text-red-500">A</div>
+<div class="w-6 h-6 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-[8px] font-bold text-sky-400">S</div>
+<div class="w-6 h-6 rounded-full bg-slate-700 border border-slate-600 flex items-center justify-center text-[8px] font-bold text-on-surface">+5</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Visual Anchor Decor -->
+<section class="glass-panel rounded-xl p-6 relative overflow-hidden">
+<div class="relative z-10 flex items-center justify-between">
+<div>
+<h3 class="text-lg font-bold text-sky-200">Earn up to 4.5% APY</h3>
+<p class="text-sm text-on-surface-variant mt-1">On your idle glacier reserves.</p>
+</div>
+<button class="bg-sky-300 text-slate-950 px-4 py-2 rounded-lg font-bold text-sm active:scale-95 transition-transform">
+                    Start Saving
+                </button>
+</div>
+<div class="absolute inset-0 opacity-20 pointer-events-none">
+<img class="w-full h-full object-cover" data-alt="Abstract 3D flowing waves in cool blue and deep navy with soft light refraction and crystalline textures" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6Lwf3Z5uV79NgrUFtYILB1WlUFeFnFYQ2yvUi7rfbbfpVd4TajvYQG7o-QYxuhVMw6aY2ldPfy_eEbH_KyFcKxLqmF2b1ompnUMlgB1hq89hPq1MjQUsQMo_2srVCx-Wtd3fOFaxYTiCCyenGBDbntn1jRLlWmDVPxvv3gSlKz-jCWuY1YrafsUGgjfGNB79vCwMiJQF24i5Cyv9UkAzOQduECaEr7WSZZHrV-vjkyyhTcHfVrhU5vAIuf2YG9PNNv6OckgBukGLL"/>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-slate-900/75 backdrop-blur-[24px] border-t border-sky-400/15 shadow-[0_-4px_20px_rgba(0,0,0,0.5)] rounded-t-3xl">
+<a class="flex flex-col items-center justify-center text-sky-300 bg-sky-400/10 rounded-xl px-4 py-1 active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-inter text-[10px] font-medium mt-0.5">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 hover:text-sky-200 active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="font-inter text-[10px] font-medium mt-0.5">Accounts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 hover:text-sky-200 active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-inter text-[10px] font-medium mt-0.5">History</span>
+</a>
+</nav>
+</body></html>

@@ -1,0 +1,30 @@
+{
+	"$schema": "https://turbo.build/schema.json",
+	"ui": "tui",
+	"globalEnv": [
+		"DATABASE_URL",
+		"MONGO_INIT_DB_ROOT_USERNAME",
+		"MONGO_INIT_DB_ROOT_PASSWORD",
+		"MONGO_INIT_DATABASE",
+		"JWT_SECRET",
+		"JWT_HEX32",
+		"NODE_ENV"
+	],
+	"tasks": {
+		"build": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$", ".env*"],
+			"outputs": [".next/**", "!.next/cache/**"]
+		},
+		"dev": {
+			"cache": false,
+			"persistent": true
+		},
+		"lint": {
+			"dependsOn": ["^lint"]
+		},
+		"format": {
+			"dependsOn": ["^format"]
+		}
+	}
+}
