@@ -94,9 +94,9 @@ export async function POST(req: NextRequest) {
 			transactionDate,
 		} = await req.json();
 
-		if (!amount || !type || !paymentSourceId) {
+		if (!amount || !type) {
 			return NextResponse.json(
-				{ error: "amount, type, and paymentSourceId are required" },
+				{ error: "amount and type are required" },
 				{ status: 400 },
 			);
 		}
@@ -117,7 +117,7 @@ export async function POST(req: NextRequest) {
 
 		await connectDB();
 
-		// Verify paymentSource belongs to user
+		// Verify paymentSource belongs to user (only if provided)
 		const user = await User.findById(session.userId);
 		if (!user)
 			return NextResponse.json(
@@ -125,14 +125,16 @@ export async function POST(req: NextRequest) {
 				{ status: 404 },
 			);
 
-		const sourceExists = user.paymentSources.some(
-			(s: IPaymentSource) => s.id === paymentSourceId,
-		);
-		if (!sourceExists)
-			return NextResponse.json(
-				{ error: "Payment source not found" },
-				{ status: 404 },
+		if (paymentSourceId) {
+			const sourceExists = user.paymentSources.some(
+				(s: IPaymentSource) => s.id === paymentSourceId,
 			);
+			if (!sourceExists)
+				return NextResponse.json(
+					{ error: "Payment source not found" },
+					{ status: 404 },
+				);
+		}
 
 		// Update currentBalance
 		const currentBalance = parseFloat(user.currentBalance.toString());

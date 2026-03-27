@@ -18,7 +18,7 @@ export interface ITransaction extends Document {
 	amount: Types.Decimal128;
 	type: TransactionType;
 	category: TransactionCategory;
-	paymentSourceId: string;
+	paymentSourceId?: string;
 	description: string;
 	transactionDate: Date;
 	isRemove?: boolean;
@@ -55,7 +55,7 @@ const TransactionSchema = new Schema<ITransaction>(
 			],
 			default: "other",
 		},
-		paymentSourceId: { type: String, required: true },
+		paymentSourceId: { type: String, required: false, default: null },
 		description: {
 			type: String,
 			required: false,

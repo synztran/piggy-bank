@@ -12,7 +12,6 @@ interface AppHeaderProps {
 export default function AppHeader({ showBack, backHref }: AppHeaderProps) {
   const router = useRouter();
   const { user, logout } = useAuth();
-  console.log("user", user)
 
   const handleBack = () => {
     if (backHref) router.push(backHref);
@@ -24,7 +23,8 @@ export default function AppHeader({ showBack, backHref }: AppHeaderProps) {
     : "GP";
 
   return (
-    <header className="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[rgba(10,14,26,0.6)] backdrop-blur-xl border-b border-[rgba(125,211,252,0.1)] shadow-[0_0_30px_rgba(125,211,252,0.05)]">
+    <header className="fixed top-0 w-full z-50 bg-[rgba(10,14,26,0.6)] backdrop-blur-xl border-b border-[rgba(125,211,252,0.1)] shadow-[0_0_30px_rgba(125,211,252,0.05)]">
+      <div className="flex justify-between items-center px-6 h-16" style={{ paddingTop: 'env(safe-area-inset-top)', height: 'calc(4rem + env(safe-area-inset-top))' }}>
       <div className="flex items-center gap-3">
         {showBack ? (
           <button
@@ -62,6 +62,7 @@ export default function AppHeader({ showBack, backHref }: AppHeaderProps) {
             <LogOut size={18} />
           </button>
         )}
+      </div>
       </div>
     </header>
   );

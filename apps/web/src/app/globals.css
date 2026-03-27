@@ -35,6 +35,8 @@
     font-family: "Inter", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* prevent iOS bounce scroll showing white background */
+    overscroll-behavior: none;
   }
 }
 
@@ -86,5 +88,27 @@
 
   .text-glacier-on-surface-variant {
     color: #a0b4c4;
+  }
+
+  /* iOS safe area helpers */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .h-header {
+    height: calc(4rem + env(safe-area-inset-top));
+  }
+
+  .pt-header {
+    padding-top: calc(4rem + env(safe-area-inset-top));
+  }
+
+  .pb-nav {
+    /* 3.5rem ≈ nav height (pt-3 + icon + label + pb-safe) */
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom));
   }
 }

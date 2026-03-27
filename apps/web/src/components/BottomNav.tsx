@@ -14,7 +14,10 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 pb-4 pt-3 bg-[rgba(15,21,36,0.75)] backdrop-blur-[24px] border-t border-[rgba(125,211,252,0.15)] shadow-[0_-4px_20px_rgba(0,0,0,0.5)] rounded-t-3xl">
+    <nav
+      className="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 pt-3 bg-[rgba(15,21,36,0.75)] backdrop-blur-[24px] border-t border-[rgba(125,211,252,0.15)] shadow-[0_-4px_20px_rgba(0,0,0,0.5)] rounded-t-3xl"
+      style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
+    >
       {navItems.map(({ href, label, icon: Icon }) => {
         const isActive = pathname === href || pathname.startsWith(href + "/");
         return (

@@ -9,12 +9,19 @@ export const metadata: Metadata = {
   title: "HaJa Piggy Bank",
   description: "Where your savings don't melt away.",
   manifest: "/manifest.json",
+  applicationName: "HaJa",
+  appleWebApp: {
+    capable: true,
+    title: "HaJa",
+    statusBarStyle: "black-translucent",
+  },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
+  viewportFit: "cover",
   themeColor: "#0a0e1a",
 };
 

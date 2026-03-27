@@ -8,7 +8,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <AuthProvider>
       <div className="min-h-screen bg-[#0a0e1a]">
         <AppHeader />
-        <main className="pt-20 pb-28 px-5 max-w-lg mx-auto">{children}</main>
+        <main className="pt-header pb-nav px-5 max-w-lg mx-auto">{children}</main>
         <BottomNav />
       </div>
     </AuthProvider>
