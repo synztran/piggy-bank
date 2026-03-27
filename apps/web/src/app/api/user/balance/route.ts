@@ -55,7 +55,7 @@ export async function PUT(req: NextRequest) {
 				type: diff > 0 ? "income" : "expense",
 				category: "other",
 				paymentSourceId: "balance_adjustment",
-				description: `Điều chỉnh số dư (${diff > 0 ? "+" : ""}${formatCurrency(Math.abs(diff))})`,
+				description: `Điều chỉnh số dư`,
 				transactionDate: new Date(),
 			});
 		}

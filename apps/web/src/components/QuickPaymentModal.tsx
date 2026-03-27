@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { X, Zap, ShoppingBag, Utensils, Car, ArrowRight } from "lucide-react";
+import { X, Zap, ShoppingBag, Utensils, Car, ArrowRight, MessageCircleQuestion, AlertCircle, FileQuestion, ShieldQuestion } from "lucide-react";
 import { gooeyToast } from "goey-toast";
 
 interface QuickPaymentModalProps {
@@ -15,6 +15,7 @@ const categories = [
   { id: "utilities", label: "Tiện ích", icon: Zap },
   { id: "retail", label: "Mua sắm", icon: ShoppingBag },
   { id: "dining", label: "Nhà hàng", icon: Utensils },
+  { id: 'other', label: 'Khác', icon: FileQuestion },
   { id: "travel", label: "Du lịch", icon: Car },
 ];
 
@@ -33,10 +34,14 @@ export default function QuickPaymentModal({
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // iOS requires a short delay — plain autoFocus is ignored inside modals on Safari
+  // iOS: keyboard is already open (triggered by hidden input in parent on the same gesture).
+  // requestAnimationFrame runs before paint, still within the keyboard-open window.
   useEffect(() => {
-    const id = setTimeout(() => inputRef.current?.focus(), 100);
-    return () => clearTimeout(id);
+    let raf: number;
+    const id = setTimeout(() => {
+      raf = requestAnimationFrame(() => inputRef.current?.focus());
+    }, 50);
+    return () => { clearTimeout(id); cancelAnimationFrame(raf); };
   }, []);
 
   const displayAmount = amount ? parseFloat(amount) : 0;
@@ -127,6 +132,7 @@ export default function QuickPaymentModal({
             min="0"
             step="1000"
             inputMode="numeric"
+            autoFocus
           />
         </div>
 
@@ -182,7 +188,7 @@ export default function QuickPaymentModal({
         <div className="mb-5">
           <div className="flex justify-between items-center mb-3">
             <p className="text-sm font-medium text-[#e0e8f0]">Danh mục</p>
-            <button className="text-[#7dd3fc] text-xs font-medium">Xem tất cả</button>
+            {/* <button className="text-[#7dd3fc] text-xs font-medium">Xem tất cả</button> */}
           </div>
           <div className="flex gap-3">
             {categories.map(({ id, label, icon: Icon }) => (

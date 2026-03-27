@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import PullToRefresh from "@/components/PullToRefresh";
 import { useRouter } from "next/navigation";
 import {
   Plus,
@@ -72,7 +73,8 @@ export default function AccountsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <PullToRefresh onRefresh={fetchAccounts}>
+    <div className="space-y-6 pt-4">
       {/* Header */}
       <div className="flex justify-between items-end">
         <div>
@@ -128,7 +130,7 @@ export default function AccountsPage() {
               />
               <div className="flex justify-between items-start relative z-10">
                 <div className="flex items-center gap-3">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center border ${iconClass}`}>
+                  <div className={`min-w-12 h-12 rounded-xl flex items-center justify-center border ${iconClass}`}>
                     <Icon size={22} />
                   </div>
                   <div>
@@ -201,5 +203,6 @@ export default function AccountsPage() {
         />
       )}
     </div>
+    </PullToRefresh>
   );
 }

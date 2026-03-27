@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import PullToRefresh from "@/components/PullToRefresh";
 import {
   Landmark,
   Users,
@@ -13,6 +14,7 @@ import {
   Trash2,
   SlidersHorizontal,
   X,
+  FileQuestion,
 } from "lucide-react";
 import { gooeyToast } from "goey-toast";
 import { formatCurrency, formatDateGroup } from "@/lib/utils";
@@ -43,7 +45,7 @@ const categoryIcon: Record<string, React.ElementType> = {
   retail: ShoppingBag,
   utilities: Zap,
   income: CreditCard,
-  other: CreditCard,
+  other: FileQuestion,
 };
 
 const categoryColor: Record<string, string> = {
@@ -54,7 +56,7 @@ const categoryColor: Record<string, string> = {
   retail: "text-[#7dd3fc] bg-[rgba(125,211,252,0.1)] border-[rgba(125,211,252,0.2)]",
   utilities: "text-[#c8a0f0] bg-purple-500/10 border-purple-500/20",
   income: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
-  other: "text-slate-400 bg-slate-500/10 border-slate-500/20",
+  other: "text-red-200 bg-red-200/10 border-red-200/20",
 };
 
 function groupTransactions(transactions: Transaction[]): GroupedTransactions[] {
@@ -78,16 +80,19 @@ export default function HistoryPage() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
   const [showFilter, setShowFilter] = useState(false);
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState(() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-01`; });
+  const [endDate, setEndDate] = useState(() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; });
   const [activeStart, setActiveStart] = useState("");
   const [activeEnd, setActiveEnd] = useState("");
 
   const isFiltered = !!(activeStart || activeEnd);
 
   const fetchTransactions = useCallback(async (pageNum = 1, append = false, from = activeStart, to = activeEnd) => {
+    console.log("called")
     try {
       const params = new URLSearchParams({ page: String(pageNum), limit: "20" });
       if (from) params.set("startDate", from);
@@ -112,11 +117,25 @@ export default function HistoryPage() {
     fetchTransactions(1);
   }, [fetchTransactions]);
 
-  const handleLoadMore = () => {
-    const nextPage = page + 1;
-    setPage(nextPage);
-    fetchTransactions(nextPage, true);
-  };
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loadingMore && !loading) {
+          const nextPage = page + 1;
+          setPage(nextPage);
+          setLoadingMore(true);
+          fetchTransactions(nextPage, true).finally(() => setLoadingMore(false));
+        }
+      },
+      { rootMargin: "120px" }
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasMore, loadingMore, loading, page, fetchTransactions]);
 
   const handleApplyFilter = () => {
     setActiveStart(startDate);
@@ -137,7 +156,7 @@ export default function HistoryPage() {
     fetchTransactions(1, false, "", "");
   };
 
-  const handleDelete = (id: string) => {
+  const confirmDelete = (id: string) => {
     setDeleting(id);
 
     const promise = fetch(`/api/transactions/${id}`, { method: "DELETE" }).then(
@@ -154,17 +173,25 @@ export default function HistoryPage() {
 
     gooeyToast.promise(promise, {
       loading: "Đang ẩn...",
-      success: "Đã ẩn giao dịch",
+      success: "Đã ẩn",
       error: "Không thể ẩn",
-      description: {
-        success: "Giao dịch đã được ẩn khỏi số dư.",
-        error: "Bạn chỉ có thể ẩn giao dịch của mình.",
-      },
       action: {
         error: {
           label: "Thử lại",
-          onClick: () => handleDelete(id),
+          onClick: () => confirmDelete(id),
         },
+      },
+    });
+  };
+
+  const handleDelete = (id: string) => {
+    gooeyToast.warning("Ẩn giao dịch này?", {
+      description: "Giao dịch sẽ bị ẩn khỏi số dư. Bạn có chắc không?",
+      duration: 100,
+      action: {
+        label: "Xác nhận",
+        onClick: () => confirmDelete(id),
+        successLabel: "Đang ẩn...",
       },
     });
   };
@@ -176,7 +203,8 @@ export default function HistoryPage() {
     .reduce((sum, t) => sum + t.amount, 0);
 
   return (
-    <div className="space-y-6">
+    <PullToRefresh onRefresh={() => fetchTransactions(1, false)}>
+    <div className="space-y-6 pt-4">
       {/* Header */}
       <div>
         <div className="flex items-center justify-between mb-1">
@@ -203,24 +231,26 @@ export default function HistoryPage() {
       {/* Filter panel */}
       {showFilter && (
         <div className="glass-panel p-4 rounded-xl space-y-3 animate-in slide-in-from-top duration-200">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-[#a0b4c4]">Lọc theo ngày</p>
+          <p className="text-base font-bold uppercase tracking-widest text-[#a0b4c4]">Lọc theo ngày</p>
           <div className="grid grid-cols-2 gap-3">
-            <div>
+            <div className="w-full">
               <label className="text-[10px] text-[#a0b4c4] mb-1 block">Từ ngày</label>
               <input
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="glass-input w-full py-2 px-3 rounded-lg text-[#e0e8f0] text-sm"
+                placeholder="dd/mm/yyyy"
+                className="glass-input py-2 px-3 rounded-lg text-[#e0e8f0] text-sm"
               />
             </div>
-            <div>
+            <div className="w-full">
               <label className="text-[10px] text-[#a0b4c4] mb-1 block">Đến ngày</label>
               <input
                 type="date"
                 value={endDate}
+                placeholder="dd/mm/yyyy"
                 onChange={(e) => setEndDate(e.target.value)}
-                className="glass-input w-full py-2 px-3 rounded-lg text-[#e0e8f0] text-sm"
+                className="glass-input py-2 px-3 rounded-lg text-[#e0e8f0] text-sm"
               />
             </div>
           </div>
@@ -264,27 +294,27 @@ export default function HistoryPage() {
 
       {/* Summary Bento */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="glass-panel p-5 rounded-xl">
+        <div className="glass-panel p-4 rounded-xl">
           <div className="flex items-center gap-2 text-[#7dd3fc] mb-2">
             <Landmark size={14} />
             <span className="text-[10px] font-bold uppercase tracking-wider">
               Tổng chi tiêu
             </span>
           </div>
-          <div className="text-2xl font-bold text-[#e0e8f0]">
+          <div className="text-xl font-bold text-[#e0e8f0]">
             {formatCurrency(totalSpentThisMonth)}
           </div>
-          <div className="text-[10px] text-[#a0b4c4] mt-1">Tháng này</div>
+          <div className="text-xs text-[#a0b4c4] mt-1">Tháng này</div>
         </div>
-        <div className="glass-panel p-5 rounded-xl">
+        <div className="glass-panel p-4 rounded-xl">
           <div className="flex items-center gap-2 text-[#c8a0f0] mb-2">
             <Users size={14} />
             <span className="text-[10px] font-bold uppercase tracking-wider">
               Tổng giao dịch
             </span>
           </div>
-          <div className="text-2xl font-bold text-[#e0e8f0]">{total}</div>
-          <div className="text-[10px] text-[#a0b4c4] mt-1">Tất cả thành viên</div>
+          <div className="text-xl font-bold text-[#e0e8f0]">{total}</div>
+          <div className="text-xs text-[#a0b4c4] mt-1">Tất cả thành viên</div>
         </div>
       </div>
 
@@ -318,27 +348,25 @@ export default function HistoryPage() {
                 return (
                   <div
                     key={tx._id}
-                    className={`glass-panel p-4 rounded-xl flex items-center justify-between transition-colors group ${
+                    className={`relative glass-panel gap-4 p-4 rounded-xl flex items-center justify-between transition-colors group ${
                       tx.isRemove
                         ? "opacity-50"
                         : "hover:bg-[rgba(125,211,252,0.04)]"
                     }`}
                   >
-                    <div className="flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center border ${colorClass}`}>
+                    <div className="flex items-center gap-2">
+                      <div className={`min-w-12 h-12 rounded-xl flex items-center justify-center border ${colorClass}`}>
                         <Icon size={20} />
                       </div>
                       <div>
-                        <div className={`font-semibold text-sm ${
+                        <div className={`font-semibold text-sm line-clamp-2 ${
                           tx.isRemove ? "line-through text-slate-500" : "text-[#e0e8f0]"
                         }`}>
                           {tx.description}
                         </div>
-                        <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                          <span className="text-[10px] text-slate-500 capitalize">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-xs text-slate-500 capitalize">
                             {{
-
-
                             food: "Ăn uống",
                             dining: "Nhà hàng",
                             travel: "Du lịch",
@@ -349,7 +377,7 @@ export default function HistoryPage() {
                             other: "Khác",
                             }[tx.category] || tx.category}
                           </span>
-                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[rgba(125,211,252,0.08)] text-[#7dd3fc] border border-[rgba(125,211,252,0.15)]">
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-[rgba(125,211,252,0.08)] text-[#7dd3fc] border border-[rgba(125,211,252,0.15)]">
                             {tx.userName || "Ẩn danh"}
                           </span>
                           {tx.isRemove && (
@@ -360,9 +388,9 @@ export default function HistoryPage() {
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 relative">
                       <div className="text-right">
-                        <div className={`font-bold text-base ${tx.type === "income" ? "text-emerald-400" : "text-[#e0e8f0]"}`}>
+                        <div className={`font-bold text-sm ${tx.type === "income" ? "text-emerald-400" : "text-red-500"}`}>
                           {tx.type === "income" ? "+" : "-"}
                           {formatCurrency(tx.amount)}
                         </div>
@@ -373,18 +401,19 @@ export default function HistoryPage() {
                           })}
                         </div>
                       </div>
-                      {tx.isOwn && !tx.isRemove && <button
+                    </div>
+                    {tx.isOwn && !tx.isRemove ?
+                      <div className="absolute -top-1.5 -right-2"><button
                         onClick={() => handleDelete(tx._id)}
                         disabled={deleting === tx._id}
-                        className=" group-hover:opacity-100 w-8 h-8 rounded-lg bg-red-500/10 text-red-400 flex items-center justify-center transition-all hover:bg-red-500/20 ml-1"
+                        className="group-hover:opacity-100 w-6 h-6 rounded-lg bg-red-100 text-red-400 flex items-center justify-center transition-all hover:bg-red-500/20"
                       >
                         {deleting === tx._id ? (
                           <span className="w-3 h-3 border border-red-400 border-t-transparent rounded-full animate-spin" />
                         ) : (
                           <Trash2 size={14} />
                         )}
-                      </button>}
-                    </div>
+                      </button></div> : null}
                   </div>
                 );
               })}
@@ -392,15 +421,15 @@ export default function HistoryPage() {
           </div>
         ))}
 
-        {hasMore && (
-          <button
-            onClick={handleLoadMore}
-            className="w-full py-3 glass-panel rounded-xl text-[#7dd3fc] text-sm font-medium hover:bg-[rgba(125,211,252,0.1)] transition-colors"
-          >
-            Tải thêm
-          </button>
+        {/* Infinite scroll sentinel */}
+        <div ref={sentinelRef} className="h-1" />
+        {loadingMore && (
+          <div className="flex justify-center py-4">
+            <span className="w-5 h-5 border-2 border-[#7dd3fc] border-t-transparent rounded-full animate-spin" />
+          </div>
         )}
       </div>
     </div>
+    </PullToRefresh>
   );
 }

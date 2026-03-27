@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { RefreshCw, Plus, TrendingUp, Utensils, Plane, PlaySquare, ShoppingBag, Zap } from "lucide-react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { RefreshCw, Plus, TrendingUp, Utensils, Plane, PlaySquare, ShoppingBag, Zap, AlertCircle, FileQuestion } from "lucide-react";
 import UpdateBalanceDrawer from "@/components/UpdateBalanceDrawer";
 import QuickPaymentModal from "@/components/QuickPaymentModal";
+import PullToRefresh from "@/components/PullToRefresh";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import Link from "next/link";
 
@@ -45,6 +46,7 @@ const categoryIcon: Record<string, React.ElementType> = {
   subscriptions: PlaySquare,
   retail: ShoppingBag,
   utilities: Zap,
+  other: FileQuestion
 };
 
 const categoryColor: Record<string, string> = {
@@ -54,6 +56,7 @@ const categoryColor: Record<string, string> = {
   subscriptions: "text-purple-400",
   retail: "text-emerald-400",
   utilities: "text-yellow-400",
+  other: "text-red-200",
 };
 
 const categoryBg: Record<string, string> = {
@@ -64,7 +67,7 @@ const categoryBg: Record<string, string> = {
   retail: "bg-emerald-500/10 border-emerald-500/20",
   utilities: "bg-yellow-500/10 border-yellow-500/20",
   income: "bg-emerald-500/10 border-emerald-500/20",
-  other: "bg-slate-500/10 border-slate-500/20",
+  other: "bg-red-200/10 border-red-200/20",
 };
 
 const categoryBarColor: Record<string, string> = {
@@ -74,6 +77,7 @@ const categoryBarColor: Record<string, string> = {
   subscriptions: "bg-purple-400",
   retail: "bg-emerald-400",
   utilities: "bg-yellow-400",
+  other: "bg-red-200",
 };
 
 export default function DashboardPage() {
@@ -81,6 +85,7 @@ export default function DashboardPage() {
   const [accounts, setAccounts] = useState<PaymentSource[]>([]);
   const [showUpdateBalance, setShowUpdateBalance] = useState(false);
   const [showQuickPayment, setShowQuickPayment] = useState(false);
+  const iosKeyboardTriggerRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
@@ -112,7 +117,8 @@ export default function DashboardPage() {
     .slice(0, 2) ?? [];
 
   return (
-    <div className="space-y-6">
+    <PullToRefresh onRefresh={fetchData}>
+    <div className="space-y-6 pt-4">
       {/* Hero Balance Card */}
       <section className="relative group">
         <div
@@ -174,7 +180,7 @@ export default function DashboardPage() {
               Cập nhật hạn mức
             </button>
             <button
-              onClick={() => setShowQuickPayment(true)}
+              onClick={() => { iosKeyboardTriggerRef.current?.focus(); setShowQuickPayment(true); }}
               className="flex-1 border border-[rgba(125,211,252,0.3)] text-[#7dd3fc] py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all active:scale-95 hover:bg-[rgba(125,211,252,0.15)]"
               style={{ background: "rgba(125,211,252,0.15)" }}
             >
@@ -318,17 +324,17 @@ export default function DashboardPage() {
             return (
               <div
                 key={tx._id}
-                className="glass-panel p-4 rounded-xl flex items-center justify-between hover:bg-[rgba(125,211,252,0.04)] transition-colors"
+                className="glass-panel p-3 rounded-xl flex items-center justify-between hover:bg-[rgba(125,211,252,0.04)] transition-colors"
               >
-                <div className="flex items-center gap-3">
-                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center border ${bgClass} ${textColor}`}>
+                <div className="flex items-center gap-4">
+                  <div className={`min-w-10 h-10 rounded-xl flex items-center justify-center border ${bgClass} ${textColor}`}>
                     <Icon size={20} />
                   </div>
                   <div>
-                    <p className="text-[#e0e8f0] font-semibold text-sm">
+                    <p className="text-[#e0e8f0] font-semibold text-sm line-clamp-2">
                       {tx.description}
                     </p>
-                    <p className="text-[10px] text-[#a0b4c4] mt-0.5 capitalize">
+                    <p className="text-[10px] text-[#a0b4c4] capitalize line-clamp-1">
                       {formatDate(tx.transactionDate)} · {{
                         food: "Ăn uống",
                         dining: "Nhà hàng",
@@ -343,7 +349,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
                 <span
-                  className={`font-bold text-base ${tx.type === "income" ? "text-emerald-400" : "text-[#e0e8f0]"}`}
+                  className={`font-bold text-sm ${tx.type === "income" ? "text-emerald-400" : "text-red-500"}`}
                 >
                   {tx.type === "income" ? "+" : "-"}
                   {formatCurrency(tx.amount)}
@@ -371,5 +377,6 @@ export default function DashboardPage() {
         />
       )}
     </div>
+    </PullToRefresh>
   );
 }
