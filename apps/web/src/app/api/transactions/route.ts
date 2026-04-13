@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
-import mongoose from "mongoose";
+import { getSession } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
 import Transaction from "@/models/Transaction";
 import User, { IPaymentSource } from "@/models/User";
-import { getSession } from "@/lib/auth";
+import mongoose from "mongoose";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
 	const session = await getSession();
@@ -64,6 +64,31 @@ export async function GET(req: NextRequest) {
 						$eq: ["$userId", { $toObjectId: session.userId }],
 					},
 					amount: { $toDouble: "$amount" },
+					paymentSourceName: {
+						$let: {
+							vars: {
+								userDoc: { $arrayElemAt: ["$_user", 0] },
+							},
+							in: {
+								$reduce: {
+									input: "$$userDoc.paymentSources",
+									initialValue: null,
+									in: {
+										$cond: [
+											{
+												$eq: [
+													"$$this.id",
+													"$paymentSourceId",
+												],
+											},
+											"$$this.name",
+											"$$value",
+										],
+									},
+								},
+							},
+						},
+					},
 				},
 			},
 			{ $project: { _user: 0, _deletedByUser: 0, passwordHash: 0 } },
@@ -92,6 +117,7 @@ export async function POST(req: NextRequest) {
 			category,
 			paymentSourceId,
 			transactionDate,
+			debtAction,
 		} = await req.json();
 
 		if (!amount || !type) {
@@ -136,14 +162,56 @@ export async function POST(req: NextRequest) {
 				);
 		}
 
-		// Update currentBalance
+		// Handle debt adjustments and update currentBalance accordingly.
 		const currentBalance = parseFloat(user.currentBalance.toString());
-		const delta = type === "income" ? parsedAmount : -parsedAmount;
+
+		// Determine whether this transaction should adjust user balance.
+		// If debtAction === 'charge' for an expense, we treat it as a card charge
+		// (increase card debt) and do NOT change the user's cash balance here.
+		const isChargeToCard = debtAction === "charge" && type === "expense";
+
+		const delta = isChargeToCard
+			? 0
+			: type === "income"
+				? parsedAmount
+				: -parsedAmount;
 		const newBalance = currentBalance + delta;
 
 		user.currentBalance = mongoose.Types.Decimal128.fromString(
 			newBalance.toFixed(2),
 		);
+
+		// If paymentSourceId provided, adjust that payment source's debt and/or balance
+		if (paymentSourceId) {
+			const ps = user.paymentSources.find(
+				(s: IPaymentSource) => s.id === paymentSourceId,
+			);
+			if (ps) {
+				const beforeDebt = Number(ps.debt || 0);
+				const beforeBalance = Number(ps.balance || 0);
+				const isCardType = ps.type === "Credit" || ps.type === "Debit";
+				if (debtAction === "charge" && type === "expense") {
+					// charge to card: increase debt, do not change balance
+					ps.debt = beforeDebt + parsedAmount;
+				} else if (debtAction === "payment") {
+					// paying down debt: reduce debt and subtract from the source balance
+					if (isCardType)
+						ps.debt = Math.max(0, beforeDebt - parsedAmount);
+					ps.balance = beforeBalance - parsedAmount;
+				} else {
+					// regular transaction: adjust balance; only touch debt for card types
+					if (type === "expense") {
+						ps.balance = beforeBalance - parsedAmount;
+						if (isCardType) ps.debt = beforeDebt + parsedAmount;
+					} else {
+						ps.balance = beforeBalance + parsedAmount;
+						if (isCardType)
+							ps.debt = Math.max(0, beforeDebt - parsedAmount);
+					}
+				}
+			}
+		}
+
 		await user.save();
 
 		const transaction = await Transaction.create({
@@ -154,6 +222,7 @@ export async function POST(req: NextRequest) {
 			type,
 			category: category || (type === "income" ? "income" : "other"),
 			paymentSourceId,
+			debtAction: debtAction || null,
 			description: description?.trim() || "",
 			transactionDate: transactionDate
 				? new Date(transactionDate)

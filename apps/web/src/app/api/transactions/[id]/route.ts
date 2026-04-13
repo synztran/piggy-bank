@@ -1,9 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
-import mongoose from "mongoose";
+import { getSession } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
 import Transaction from "@/models/Transaction";
 import User from "@/models/User";
-import { getSession } from "@/lib/auth";
+import mongoose from "mongoose";
+import { NextRequest, NextResponse } from "next/server";
+
+import { IPaymentSource } from "@/models/User";
 
 export async function DELETE(
 	_req: NextRequest,
@@ -44,6 +46,39 @@ export async function DELETE(
 		user.currentBalance = mongoose.Types.Decimal128.fromString(
 			newBalance.toFixed(2),
 		);
+
+		// Reverse the effect on the payment source
+		if (tx.paymentSourceId) {
+			const ps = user.paymentSources.find(
+				(s: IPaymentSource) => s.id === tx.paymentSourceId,
+			);
+			if (ps) {
+				const beforeDebt = Number(ps.debt || 0);
+				const beforeBalance = Number(ps.balance || 0);
+				const debtAction = tx.debtAction;
+				const isCardType = ps.type === "Credit" || ps.type === "Debit";
+
+				if (debtAction === "charge" && tx.type === "expense") {
+					// reverse: decrease debt (card only)
+					ps.debt = Math.max(0, beforeDebt - amount);
+				} else if (debtAction === "payment") {
+					// reverse: increase debt, add back balance (card only)
+					if (isCardType) ps.debt = beforeDebt + amount;
+					ps.balance = beforeBalance + amount;
+				} else {
+					// regular: reverse balance; only touch debt for card types
+					if (tx.type === "expense") {
+						ps.balance = beforeBalance + amount;
+						if (isCardType)
+							ps.debt = Math.max(0, beforeDebt - amount);
+					} else {
+						ps.balance = beforeBalance - amount;
+						if (isCardType) ps.debt = beforeDebt + amount;
+					}
+				}
+			}
+		}
+
 		await user.save();
 	}
 

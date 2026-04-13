@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import connectDB from "@/lib/mongodb";
-import User, { IUser, IPaymentSource } from "@/models/User";
 import { getSession } from "@/lib/auth";
+import connectDB from "@/lib/mongodb";
+import User, { IPaymentSource, IUser } from "@/models/User";
+import { NextRequest, NextResponse } from "next/server";
 
 // GET /api/accounts/[id] — find one paymentSource by id
 export async function GET(
@@ -39,15 +39,22 @@ export async function PUT(
 	const { id } = await params;
 
 	try {
-		const { name, type, last4Digits } = await req.json();
+		const body = await req.json();
+		const { name, type, last4Digits, debt, balance } = body;
 
 		await connectDB();
 
-		const update: Record<string, string> = {};
+		const update: Record<string, any> = {};
 		if (name !== undefined) update["paymentSources.$.name"] = name.trim();
 		if (type !== undefined) update["paymentSources.$.type"] = type;
 		if (last4Digits !== undefined)
 			update["paymentSources.$.last4Digits"] = last4Digits;
+		if (debt !== undefined)
+			update["paymentSources.$.debt"] =
+				typeof debt === "number" ? debt : Number(debt);
+		if (balance !== undefined)
+			update["paymentSources.$.balance"] =
+				typeof balance === "number" ? balance : Number(balance);
 
 		const result = await User.findOneAndUpdate(
 			{ _id: session.userId, "paymentSources.id": id },

@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Types } from "mongoose";
+import mongoose, { Document, Schema, Types } from "mongoose";
 
 export type TransactionType = "expense" | "income";
 
@@ -23,6 +23,7 @@ export interface ITransaction extends Document {
 	transactionDate: Date;
 	isRemove?: boolean;
 	deletedBy?: Types.ObjectId;
+	debtAction?: "charge" | "payment";
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -66,6 +67,12 @@ const TransactionSchema = new Schema<ITransaction>(
 		transactionDate: { type: Date, required: true, index: true },
 		isRemove: { type: Boolean, default: false, index: true },
 		deletedBy: { type: Schema.Types.ObjectId, ref: "User", default: null },
+		debtAction: {
+			type: String,
+			enum: ["charge", "payment"],
+			required: false,
+			default: null,
+		},
 	},
 	{
 		timestamps: true,

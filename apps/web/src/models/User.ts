@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Types } from "mongoose";
+import mongoose, { Document, Schema, Types } from "mongoose";
 
 // --- Payment Source subdocument ---
 export interface IPaymentSource {
@@ -6,6 +6,8 @@ export interface IPaymentSource {
 	name: string;
 	type: "Debit" | "Credit" | "Cash" | "Transfer";
 	last4Digits?: string;
+	debt?: number;
+	balance?: number;
 }
 
 const PaymentSourceSchema = new Schema<IPaymentSource>(
@@ -18,6 +20,8 @@ const PaymentSourceSchema = new Schema<IPaymentSource>(
 			required: true,
 		},
 		last4Digits: { type: String, maxlength: 4 },
+		debt: { type: Number, required: true, default: 0 },
+		balance: { type: Number, required: true, default: 0 },
 	},
 	{ _id: false },
 );

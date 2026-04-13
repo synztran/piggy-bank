@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
-import { Types } from "mongoose";
-import connectDB from "@/lib/mongodb";
-import User, { IUser } from "@/models/User";
 import { getSession } from "@/lib/auth";
+import connectDB from "@/lib/mongodb";
+import User, { IPaymentSource } from "@/models/User";
+import { Types } from "mongoose";
+import { NextRequest, NextResponse } from "next/server";
 
 // GET /api/accounts — returns the authed user's paymentSources
 export async function GET() {
@@ -13,7 +13,7 @@ export async function GET() {
 	await connectDB();
 	const user = await User.findById(session.userId)
 		.select("paymentSources")
-		.lean<IUser>();
+		.lean<{ paymentSources: IPaymentSource[] }>();
 
 	return NextResponse.json({ accounts: user?.paymentSources ?? [] });
 }
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
 		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
 	try {
-		const { name, type, last4Digits } = await req.json();
+		const { name, type, last4Digits, debt, balance } = await req.json();
 
 		if (!name || !type)
 			return NextResponse.json(
@@ -40,13 +40,35 @@ export async function POST(req: NextRequest) {
 				{ status: 400 },
 			);
 
+		if (
+			typeof balance !== "number" &&
+			(isNaN(Number(balance)) || Number(balance) < 0)
+		) {
+			return NextResponse.json(
+				{ error: "Balance must be a non-negative number" },
+				{ status: 400 },
+			);
+		}
+
+		if (
+			typeof debt !== "number" &&
+			(isNaN(Number(debt)) || Number(debt) < 0)
+		) {
+			return NextResponse.json(
+				{ error: "Debt must be a non-negative number" },
+				{ status: 400 },
+			);
+		}
+
 		await connectDB();
 
-		const newSource = {
+		const newSource: any = {
 			id: new Types.ObjectId().toString(),
 			name: name.trim(),
 			type,
 			...(last4Digits ? { last4Digits: last4Digits.trim() } : {}),
+			debt: debt,
+			balance: balance,
 		};
 
 		await User.findByIdAndUpdate(session.userId, {
