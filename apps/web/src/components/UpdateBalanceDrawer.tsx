@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/lib/auth-context";
 import { gooeyToast } from "goey-toast";
-import { CheckCircle, RefreshCw, X } from "lucide-react";
+import { CheckCircle, RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -111,11 +111,6 @@ export default function UpdateBalanceDrawer({
 							Nhập số dương để cộng, số âm để trừ
 						</p>
 					</div>
-					<button
-						onClick={onClose}
-						className="w-10 h-10 rounded-full bg-[rgba(125,211,252,0.1)] flex items-center justify-center text-[#a0b4c4] hover:text-[#e0e8f0] transition-colors">
-						<X size={18} />
-					</button>
 				</div>
 
 				{/* Input */}

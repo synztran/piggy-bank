@@ -38,6 +38,15 @@
     /* prevent iOS bounce scroll showing white background */
     overscroll-behavior: none;
   }
+
+  * {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  *::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @layer utilities {
@@ -113,5 +122,14 @@
   .pb-nav {
     /* 3.5rem ≈ nav height (pt-3 + icon + label + pb-safe) */
     padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }

@@ -7,11 +7,10 @@ import {
 	FileQuestion,
 	ShoppingBag,
 	Utensils,
-	X,
 	Zap,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface QuickPaymentModalProps {
 	isOpen: boolean;
@@ -52,6 +51,9 @@ export default function QuickPaymentModal({
 	);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
+	const [transactionDate, setTransactionDate] = useState(() =>
+		new Date().toISOString().slice(0, 10),
+	);
 	const router = useRouter();
 	const inputRef = useRef<HTMLInputElement>(null);
 
@@ -73,14 +75,18 @@ export default function QuickPaymentModal({
 			document.body.style.overflow = "hidden";
 		}
 
+		if (accounts) {
+			setPaymentSourceId(accounts[0]?.id || "");
+		}
+
 		return () => {
 			document.body.style.overflow = "";
 		};
-	}, [isOpen]);
+	}, [isOpen, accounts]);
 
 	const displayAmount = amount ? parseFloat(amount) : 0;
 
-	const handleConfirm = async () => {
+	const handleConfirm = useCallback(async () => {
 		const parsed = parseFloat(amount);
 		if (isNaN(parsed) || parsed <= 0) {
 			setError("Vui lòng nhập số tiền hợp lệ");
@@ -103,6 +109,7 @@ export default function QuickPaymentModal({
 					type: txType,
 					paymentSourceId: paymentSourceId || undefined,
 					debtAction: debtAction === "none" ? undefined : debtAction,
+					transactionDate: transactionDate || undefined,
 				}),
 			});
 
@@ -127,7 +134,18 @@ export default function QuickPaymentModal({
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, [
+		amount,
+		category,
+		note,
+		txType,
+		paymentSourceId,
+		debtAction,
+		transactionDate,
+		onSuccess,
+		onClose,
+		router,
+	]);
 
 	return (
 		<>
@@ -139,21 +157,21 @@ export default function QuickPaymentModal({
 
 			{/* Drawer — always rendered, slides in/out via top */}
 			<div
-				className={`fixed left-0 right-0 bottom-0 z-60 glass-panel-elevated rounded-t-2xl max-h-[80vh] flex flex-col transition-[top] duration-400 ease-in-out ${isOpen ? "top-[25vh]" : "top-[100vh]"}`}>
+				className={`fixed left-0 right-0 bottom-0 z-60 glass-panel-elevated rounded-t-2xl max-h-[80vh] flex flex-col transition-[top] duration-400 ease-in-out no-scrollbar  ${isOpen ? "top-[20vh]" : "top-[100vh]"}`}>
 				<div className="overflow-y-auto flex-1 p-6 pb-4">
 					<div className="flex justify-between items-center mb-6">
 						<h2 className="text-2xl font-bold text-[#e0e8f0]">
 							Thêm nhanh
 						</h2>
-						<button
+						{/* <button
 							onClick={onClose}
 							className="w-10 h-10 rounded-full bg-[rgba(125,211,252,0.1)] flex items-center justify-center text-[#a0b4c4] hover:text-[#e0e8f0] transition-colors">
 							<X size={18} />
-						</button>
+						</button> */}
 					</div>
 
 					{/* Amount Display */}
-					<div className="text-center mb-6">
+					<div className="text-center mb-4">
 						<p className="text-[10px] font-bold uppercase tracking-widest text-[#a0b4c4] mb-2">
 							Nhập số tiền
 						</p>
@@ -184,9 +202,9 @@ export default function QuickPaymentModal({
 					</div>
 
 					{/* Transaction Type */}
-					<div className="mb-5">
+					<div className="mb-4">
 						<label className="text-xs font-semibold text-[#a0b4c4] mb-2 block">
-							Loại
+							Loại giao dịch
 						</label>
 						<div className="flex gap-3">
 							<button
@@ -211,7 +229,7 @@ export default function QuickPaymentModal({
 					</div>
 
 					{/* Account Selector */}
-					<div className="mb-5 relative">
+					<div className="mb-4 relative">
 						<label className="text-xs font-semibold text-[#a0b4c4] mb-2 block">
 							Nguồn thanh toán
 						</label>
@@ -319,7 +337,7 @@ export default function QuickPaymentModal({
 					</div>
 
 					{/* Category */}
-					<div className="mb-5">
+					<div className="mb-4">
 						<div className="flex justify-between items-center mb-3">
 							<p className="text-sm font-medium text-[#e0e8f0]">
 								Danh mục
@@ -345,8 +363,22 @@ export default function QuickPaymentModal({
 						</div>
 					</div>
 
+					{/* Date */}
+					<div className="mb-4">
+						<label className="text-xs font-semibold text-[#a0b4c4] mb-2 block">
+							Ngày giao dịch
+						</label>
+						<input
+							type="date"
+							value={transactionDate}
+							max={new Date().toISOString().slice(0, 10)}
+							onChange={(e) => setTransactionDate(e.target.value)}
+							className="glass-input w-full py-3 px-4 rounded-xl text-[#e0e8f0] text-sm"
+						/>
+					</div>
+
 					{/* Note */}
-					<div className="mb-5">
+					<div className="mb-4">
 						<input
 							type="text"
 							value={note}
@@ -370,7 +402,7 @@ export default function QuickPaymentModal({
 							!paymentSourceId ||
 							accounts.length === 0
 						}
-						className="w-full py-4 rounded-full bg-[#7dd3fc] text-[#001f2e] font-bold text-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#93d9fc] transition-colors active:scale-[0.98]">
+						className="w-full py-4 rounded-full bg-[#7dd3fc] text-[#001f2e] font-bold text-base flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#93d9fc] transition-colors active:scale-[0.98]">
 						Xác nhận
 						{!loading && <ArrowRight size={20} />}
 					</button>
