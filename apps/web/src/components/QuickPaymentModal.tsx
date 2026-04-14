@@ -72,20 +72,21 @@ export default function QuickPaymentModal({
 	}, []);
 
 	useEffect(() => {
-		if (isOpen) {
-			document.body.style.overflow = "hidden";
-			document.body.style.position = "fixed";
-		}
-
 		if (accounts) {
 			setPaymentSourceId(accounts[0]?.id || "");
 		}
+	}, [accounts]);
 
+	useEffect(() => {
+		if (!isOpen) return;
+		const prevent = (e: TouchEvent | WheelEvent) => e.preventDefault();
+		document.addEventListener("touchmove", prevent, { passive: false });
+		document.addEventListener("wheel", prevent, { passive: false });
 		return () => {
-			document.body.style.overflow = "";
-			document.body.style.position = "";
+			document.removeEventListener("touchmove", prevent);
+			document.removeEventListener("wheel", prevent);
 		};
-	}, [isOpen, accounts]);
+	}, [isOpen]);
 
 	const displayAmount = amount ? parseFloat(amount) : 0;
 
@@ -154,16 +155,18 @@ export default function QuickPaymentModal({
 		<>
 			{/* Backdrop */}
 			<div
-				className={`fixed inset-0 z-40 bg-black/70 backdrop-blur-sm transition-opacity duration-300 ${isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+				className={`fixed inset-0 z-40 bg-black/60 backdrop-blur-sm ${isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
 				onClick={onClose}
 			/>
 
 			{/* Drawer — always rendered, slides in/out via top */}
 			<div
-				className={`fixed left-0 right-0 bottom-0 z-60 glass-panel-elevated rounded-t-2xl max-h-[85vh] flex flex-col transition-[top] duration-400 ease-in-out no-scrollbar  ${isOpen ? "top-[15vh]" : "top-[100vh]"}`}>
-				<div className="overflow-y-auto flex-1 p-6 pb-6">
-					<div className="flex justify-between items-center mb-6">
-						<h2 className="text-2xl font-bold text-[#e0e8f0]">
+				className={`fixed mb-0 left-0 right-0 z-60 glass-panel-elevated rounded-t-3xl p-6 pb-10 animate-in slide-in-from-bottom duration-300 transition-[bottom] ease-in-out max-h-[80vh] ${isOpen ? "bottom-0" : "bottom-[-100vh]"}`}>
+				{/* Handle */}
+				<div className="w-10 h-1 bg-[rgba(125,211,252,0.2)] rounded-full mx-auto mb-2" />
+				<div className="overflow-y-auto">
+					<div className="flex justify-between items-center mb-4">
+						<h2 className="text-xl font-bold text-[#e0e8f0]">
 							Thêm nhanh
 						</h2>
 						<button
@@ -179,7 +182,7 @@ export default function QuickPaymentModal({
 							Nhập số tiền
 						</p>
 						<div className="relative">
-							<span className="text-4xl font-extrabold text-[#7dd3fc]">
+							<span className="text-3xl font-extrabold text-[#7dd3fc]">
 								{new Intl.NumberFormat("vi-VN", {
 									style: "currency",
 									currency: "VND",
@@ -195,7 +198,7 @@ export default function QuickPaymentModal({
 								setAmount(e.target.value);
 								setError("");
 							}}
-							className="glass-input w-full mt-3 py-2 px-4 rounded-xl text-center text-[#e0e8f0] text-xl font-bold placeholder:text-[#4a6070]"
+							className="glass-input w-full mt-2 py-2 px-4 rounded-xl text-center text-[#e0e8f0] text-xl font-bold placeholder:text-[#4a6070]"
 							placeholder="0"
 							min="0"
 							step="1000"
@@ -232,117 +235,100 @@ export default function QuickPaymentModal({
 					</div>
 
 					{/* Account Selector */}
-					<div className="mb-4 relative">
-						<label className="text-xs font-semibold text-[#a0b4c4] mb-2 block">
-							Nguồn thanh toán
-						</label>
-						{accounts.length === 0 ? (
-							<div className="flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/30 rounded-xl px-4 py-2">
-								<span className="text-yellow-400 text-sm">
-									⚠
-								</span>
-								<p className="text-yellow-400 text-sm font-medium">
-									Bạn chưa có nguồn thanh toán nào. Vui lòng
-									thêm tài khoản trước.
-								</p>
-							</div>
-						) : (
-							<>
-								<select
-									value={paymentSourceId}
-									onChange={(e) =>
-										setPaymentSourceId(e.target.value)
-									}
-									className="select select-accent glass-input w-full py-3 px-4 rounded-xl text-[#e0e8f0]">
-									<option value="">
-										-- Chọn nguồn thanh toán --
-									</option>
-									{accounts.map((a) => (
-										<option key={a.id} value={a.id}>
-											{a.name} ({a.type})
-										</option>
-									))}
-								</select>
-								{!paymentSourceId && (
-									<p className="text-yellow-400 text-xs mt-1.5">
-										⚠ Vui lòng chọn nguồn thanh toán
+					<div className="flex items-center gap-4 mb-6 relative">
+						{/* Date */}
+						<div className="clear-both w-full">
+							<label className="text-xs font-semibold text-[#a0b4c4] mb-2 block">
+								Ngày giao dịch
+							</label>
+							<input
+								type="date"
+								value={transactionDate}
+								max={new Date().toISOString().slice(0, 10)}
+								onChange={(e) =>
+									setTransactionDate(e.target.value)
+								}
+								className="glass-input w-full py-2 px-4 rounded-xl text-[#e0e8f0] text-sm min-h-[39px]"
+							/>
+						</div>
+						<div className="clear-both w-full">
+							<label className="text-xs font-semibold text-[#a0b4c4] mb-2 block">
+								Nguồn thanh toán
+							</label>
+							{accounts.length === 0 ? (
+								<div className="flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/30 rounded-xl px-4 py-2">
+									<span className="text-yellow-400 text-sm">
+										⚠
+									</span>
+									<p className="text-yellow-400 text-sm font-medium">
+										Bạn chưa có nguồn thanh toán nào. Vui
+										lòng thêm tài khoản trước.
 									</p>
-								)}
-							</>
-						)}
-						{paymentSourceId &&
-							(() => {
-								const selected = accounts.find(
-									(a) => a.id === paymentSourceId,
-								);
-								if (!selected) return null;
-								return (
-									<div className="absolute right-0 -bottom-6">
-										{selected.type === "Credit" ? (
-											<div className="space-x-1">
-												<span className="text-xs">
-													Dư nợ:
-												</span>
-												<span className="text-xs font-semibold text-red-400">
-													{new Intl.NumberFormat(
-														"vi-VN",
-														{
-															style: "currency",
-															currency: "VND",
-															maximumFractionDigits: 0,
-														},
-													).format(
-														Number(
-															selected.debt || 0,
-														),
-													)}
-												</span>
-											</div>
-										) : null}
-
-										{/* {(selected.type === "Debit" ||
-										selected.type === "Credit") && (
-										<>
-											<label className="text-xs font-semibold text-[#a0b4c4] mb-2 block">
-												Điều chỉnh nợ
-											</label>
-											<div className="flex gap-2">
-												<button
-													type="button"
-													onClick={() =>
-														setDebtAction("none")
-													}
-													className={`flex-1 py-2 rounded-xl text-sm font-semibold ${debtAction === "none" ? "bg-[rgba(125,211,252,0.12)] text-[#7dd3fc]" : "text-[#a0b4c4]"}`}>
-													Không thay đổi
-												</button>
-												<button
-													type="button"
-													onClick={() =>
-														setDebtAction("charge")
-													}
-													className={`flex-1 py-2 rounded-xl text-sm font-semibold ${debtAction === "charge" ? "bg-[rgba(125,211,252,0.12)] text-red-400" : "text-[#a0b4c4]"}`}>
-													Tăng nợ (ghi nợ)
-												</button>
-												<button
-													type="button"
-													onClick={() =>
-														setDebtAction("payment")
-													}
-													className={`flex-1 py-2 rounded-xl text-sm font-semibold ${debtAction === "payment" ? "bg-[rgba(125,211,252,0.12)] text-emerald-400" : "text-[#a0b4c4]"}`}>
-													Giảm nợ (thanh toán)
-												</button>
-											</div>
-										</>
-									)} */}
-									</div>
-								);
-							})()}
+								</div>
+							) : (
+								<>
+									<select
+										value={paymentSourceId}
+										onChange={(e) =>
+											setPaymentSourceId(e.target.value)
+										}
+										className="select select-accent glass-input w-full py-2 px-4 rounded-xl text-[#e0e8f0]">
+										<option value="">
+											-- Chọn nguồn tiền --
+										</option>
+										{accounts.map((a) => (
+											<option key={a.id} value={a.id}>
+												{a.name} ({a.type})
+											</option>
+										))}
+									</select>
+									{!paymentSourceId && (
+										<p className="text-yellow-400 text-xs mt-1.5">
+											⚠ Vui lòng chọn nguồn tiền
+										</p>
+									)}
+								</>
+							)}
+							{paymentSourceId &&
+								(() => {
+									const selected = accounts.find(
+										(a) => a.id === paymentSourceId,
+									);
+									if (!selected) return null;
+									return (
+										<div className="absolute right-0 -bottom-6">
+											{selected.type === "Credit" ? (
+												<div className="space-x-1">
+													<span className="text-xs">
+														Dư nợ:
+													</span>
+													<span className="text-xs font-semibold text-red-400">
+														{new Intl.NumberFormat(
+															"vi-VN",
+															{
+																style: "currency",
+																currency: "VND",
+																maximumFractionDigits: 0,
+															},
+														).format(
+															Number(
+																selected.debt ||
+																	0,
+															),
+														)}
+													</span>
+												</div>
+											) : null}
+										</div>
+									);
+								})()}
+						</div>
 					</div>
 
 					{/* Category */}
 					<div className="mb-4">
 						<div className="flex justify-between items-center mb-2">
-							<p className="text-sm font-medium text-[#e0e8f0]">
+							<p className="text-xs font-semibold text-[#a0b4c4]">
 								Danh mục
 							</p>
 							{/* <button className="text-[#7dd3fc] text-xs font-medium">Xem tất cả</button> */}
@@ -357,27 +343,13 @@ export default function QuickPaymentModal({
 											? "border-[rgba(125,211,252,0.5)] bg-[rgba(125,211,252,0.1)] text-[#7dd3fc]"
 											: "border-[rgba(125,211,252,0.1)] bg-[rgba(15,21,36,0.4)] text-[#a0b4c4]"
 									}`}>
-									<Icon size={20} />
-									<span className="text-[9px] font-bold uppercase tracking-wide">
+									<Icon size={16} />
+									<span className="text-[8px] font-bold uppercase tracking-wide">
 										{label}
 									</span>
 								</button>
 							))}
 						</div>
-					</div>
-
-					{/* Date */}
-					<div className="mb-4">
-						<label className="text-xs font-semibold text-[#a0b4c4] mb-2 block">
-							Ngày giao dịch
-						</label>
-						<input
-							type="date"
-							value={transactionDate}
-							max={new Date().toISOString().slice(0, 10)}
-							onChange={(e) => setTransactionDate(e.target.value)}
-							className="glass-input w-full py-3 px-4 rounded-xl text-[#e0e8f0] text-sm"
-						/>
 					</div>
 
 					{/* Note */}

@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/auth-context";
 import { gooeyToast } from "goey-toast";
 import { CheckCircle, RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface UpdateBalanceDrawerProps {
 	currentBalance: number;
@@ -87,6 +87,17 @@ export default function UpdateBalanceDrawer({
 		}
 	};
 
+	useEffect(() => {
+		if (!isOpen) return;
+		const prevent = (e: TouchEvent | WheelEvent) => e.preventDefault();
+		document.addEventListener("touchmove", prevent, { passive: false });
+		document.addEventListener("wheel", prevent, { passive: false });
+		return () => {
+			document.removeEventListener("touchmove", prevent);
+			document.removeEventListener("wheel", prevent);
+		};
+	}, [isOpen]);
+
 	return (
 		<>
 			{/* Backdrop */}
@@ -96,9 +107,8 @@ export default function UpdateBalanceDrawer({
 			/>
 
 			{/* Drawer */}
-			{/* className={`fixed left-0 right-0 bottom-0 z-60 glass-panel-elevated rounded-t-2xl max-h-[80vh] flex flex-col transition-[top] duration-400 ease-in-out ${isOpen ? "top-[25vh]" : "top-[100vh]"}`}> */}
 			<div
-				className={`fixed mb-0 left-0 right-0 z-60 glass-panel-elevated rounded-t-3xl p-6 pb-10 animate-in slide-in-from-bottom duration-300 transition-[bottom] ease-in-out max-h-[80vh] ${isOpen ? "bottom-[0]" : "bottom-[-100vh]"}`}>
+				className={`fixed mb-0 left-0 right-0 z-60 glass-panel-elevated rounded-t-3xl p-6 pb-10 animate-in slide-in-from-bottom duration-300 transition-[bottom] ease-in-out max-h-[80vh] ${isOpen ? "bottom-0" : "bottom-[-100vh]"}`}>
 				{/* Handle */}
 				<div className="w-10 h-1 bg-[rgba(125,211,252,0.2)] rounded-full mx-auto mb-6" />
 
