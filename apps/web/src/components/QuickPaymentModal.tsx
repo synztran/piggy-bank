@@ -7,6 +7,7 @@ import {
 	FileQuestion,
 	ShoppingBag,
 	Utensils,
+	X,
 	Zap,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -73,6 +74,7 @@ export default function QuickPaymentModal({
 	useEffect(() => {
 		if (isOpen) {
 			document.body.style.overflow = "hidden";
+			document.body.style.position = "fixed";
 		}
 
 		if (accounts) {
@@ -81,6 +83,7 @@ export default function QuickPaymentModal({
 
 		return () => {
 			document.body.style.overflow = "";
+			document.body.style.position = "";
 		};
 	}, [isOpen, accounts]);
 
@@ -157,17 +160,17 @@ export default function QuickPaymentModal({
 
 			{/* Drawer — always rendered, slides in/out via top */}
 			<div
-				className={`fixed left-0 right-0 bottom-0 z-60 glass-panel-elevated rounded-t-2xl max-h-[80vh] flex flex-col transition-[top] duration-400 ease-in-out no-scrollbar  ${isOpen ? "top-[20vh]" : "top-[100vh]"}`}>
-				<div className="overflow-y-auto flex-1 p-6 pb-4">
+				className={`fixed left-0 right-0 bottom-0 z-60 glass-panel-elevated rounded-t-2xl max-h-[85vh] flex flex-col transition-[top] duration-400 ease-in-out no-scrollbar  ${isOpen ? "top-[15vh]" : "top-[100vh]"}`}>
+				<div className="overflow-y-auto flex-1 p-6 pb-6">
 					<div className="flex justify-between items-center mb-6">
 						<h2 className="text-2xl font-bold text-[#e0e8f0]">
 							Thêm nhanh
 						</h2>
-						{/* <button
+						<button
 							onClick={onClose}
-							className="w-10 h-10 rounded-full bg-[rgba(125,211,252,0.1)] flex items-center justify-center text-[#a0b4c4] hover:text-[#e0e8f0] transition-colors">
-							<X size={18} />
-						</button> */}
+							className="w-8 h-8 rounded-full bg-[rgba(125,211,252,0.1)] flex items-center justify-center text-[#a0b4c4] hover:text-[#e0e8f0] transition-colors">
+							<X size={16} />
+						</button>
 					</div>
 
 					{/* Amount Display */}
@@ -176,7 +179,7 @@ export default function QuickPaymentModal({
 							Nhập số tiền
 						</p>
 						<div className="relative">
-							<span className="text-5xl font-extrabold text-[#7dd3fc]">
+							<span className="text-4xl font-extrabold text-[#7dd3fc]">
 								{new Intl.NumberFormat("vi-VN", {
 									style: "currency",
 									currency: "VND",
@@ -192,7 +195,7 @@ export default function QuickPaymentModal({
 								setAmount(e.target.value);
 								setError("");
 							}}
-							className="glass-input w-full mt-4 py-3 px-4 rounded-xl text-center text-[#e0e8f0] text-xl font-bold placeholder:text-[#4a6070]"
+							className="glass-input w-full mt-3 py-2 px-4 rounded-xl text-center text-[#e0e8f0] text-xl font-bold placeholder:text-[#4a6070]"
 							placeholder="0"
 							min="0"
 							step="1000"
@@ -209,7 +212,7 @@ export default function QuickPaymentModal({
 						<div className="flex gap-3">
 							<button
 								onClick={() => setTxType("expense")}
-								className={`flex-1 py-2.5 rounded-xl border text-sm font-semibold transition-all active:scale-95 ${
+								className={`flex-1 py-2.5 rounded-xl border text-xs font-semibold transition-all active:scale-95 ${
 									txType === "expense"
 										? "border-red-400/50 bg-red-500/10 text-red-400"
 										: "border-[rgba(125,211,252,0.1)] text-[#a0b4c4]"
@@ -218,7 +221,7 @@ export default function QuickPaymentModal({
 							</button>
 							<button
 								onClick={() => setTxType("income")}
-								className={`flex-1 py-2.5 rounded-xl border text-sm font-semibold transition-all active:scale-95 ${
+								className={`flex-1 py-2.5 rounded-xl border text-xs font-semibold transition-all active:scale-95 ${
 									txType === "income"
 										? "border-emerald-400/50 bg-emerald-500/10 text-emerald-400"
 										: "border-[rgba(125,211,252,0.1)] text-[#a0b4c4]"
@@ -234,7 +237,7 @@ export default function QuickPaymentModal({
 							Nguồn thanh toán
 						</label>
 						{accounts.length === 0 ? (
-							<div className="flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/30 rounded-xl px-4 py-3">
+							<div className="flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/30 rounded-xl px-4 py-2">
 								<span className="text-yellow-400 text-sm">
 									⚠
 								</span>
@@ -338,7 +341,7 @@ export default function QuickPaymentModal({
 
 					{/* Category */}
 					<div className="mb-4">
-						<div className="flex justify-between items-center mb-3">
+						<div className="flex justify-between items-center mb-2">
 							<p className="text-sm font-medium text-[#e0e8f0]">
 								Danh mục
 							</p>
@@ -402,7 +405,7 @@ export default function QuickPaymentModal({
 							!paymentSourceId ||
 							accounts.length === 0
 						}
-						className="w-full py-4 rounded-full bg-[#7dd3fc] text-[#001f2e] font-bold text-base flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#93d9fc] transition-colors active:scale-[0.98]">
+						className="w-full py-3 rounded-full bg-[#7dd3fc] text-[#001f2e] font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#93d9fc] transition-colors active:scale-[0.98]">
 						Xác nhận
 						{!loading && <ArrowRight size={20} />}
 					</button>

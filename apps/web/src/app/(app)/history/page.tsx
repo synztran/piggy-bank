@@ -124,8 +124,11 @@ export default function HistoryPage() {
 	}, [startDate, endDate, fetchTransactions]);
 
 	const handleClearFilter = useCallback(() => {
-		setStartDate("");
-		setEndDate("");
+		const d = new Date();
+		const startDateMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-01`;
+		const endDateMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+		setStartDate(startDateMonth);
+		setEndDate(endDateMonth);
 		setActiveStart("");
 		setActiveEnd("");
 		setPage(1);
@@ -192,7 +195,7 @@ export default function HistoryPage() {
 
 	return (
 		<PullToRefresh onRefresh={() => fetchTransactions(1, false)}>
-			<div className="space-y-4 pt-4">
+			<div className="space-y-4">
 				<TransactionFilter
 					showFilter={showFilter}
 					isFiltered={isFiltered}
@@ -206,6 +209,11 @@ export default function HistoryPage() {
 					onApply={handleApplyFilter}
 					onClose={handleCloseFilter}
 					onClear={handleClearFilter}
+				/>
+
+				{/* spacer to push content below the fixed TransactionFilter */}
+				<div
+					className={`h-filter${isFiltered ? " h-filter-expanded" : ""}`}
 				/>
 
 				<TransactionSummary

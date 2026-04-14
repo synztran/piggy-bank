@@ -57,7 +57,7 @@
   }
 
   .glass-panel-elevated {
-    background: rgba(15, 21, 36, 0.75);
+    background: rgba(15, 21, 36, 1);
     backdrop-filter: blur(24px);
     border: 1px solid rgba(125, 211, 252, 0.15);
   }
@@ -117,6 +117,15 @@
 
   .pt-header {
     padding-top: calc(4rem + env(safe-area-inset-top));
+  }
+
+  /* height of the fixed TransactionFilter bar (collapsed) */
+  .h-filter {
+    height: 5rem;
+  }
+
+  .h-filter-expanded {
+    height: calc(5rem + 2.5rem); /* 10rem is the approximate height of the expanded filter options */
   }
 
   .pb-nav {

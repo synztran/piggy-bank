@@ -33,8 +33,10 @@ const TransactionFilter = memo(function TransactionFilter({
 	onClear,
 }: TransactionFilterProps) {
 	return (
-		<div className="space-y-4 sticky top-[4rem] z-20 bg-glacier-bg/80 backdrop-blur-sm py-2">
-			<div className="clear-both">
+		<div
+			className="space-y-4 fixed left-0 w-full px-6 z-20 bg-glacier-bg/80 backdrop-blur-sm py-4 "
+			style={{ top: "calc(4rem + env(safe-area-inset-top))" }}>
+			<div className="clear-both relative">
 				<div className="flex items-center justify-between mb-1">
 					<h2 className="text-2xl font-extrabold text-[#e0e8f0] tracking-tight">
 						Lịch sử giao dịch

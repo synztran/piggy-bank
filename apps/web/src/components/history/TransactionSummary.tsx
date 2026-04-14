@@ -14,7 +14,11 @@ const TransactionSummary = memo(function TransactionSummary({
 	total,
 }: TransactionSummaryProps) {
 	return (
-		<div className="grid grid-cols-2 gap-4">
+		<div
+			className="grid grid-cols-2 gap-4"
+			style={{
+				marginTop: "calc(env(safe-area-inset-top))",
+			}}>
 			<div className="glass-panel p-4 rounded-xl">
 				<div className="flex items-center gap-2 text-[#7dd3fc] mb-2">
 					<Landmark size={14} />
