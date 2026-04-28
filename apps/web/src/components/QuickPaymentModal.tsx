@@ -40,6 +40,7 @@ export default function QuickPaymentModal({
 	onClose,
 	onSuccess,
 }: QuickPaymentModalProps) {
+	const defaultTransactionDate = () => new Date().toISOString().slice(0, 10);
 	const [amount, setAmount] = useState("");
 	const [category, setCategory] = useState("utilities");
 	const [note, setNote] = useState("");
@@ -52,11 +53,27 @@ export default function QuickPaymentModal({
 	);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
-	const [transactionDate, setTransactionDate] = useState(() =>
-		new Date().toISOString().slice(0, 10),
+	const [transactionDate, setTransactionDate] = useState(
+		defaultTransactionDate,
 	);
 	const router = useRouter();
 	const inputRef = useRef<HTMLInputElement>(null);
+
+	const resetForm = useCallback(() => {
+		setAmount("");
+		setCategory("utilities");
+		setNote("");
+		setPaymentSourceId(accounts[0]?.id || "");
+		setTxType("expense");
+		setDebtAction("none");
+		setError("");
+		setTransactionDate(defaultTransactionDate());
+	}, [accounts]);
+
+	const handleClose = useCallback(() => {
+		resetForm();
+		onClose();
+	}, [onClose, resetForm]);
 
 	// iOS: keyboard is already open (triggered by hidden input in parent on the same gesture).
 	// requestAnimationFrame runs before paint, still within the keyboard-open window.
@@ -76,6 +93,12 @@ export default function QuickPaymentModal({
 			setPaymentSourceId(accounts[0]?.id || "");
 		}
 	}, [accounts]);
+
+	useEffect(() => {
+		if (!isOpen) {
+			resetForm();
+		}
+	}, [isOpen, resetForm]);
 
 	useEffect(() => {
 		if (!isOpen) return;
@@ -128,9 +151,10 @@ export default function QuickPaymentModal({
 			gooeyToast.success("Giao dịch đã lưu", {
 				description: `${txType === "income" ? "+" : "-"}${new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND", maximumFractionDigits: 0 }).format(parsed)}`,
 			});
+			resetForm();
 			onSuccess();
 			router.refresh();
-			onClose();
+			handleClose();
 		} catch {
 			const msg = "Lỗi kết nối. Vui lòng thử lại.";
 			setError(msg);
@@ -146,8 +170,9 @@ export default function QuickPaymentModal({
 		paymentSourceId,
 		debtAction,
 		transactionDate,
+		resetForm,
+		handleClose,
 		onSuccess,
-		onClose,
 		router,
 	]);
 
@@ -156,7 +181,7 @@ export default function QuickPaymentModal({
 			{/* Backdrop */}
 			<div
 				className={`fixed inset-0 z-40 bg-black/60 backdrop-blur-sm ${isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
-				onClick={onClose}
+				onClick={handleClose}
 			/>
 
 			{/* Drawer — always rendered, slides in/out via top */}
@@ -170,7 +195,7 @@ export default function QuickPaymentModal({
 							Thêm nhanh
 						</h2>
 						<button
-							onClick={onClose}
+							onClick={handleClose}
 							className="w-8 h-8 rounded-full bg-[rgba(125,211,252,0.1)] flex items-center justify-center text-[#a0b4c4] hover:text-[#e0e8f0] transition-colors">
 							<X size={16} />
 						</button>
@@ -248,7 +273,7 @@ export default function QuickPaymentModal({
 								onChange={(e) =>
 									setTransactionDate(e.target.value)
 								}
-								className="glass-input w-full py-2 px-4 rounded-xl text-[#e0e8f0] text-sm min-h-[39px]"
+								className="glass-input w-full max-w-max py-2 px-4 rounded-xl text-glacier-on-surface text-sm min-h-9.75"
 							/>
 						</div>
 						<div className="clear-both w-full">

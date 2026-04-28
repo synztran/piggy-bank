@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/auth-context";
 import { gooeyToast } from "goey-toast";
 import { CheckCircle, RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface UpdateBalanceDrawerProps {
 	currentBalance: number;
@@ -24,6 +24,16 @@ export default function UpdateBalanceDrawer({
 	const [error, setError] = useState("");
 	const router = useRouter();
 	const { updateBalance } = useAuth();
+
+	const resetForm = useCallback(() => {
+		setAmount("");
+		setError("");
+	}, []);
+
+	const handleClose = useCallback(() => {
+		resetForm();
+		onClose();
+	}, [onClose, resetForm]);
 
 	const presets = [100000, 500000, 1000000];
 
@@ -74,9 +84,10 @@ export default function UpdateBalanceDrawer({
 				}).format(resultBalance),
 			});
 			updateBalance(resultBalance);
+			resetForm();
 			onUpdated();
 			router.refresh();
-			onClose();
+			handleClose();
 		} catch {
 			gooeyToast.error("Lỗi kết nối", {
 				description: "Vui lòng thử lại.",
@@ -88,7 +99,10 @@ export default function UpdateBalanceDrawer({
 	};
 
 	useEffect(() => {
-		if (!isOpen) return;
+		if (!isOpen) {
+			resetForm();
+			return;
+		}
 		const prevent = (e: TouchEvent | WheelEvent) => e.preventDefault();
 		document.addEventListener("touchmove", prevent, { passive: false });
 		document.addEventListener("wheel", prevent, { passive: false });
@@ -96,14 +110,14 @@ export default function UpdateBalanceDrawer({
 			document.removeEventListener("touchmove", prevent);
 			document.removeEventListener("wheel", prevent);
 		};
-	}, [isOpen]);
+	}, [isOpen, resetForm]);
 
 	return (
 		<>
 			{/* Backdrop */}
 			<div
 				className={`fixed inset-0 z-40 bg-black/60 backdrop-blur-sm ${isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
-				onClick={onClose}
+				onClick={handleClose}
 			/>
 
 			{/* Drawer */}
