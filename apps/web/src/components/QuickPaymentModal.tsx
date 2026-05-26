@@ -10,6 +10,7 @@ import {
 	X,
 	Zap,
 } from "lucide-react";
+import { motion, useMotionValue, useTransform } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -24,6 +25,68 @@ interface QuickPaymentModalProps {
 	}>;
 	onClose: () => void;
 	onSuccess: () => void;
+}
+
+function SwipeToConfirm({
+	onConfirm,
+	disabled,
+  txType
+}: {
+	onConfirm: () => void;
+	disabled: boolean;
+  txType: "expense" | "income";
+}) {
+	const containerRef = useRef<HTMLDivElement>(null);
+	const x = useMotionValue(0);
+	const [containerWidth, setContainerWidth] = useState(0);
+	const thumbSize = 48;
+	const threshold = 0.85;
+
+	useEffect(() => {
+		if (containerRef.current) {
+			setContainerWidth(containerRef.current.offsetWidth);
+		}
+	}, []);
+
+	const maxDrag = containerWidth - thumbSize - 8;
+	const bgOpacity = useTransform(x, [0, maxDrag], [0, 1]);
+	const textOpacity = useTransform(x, [0, maxDrag * 0.5], [1, 0]);
+
+	const handleDragEnd = () => {
+		if (disabled) return;
+		const current = x.get();
+		if (current >= maxDrag * threshold) {
+			onConfirm();
+		}
+		x.set(0);
+	};
+
+	return (
+		<div ref={containerRef} className="absolute inset-0 flex items-center">
+			{/* Background fill */}
+			<motion.div
+				className="absolute inset-0 rounded-full bg-glacier-primary"
+				style={{ opacity: bgOpacity }}
+			/>
+			{/* Label */}
+			<motion.span
+				className="absolute inset-0 flex items-center justify-center text-sm font-bold text-glacier-primary pointer-events-none"
+				style={{ opacity: textOpacity }}>
+				Vuốt để xác nhận {txType === "expense" ? "chi tiêu" : "thu nhập"} →
+			</motion.span>
+			{/* Draggable thumb */}
+			<motion.div
+				drag="x"
+				dragConstraints={{ left: 0, right: maxDrag }}
+				dragElastic={0}
+				dragMomentum={false}
+				onDragEnd={handleDragEnd}
+				style={{ x }}
+				className={`relative z-10 ml-1 w-12 h-12 rounded-full bg-glacier-primary flex items-center justify-center shadow-lg cursor-grab active:cursor-grabbing ${disabled ? "opacity-50 pointer-events-none" : ""}`}>
+				<ArrowRight size={22} className="text-[#001f2e]" />
+			</motion.div>
+		</div>
+	);
 }
 
 const categories = [
@@ -186,26 +249,35 @@ export default function QuickPaymentModal({
 
 			{/* Drawer — always rendered, slides in/out via top */}
 			<div
-				className={`fixed mb-0 left-0 right-0 z-60 glass-panel-elevated rounded-t-3xl p-6 pb-10 animate-in slide-in-from-bottom duration-300 transition-[bottom] ease-in-out max-h-[80vh] ${isOpen ? "bottom-0" : "bottom-[-100vh]"}`}>
+				className={`fixed mb-0 left-0 right-0 z-60 glass-panel-elevated rounded-t-3xl px-6 pt-4 pb-10 animate-in slide-in-from-bottom duration-300 transition-[bottom] ease-in-out max-h-[80vh] ${isOpen ? "bottom-0" : "bottom-[-100vh]"}`}>
 				{/* Handle */}
-				<div className="w-10 h-1 bg-[rgba(125,211,252,0.2)] rounded-full mx-auto mb-2" />
+				<div className="w-10 h-1 bg-[rgba(125,211,252,0.2)] rounded-full mx-auto mb-4" />
 				<div className="overflow-y-auto">
-					<div className="flex justify-between items-center mb-4">
-						<h2 className="text-xl font-bold text-[#e0e8f0]">
-							Thêm nhanh
-						</h2>
-						<button
-							onClick={handleClose}
-							className="w-8 h-8 rounded-full bg-[rgba(125,211,252,0.1)] flex items-center justify-center text-[#a0b4c4] hover:text-[#e0e8f0] transition-colors">
-							<X size={16} />
-						</button>
-					</div>
-
 					{/* Amount Display */}
 					<div className="text-center mb-4">
-						<p className="text-[10px] font-bold uppercase tracking-widest text-[#a0b4c4] mb-2">
-							Nhập số tiền
-						</p>
+						<div className="mb-4">
+						<div className="flex items-center justify-center gap-4">
+							<button
+								onClick={() => setTxType("expense")}
+								className={`text-lg font-semibold transition-all active:scale-95 ${
+									txType === "expense"
+										? "border-red-400/50 text-red-400"
+										: "border-[rgba(125,211,252,0.1)] text-glacier-on-surface-variant"
+								}`}>
+								Chi tiền
+							</button>
+							<button
+								onClick={() => setTxType("income")}
+								className={`text-lg font-semibold transition-all active:scale-95 ${
+									txType === "income"
+										? "border-emerald-400/50 text-emerald-400"
+										: "border-[rgba(125,211,252,0.1)] text-glacier-on-surface-variant"
+								}`}>
+								Thu tiền
+							</button>
+						</div>
+					</div>
+
 						<div className="relative">
 							<span className="text-3xl font-extrabold text-[#7dd3fc]">
 								{new Intl.NumberFormat("vi-VN", {
@@ -223,7 +295,7 @@ export default function QuickPaymentModal({
 								setAmount(e.target.value);
 								setError("");
 							}}
-							className="glass-input w-full mt-2 py-2 px-4 rounded-xl text-center text-[#e0e8f0] text-xl font-bold placeholder:text-[#4a6070]"
+							className="glass-input w-full mt-2 py-2 px-4 rounded-xl text-center text-glacier-on-surface text-xl font-bold placeholder:text-glacier-on-surface-variant"
 							placeholder="0"
 							min="0"
 							step="1000"
@@ -233,8 +305,8 @@ export default function QuickPaymentModal({
 					</div>
 
 					{/* Transaction Type */}
-					<div className="mb-4">
-						<label className="text-xs font-semibold text-[#a0b4c4] mb-2 block">
+					{/* <div className="mb-4">
+						<label className="text-xs font-semibold text-glacier-on-surface-variant mb-2 block">
 							Loại giao dịch
 						</label>
 						<div className="flex gap-3">
@@ -243,7 +315,7 @@ export default function QuickPaymentModal({
 								className={`flex-1 py-2.5 rounded-xl border text-xs font-semibold transition-all active:scale-95 ${
 									txType === "expense"
 										? "border-red-400/50 bg-red-500/10 text-red-400"
-										: "border-[rgba(125,211,252,0.1)] text-[#a0b4c4]"
+										: "border-[rgba(125,211,252,0.1)] text-glacier-on-surface-variant"
 								}`}>
 								Chi tiêu
 							</button>
@@ -252,12 +324,12 @@ export default function QuickPaymentModal({
 								className={`flex-1 py-2.5 rounded-xl border text-xs font-semibold transition-all active:scale-95 ${
 									txType === "income"
 										? "border-emerald-400/50 bg-emerald-500/10 text-emerald-400"
-										: "border-[rgba(125,211,252,0.1)] text-[#a0b4c4]"
+										: "border-[rgba(125,211,252,0.1)] text-glacier-on-surface-variant"
 								}`}>
 								Thu nhập
 							</button>
 						</div>
-					</div>
+					</div> */}
 
 					{/* Account Selector */}
 					<div className="flex items-center gap-4 mb-6 relative">
@@ -297,9 +369,9 @@ export default function QuickPaymentModal({
 										onChange={(e) =>
 											setPaymentSourceId(e.target.value)
 										}
-										className="select select-accent glass-input w-full py-2 px-4 rounded-xl text-[#e0e8f0]">
+										className="select select-accent glass-input w-full py-2 px-4 rounded-xl text-glacier-on-surface text-sm">
 										<option value="">
-											-- Chọn nguồn tiền --
+											- Chọn nguồn tiền -
 										</option>
 										{accounts.map((a) => (
 											<option key={a.id} value={a.id}>
@@ -365,8 +437,8 @@ export default function QuickPaymentModal({
 									onClick={() => setCategory(id)}
 									className={`flex-1 flex flex-col items-center gap-2 py-3 rounded-xl border transition-all active:scale-95 ${
 										category === id
-											? "border-[rgba(125,211,252,0.5)] bg-[rgba(125,211,252,0.1)] text-[#7dd3fc]"
-											: "border-[rgba(125,211,252,0.1)] bg-[rgba(15,21,36,0.4)] text-[#a0b4c4]"
+											? "border-[rgba(125,211,252,0.5)] bg-[rgba(125,211,252,0.1)] text-glacier-primary"
+											: "border-[rgba(125,211,252,0.1)] bg-[rgba(15,21,36,0.4)] text-glacier-on-surface"
 									}`}>
 									<Icon size={16} />
 									<span className="text-[8px] font-bold uppercase tracking-wide">
@@ -384,7 +456,7 @@ export default function QuickPaymentModal({
 							value={note}
 							onChange={(e) => setNote(e.target.value)}
 							placeholder="Ghi chú (tuỳ chọn) — Dùng để làm gì?"
-							className="glass-input w-full py-3 px-4 rounded-xl text-[#e0e8f0] placeholder:text-[#4a6070] text-sm"
+							className="glass-input w-full py-3 px-4 rounded-xl text-glacier-on-surface placeholder:text-glacier-on-surface text-sm"
 							maxLength={200}
 						/>
 					</div>
@@ -393,19 +465,19 @@ export default function QuickPaymentModal({
 						<p className="text-red-400 text-sm mb-4">{error}</p>
 					)}
 
-					{/* Confirm */}
-					<button
-						onClick={handleConfirm}
-						disabled={
-							loading ||
-							!amount ||
-							!paymentSourceId ||
-							accounts.length === 0
-						}
-						className="w-full py-3 rounded-full bg-[#7dd3fc] text-[#001f2e] font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#93d9fc] transition-colors active:scale-[0.98]">
-						Xác nhận
-						{!loading && <ArrowRight size={20} />}
-					</button>
+					{/* Swipe to Confirm */}
+					<div className="relative w-full h-14 rounded-full bg-[rgba(125,211,252,0.1)] border border-[rgba(125,211,252,0.2)] overflow-hidden">
+						<SwipeToConfirm
+							onConfirm={handleConfirm}
+							disabled={
+								loading ||
+								!amount ||
+								!paymentSourceId ||
+								accounts.length === 0
+							}
+              txType={txType}
+						/>
+					</div>
 				</div>
 			</div>
 		</>

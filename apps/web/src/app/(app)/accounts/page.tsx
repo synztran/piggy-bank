@@ -5,6 +5,7 @@ import PullToRefresh from "@/components/PullToRefresh";
 import {
 	ArrowLeftRight,
 	Banknote,
+	CirclePower,
 	CreditCard,
 	MoreVertical,
 	Plus,
@@ -36,6 +37,13 @@ const accountIconColor = {
 	Debit: "text-[#c8a0f0] bg-[rgba(200,160,240,0.1)] border-[rgba(200,160,240,0.2)]",
 	Credit: "text-[#7dd3fc] bg-[rgba(125,211,252,0.08)] border-[rgba(125,211,252,0.3)]",
 	Transfer: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
+};
+
+const accountBackgroundGradient: Record<PaymentSource["type"], string> = {
+	Cash: "bg-gradient-to-br from-[#1a3a4a] via-[#2a5a6a] to-[#3d7a8a]",
+	Debit: "bg-gradient-to-br from-[#2d1a5e] via-[#4a2d8a] to-[#6b3faa]",
+	Credit: "bg-gradient-to-br from-[#1a3050] via-[#2a5580] to-[#3a7aaa]",
+	Transfer: "bg-gradient-to-br from-[#1a4a35] via-[#2a6a50] to-[#3a8a6a]",
 };
 
 const accountTypeLabel = {
@@ -84,26 +92,22 @@ export default function AccountsPage() {
 
 	return (
 		<PullToRefresh onRefresh={fetchAccounts}>
-			<div className="space-y-6 pt-4">
+			<div className="space-y-6 pt-2">
 				{/* Header */}
 				<div className="flex justify-between items-end">
 					<div>
 						<h2 className="text-2xl font-bold text-[#e0e8f0] tracking-tight">
 							Tài khoản
 						</h2>
-						<p className="text-[#a0b4c4] text-sm mt-1">
-							Quản lý nguồn tiền của bạn
-						</p>
 					</div>
 					<Link
 						href="/accounts/add"
-						className="bg-[rgba(125,211,252,0.1)] border border-[rgba(125,211,252,0.2)] text-[#7dd3fc] px-4 py-2 rounded-xl flex items-center gap-2 font-medium active:scale-95 transition-all hover:bg-[rgba(125,211,252,0.2)] text-sm">
-						<Plus size={18} />
-						Thêm mới
+						className="bg-glacier-on-surface text-black p-2 rounded-full font-medium active:scale-95 transition-all hover:bg-[rgba(125,211,252,0.2)] text-xs">
+						Thêm mới tài khoản
 					</Link>
 				</div>
 				{/* Account Cards */}
-				<div className="space-y-4">
+				<div className="space-y-8">
 					{loading &&
 						Array.from({ length: 2 }).map((_, i) => (
 							<div
@@ -114,12 +118,12 @@ export default function AccountsPage() {
 
 					{!loading && accounts.length === 0 && (
 						<div className="glass-panel p-8 rounded-xl text-center space-y-3">
-							<p className="text-[#a0b4c4]">
+							<p className="text-glacier-on-surface">
 								Chưa có tài khoản nào.
 							</p>
 							<Link
 								href="/accounts/add"
-								className="inline-flex items-center gap-2 text-[#7dd3fc] font-medium text-sm hover:underline">
+								className="inline-flex items-center gap-2 text-glacier-primary font-medium text-sm hover:underline">
 								<Plus size={16} />
 								Thêm tài khoản đầu tiên
 							</Link>
@@ -127,48 +131,25 @@ export default function AccountsPage() {
 					)}
 
 					{accounts.map((account) => {
-						const Icon = accountIcon[account.type] || Banknote;
-						const iconClass =
-							accountIconColor[account.type] ||
-							accountIconColor.Cash;
+            const cardBgColor = accountBackgroundGradient[account.type] || accountBackgroundGradient.Cash;
 
 						return (
 							<div
 								key={account.id}
-								className="glass-panel p-4 rounded-xl relative group">
-								<div className="flex justify-between items-start relative z-10">
-									<div className="flex items-center gap-3">
-										<div
-											className={`min-w-12 h-12 rounded-xl flex items-center justify-center border ${iconClass}`}>
-											<Icon size={22} />
-										</div>
-										<div>
-											<h3 className="font-semibold text-[#e0e8f0]">
-												{account.name}
-												{account.last4Digits
+								className={`p-4 rounded-xl relative group min-h-44 ${cardBgColor}`}>
+								<div className="flex w-full justify-between items-start relative z-10">
+									<div className="flex flex-col w-full">
+											<div className="w-full flex items-center justify-between font-semibold text-glacier-on-surface text-xl">
+												<span>{account.name}</span>
+												<span>{account.last4Digits
 													? ` •••• ${account.last4Digits}`
-													: ""}
-											</h3>
+													: ""}</span>
+											</div>
 											<p className="text-xs text-[#a0b4c4]">
 												{accountTypeLabel[
 													account.type
 												] || account.type}
 											</p>
-											{/* <p className="text-xs font-semibold text-[#e0e8f0] mt-1">
-												Hạn mức:{" "}
-												{new Intl.NumberFormat(
-													"vi-VN",
-													{
-														style: "currency",
-														currency: "VND",
-														maximumFractionDigits: 0,
-													},
-												).format(
-													Number(
-														account.balance || 0,
-													),
-												)}
-											</p> */}
 											{account.debt &&
 											account.debt > 0 ? (
 												<p className="text-xs text-red-400 mt-1">
@@ -200,59 +181,23 @@ export default function AccountsPage() {
 													)}
 												</p>
 											) : null}
-										</div>
-									</div>
-									<div className="relative">
-										<button
-											onClick={() =>
-												setActiveMenu(
-													activeMenu === account.id
-														? null
-														: account.id,
-												)
-											}
-											className="text-[#a0b4c4] hover:text-[#7dd3fc] transition-colors p-1">
-											<MoreVertical size={18} />
-										</button>
-
-										{activeMenu === account.id && (
-											<div className="absolute right-0 top-8 w-36 glass-panel-elevated rounded-xl overflow-hidden z-50 shadow-xl">
-												<button
-													onClick={() => {
-														console.log("clicked");
-														setEditingAccount(
-															account,
-														);
-														setActiveMenu(null);
-													}}
-													className="w-full px-4 py-3 text-left text-glacier-on-surface text-sm hover:bg-[rgba(125,211,252,0.1)] flex items-center gap-2 transition-colors">
-													<Settings size={14} />
-													Chỉnh sửa
-												</button>
-												<button
-													onClick={() =>
-														handleDelete(account.id)
-													}
-													disabled={
-														deleting === account.id
-													}
-													className="w-full px-4 py-3 text-left text-red-400 text-sm hover:bg-red-500/10 flex items-center gap-2 transition-colors">
-													<Trash2 size={14} />
-													Xoá
-												</button>
-											</div>
-										)}
 									</div>
 								</div>
-
-								<div className="mt-4 relative z-10">
-									<p className="text-[10px] text-[#a0b4c4] uppercase tracking-widest font-medium mb-1">
-										Loại nguồn tiền
-									</p>
-									<p className="text-base font-semibold text-[#e0e8f0]">
-										{account.type}
-									</p>
-								</div>
+                <div className="absolute -bottom-4 left-2 w-full space-x-1">
+                  <button
+                    onClick={() => handleDelete(account.id)}
+                    disabled={deleting === account.id}
+                    className="rounded-full p-2 bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg">
+                    <CirclePower size={20} />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setEditingAccount(account);
+                    }}
+                    className="rounded-full p-2 bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg">
+                    <Settings size={20} />
+                  </button>
+                </div>
 							</div>
 						);
 					})}

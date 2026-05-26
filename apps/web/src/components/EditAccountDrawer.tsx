@@ -39,7 +39,6 @@ export default function EditAccountDrawer({
 	onClose,
 	onSaved,
 }: EditAccountDrawerProps) {
-	console.log(account);
 	const [name, setName] = useState(account?.name || "");
 	const [type, setType] = useState<"Debit" | "Credit" | "Cash" | "Transfer">(
 		account?.type || "Cash",

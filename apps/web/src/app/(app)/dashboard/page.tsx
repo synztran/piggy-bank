@@ -101,14 +101,31 @@ export default function DashboardPage() {
 				tabIndex={-1}
 			/>
 
-			<div className="space-y-6 pt-4">
-				<HeroBalanceCard
-					totalBalance={summary?.totalBalance ?? 0}
-					memberBalances={summary?.memberBalances ?? []}
-					loading={loading}
-					onUpdateBalance={handleOpenUpdateBalance}
-					onQuickPayment={handleOpenQuickPayment}
-				/>
+			<div className="space-y-6 pt-2">
+				{loading ? (
+					<div className="relative p-4 space-y-4">
+						<div className="flex gap-2">
+							<div className="flex-1 h-16 rounded-xl bg-white/5 animate-pulse" />
+							<div className="flex-1 h-16 rounded-xl bg-white/5 animate-pulse" />
+						</div>
+						<div className="space-y-2">
+							<div className="h-4 w-16 rounded bg-white/5 animate-pulse" />
+							<div className="h-12 w-48 rounded bg-white/5 animate-pulse" />
+						</div>
+						<div className="flex gap-2">
+							<div className="h-9 w-28 rounded-full bg-white/5 animate-pulse" />
+							<div className="h-9 w-24 rounded-full bg-white/5 animate-pulse" />
+						</div>
+					</div>
+				) : (
+					<HeroBalanceCard
+						totalBalance={summary?.totalBalance ?? 0}
+						memberBalances={summary?.memberBalances ?? []}
+						loading={loading}
+						onUpdateBalance={handleOpenUpdateBalance}
+						onQuickPayment={handleOpenQuickPayment}
+					/>
+				)}
 
 				{!loading && (
 					<SpendingInsights spending={summary?.spending ?? []} />

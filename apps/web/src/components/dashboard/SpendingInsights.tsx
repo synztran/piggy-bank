@@ -85,13 +85,9 @@ const SpendingInsights = React.memo(function SpendingInsights({
 
 	return (
 		<section className="space-y-4">
-			<h2 className="text-xl font-bold text-[#e0e8f0] tracking-tight">
-				Phân tích chi tiêu
-			</h2>
-
 			<div className="grid grid-cols-2 gap-4">
 				{topSpending.length === 0 && (
-					<div className="col-span-2 glass-panel p-5 rounded-xl text-center text-[#a0b4c4] text-sm">
+					<div className="col-span-2 glass-panel p-5 rounded-xl text-center text-glacier-on-surface text-sm">
 						Chưa có dữ liệu chi tiêu. Hãy thêm giao dịch đầu tiên!
 					</div>
 				)}
@@ -107,28 +103,28 @@ const SpendingInsights = React.memo(function SpendingInsights({
 					return (
 						<div
 							key={item.category}
-							className="glass-panel p-5 rounded-xl flex flex-col justify-between min-h-[140px] hover:border-[rgba(125,211,252,0.3)] transition-colors">
-							<div className="flex justify-between items-start">
+							className="glass-panel p-2 rounded-xl flex flex-col hover:border-[rgba(125,211,252,0.3)] transition-colors gap-1">
+							<div className="flex gap-2 items-start">
 								<div
 									className={`p-2 rounded-lg border ${bgClass} ${textColor}`}>
 									<Icon size={20} />
 								</div>
-								<span className="text-xs font-medium text-[#a0b4c4]">
-									{item.percentage}%
-								</span>
-							</div>
-							<div>
-								<p className="text-[#a0b4c4] text-sm">
+                <div>
+								<p className="text-glacier-on-surface text-xs">
 									<span className="capitalize">
 										{categoryLabel[item.category] ||
 											item.category}
 									</span>
 								</p>
-								<p className="text-lg font-bold text-[#e0e8f0]">
+								<p className="font-bold text-glacier-on-surface">
 									{formatCurrency(item.amount)}
 								</p>
 							</div>
-							<div className="w-full bg-slate-800 h-1 rounded-full mt-2 overflow-hidden">
+              <span className="text-xs font-medium text-glacier-on-surface-variant ml-auto">
+                {item.percentage}%
+              </span>
+							</div>
+							<div className="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
 								<div
 									className={`${barColor} h-full rounded-full`}
 									style={{ width: `${item.percentage}%` }}
