@@ -15,10 +15,7 @@ export default function BottomNav() {
 
 	return (
 		<nav
-			className="fixed bottom-2 left-1/2 transform -translate-x-1/2 mx-auto max-w-max z-50 flex justify-around items-center px-2 py-1 bg-white/10 backdrop-blur-xl border border-white/20 shadow-[0_-4px_20px_rgba(0,0,0,0.3)] rounded-3xl"
-			// style={{
-			// 	paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))",
-			// }}
+			className="fixed bottom-0 left-1/2 transform -translate-x-1/2 mx-auto max-w-max z-50 flex justify-around items-center px-2 py-1 bg-white/10 backdrop-blur-xl border border-white/20 shadow-[0_-4px_20px_rgba(0,0,0,0.3)] rounded-3xl mg-safe-bottom"
       >
 			{navItems.map(({ href, label, icon: Icon }) => {
 				const isActive =

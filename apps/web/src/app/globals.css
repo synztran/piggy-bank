@@ -119,6 +119,10 @@
     padding-top: calc(4rem + env(safe-area-inset-top));
   }
 
+  .mg-safe-bottom {
+    margin-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+
   /* height of the fixed TransactionFilter bar (collapsed) */
   .h-filter {
     height: 5rem;

@@ -85,7 +85,7 @@ const SpendingInsights = React.memo(function SpendingInsights({
 
 	return (
 		<section className="space-y-4">
-			<div className="grid grid-cols-2 gap-4">
+			<div className="grid grid-cols-2 gap-2">
 				{topSpending.length === 0 && (
 					<div className="col-span-2 glass-panel p-5 rounded-xl text-center text-glacier-on-surface text-sm">
 						Chưa có dữ liệu chi tiêu. Hãy thêm giao dịch đầu tiên!
@@ -109,20 +109,23 @@ const SpendingInsights = React.memo(function SpendingInsights({
 									className={`p-2 rounded-lg border ${bgClass} ${textColor}`}>
 									<Icon size={20} />
 								</div>
-                <div>
-								<p className="text-glacier-on-surface text-xs">
-									<span className="capitalize">
-										{categoryLabel[item.category] ||
-											item.category}
-									</span>
-								</p>
-								<p className="font-bold text-glacier-on-surface">
-									{formatCurrency(item.amount)}
-								</p>
-							</div>
-              <span className="text-xs font-medium text-glacier-on-surface-variant ml-auto">
-                {item.percentage}%
-              </span>
+                <div className="w-full">
+                  <div className="flex items-center justify-between">
+                    <p className="text-glacier-on-surface text-[10px]">
+                      <span className="capitalize">
+                        {categoryLabel[item.category] ||
+                          item.category}
+                      </span>
+                    </p>
+                    <span className="text-[10px] font-medium text-glacier-on-surface-variant ml-auto">
+                      {item.percentage}%
+                    </span>
+                  </div>
+                  <p className="font-bold text-glacier-on-surface">
+                    {formatCurrency(item.amount)}
+                  </p>
+							  </div>
+
 							</div>
 							<div className="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
 								<div
