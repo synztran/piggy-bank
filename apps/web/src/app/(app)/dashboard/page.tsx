@@ -158,6 +158,7 @@ export default function DashboardPage() {
 					accounts={accounts}
 					onClose={handleCloseQuickPayment}
 					onSuccess={fetchData}
+          balance={summary?.totalBalance ?? 0}
 				/>
 			</div>
 		</PullToRefresh>

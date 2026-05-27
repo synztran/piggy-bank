@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type Account = {
 	id: string;
@@ -28,6 +28,7 @@ interface QuickPaymentModalProps {
 	accounts: Account[];
 	onClose: () => void;
 	onSuccess: () => void;
+  balance: number;
 }
 
 function PaymentSourceSelect({
@@ -67,7 +68,7 @@ function PaymentSourceSelect({
         <span className="text-[10px] text-glacier-on-surface-variant">
           {label}
         </span>
-        {selected?.type === "Credit" && (
+        {/* {selected?.type === "Credit" && (
           <div className="space-x-1 max-h-max text-[10px]">
             <span className="">Dư nợ:</span>
             <span className="font-semibold text-red-400">
@@ -78,7 +79,7 @@ function PaymentSourceSelect({
               }).format(Number(selected.debt || 0))}
             </span>
           </div>
-        )}
+        )} */}
         {!value && (
           <span className="text-yellow-400 text-[10px]">
             ⚠ Chưa có nguồn tiền
@@ -251,8 +252,8 @@ function SwipeToConfirm({
 
 function AmountDisplay({ amount, txType }: { amount: number; txType: TxType }) {
 	return (
-		<div className="relative flex items-center justify-center min-h-12 my-6">
-			<span className={`text-5xl font-extrabold ${txType === "expense" ? "text-red-400" : "text-emerald-400"}`}>
+		<div className="relative flex items-center justify-center min-h-12 mt-6 mb-5">
+			<span className={`text-[41px] font-extrabold ${txType === "expense" ? "text-red-400" : "text-emerald-400"}`}>
 				{new Intl.NumberFormat("vi-VN", {
 					style: "currency",
 					currency: "VND",
@@ -280,8 +281,8 @@ function CategorySelect({
 }) {
 	const selected = categories.find((c) => c.id === value);
 	return (
-		<div className="relative flex items-center justify-center gap-4 mt-4">
-      <span className="text-xs">Danh mục</span>
+		<div className="relative flex items-center justify-center gap-2 mt-4">
+      <span className="text-xs">Danh mục</span>•
       <div className="flex items-center gap-1">
         <span className="text-xs text-glacier-on-surface-variant lowercase">{selected?.label ?? "Danh mục"}</span>
         <svg width="12" height="12" viewBox="0 0 12 12" className="text-glacier-on-surface-variant"><path d="M3 5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -300,11 +301,47 @@ function CategorySelect({
 	);
 }
 
+function AccountDebtInfo({ account, balance }: { account: Account | undefined; balance: number }) {
+	if (!account) return <div className="min-h-4" />;
+
+	if (account.type === "Credit") {
+		return (
+			<div className="min-h-4">
+				<div className="space-x-1 max-h-max text-sm">
+					<span>Dư nợ:</span>
+					<span className={`font-semibold ${account.debt && Number(account.debt) > 0 ? "text-red-400" : "text-green-400"}`}>
+						{new Intl.NumberFormat("vi-VN", {
+							style: "currency",
+							currency: "VND",
+							maximumFractionDigits: 0,
+						}).format(Number(account.debt || 0))}
+					</span>
+				</div>
+			</div>
+		);
+	}
+
+	return (
+		<div className="min-h-4">
+			<div className="space-x-1 max-h-max text-sm">
+				<span className="opacity-80">Số dư:</span>
+				<span className="font-bold text-glacier-on-surface-variant">
+					{new Intl.NumberFormat("vi-VN", {
+						style: "currency",
+						currency: "VND",
+						maximumFractionDigits: 0,
+					}).format(Number(account.type === "Debit" ? account.balance || 0 : balance))}
+				</span>
+			</div>
+		</div>
+	);
+}
+
 function Numpad({
 	onInput,
 	onDelete,
 	digitCount,
-	maxDigits = 9,
+	maxDigits = 10,
 }: {
 	onInput: (value: string) => void;
 	onDelete: () => void;
@@ -359,6 +396,7 @@ export default function QuickPaymentModal({
 	accounts,
 	onClose,
 	onSuccess,
+  balance,
 }: QuickPaymentModalProps) {
 	const defaultTransactionDate = () => new Date().toISOString().slice(0, 10);
 	const [amount, setAmount] = useState("");
@@ -498,6 +536,8 @@ export default function QuickPaymentModal({
 		router,
 	]);
 
+  const selected = useMemo(() => accounts.find((a) => a.id === paymentSourceId), [accounts, paymentSourceId]);
+
 	return (
 		<>
 			{/* Backdrop */}
@@ -509,7 +549,7 @@ export default function QuickPaymentModal({
 			{/* Drawer — always rendered, slides in/out via top */}
 			<div
 				ref={drawerRef}
-				className={`fixed mb-0 left-0 right-0 z-60 glass-panel-elevated rounded-t-3xl px-4 pt-2 pb-10 animate-in slide-in-from-bottom duration-300 transition-[bottom] ease-in-out max-h-[80vh] ${isOpen ? "bottom-0" : "bottom-[-100vh]"}`}>
+				className={`fixed mb-0 left-0 right-0 z-60 glass-panel-elevated rounded-t-3xl px-6 pt-2 pb-10 animate-in slide-in-from-bottom duration-300 transition-[bottom] ease-in-out max-h-[85vh] ${isOpen ? "bottom-0" : "bottom-[-100vh]"}`}>
 				{/* Handle */}
 				<div className="w-10 h-1 bg-[rgba(125,211,252,0.2)] rounded-full mx-auto mb-2" />
 				<div className="overflow-y-auto space-y-2">
@@ -518,6 +558,7 @@ export default function QuickPaymentModal({
 						<TxTypeToggle txType={txType} onChange={setTxType} />
             <CategorySelect value={category} onChange={setCategory} />
 						<AmountDisplay amount={displayAmount} txType={txType} />
+            <AccountDebtInfo account={selected} balance={balance} />
 						{/* Hidden input for form compatibility */}
 						<input
 							ref={inputRef}
