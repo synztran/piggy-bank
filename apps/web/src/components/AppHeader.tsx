@@ -28,14 +28,14 @@ export default function AppHeader({ showBack, backHref }: AppHeaderProps) {
 		: "GP";
 
 	return (
-		<header className="fixed top-0 left-0 right-0 z-50 bg-[rgba(10,14,26,0.6)] backdrop-blur-xl border-b border-[rgba(125,211,252,0.1)] shadow-[0_0_30px_rgba(125,211,252,0.05)]">
+		<header className="fixed top-0 left-0 right-0 z-10 bg-[rgba(10,14,26,0.6)] backdrop-blur-xl border-b border-[rgba(125,211,252,0.1)] shadow-[0_0_30px_rgba(125,211,252,0.05)]">
 			<div
 				className="flex justify-between items-center h-16 px-6"
 				style={{
 					paddingTop: "env(safe-area-inset-top)",
 					height: "calc(4rem + env(safe-area-inset-top))",
 				}}>
-				<div className="flex items-center gap-3">
+				<div className="flex items-center gap-2">
 					{showBack ? (
 						<button
 							onClick={handleBack}
@@ -44,16 +44,16 @@ export default function AppHeader({ showBack, backHref }: AppHeaderProps) {
 							<ArrowLeft size={20} />
 						</button>
 					) : (
-						<div className="w-8 h-8 rounded-full overflow-hidden border border-[rgba(125,211,252,0.3)] bg-[#141c2e] flex items-center justify-center text-xs font-bold text-[#7dd3fc]">
+						<div className="w-8 h-8 rounded-full overflow-hidden border border-[rgba(125,211,252,0.3)] bg-[#141c2e] flex items-center justify-center text-xs font-bold text-glacier-primary">
 							{initials}
 						</div>
 					)}
-					<span className="text-xl font-bold text-[#7dd3fc] drop-shadow-[0_0_10px_rgba(125,211,252,0.3)] tracking-tight">
-						HaJia
+					<span className="text-xl font-bold text-glacier-primary drop-shadow-[0_0_10px_rgba(125,211,252,0.3)] tracking-tight">
+						HaJa
 					</span>
 				</div>
-				<div className="flex items-center gap-1">
-					<span className="text-xs text-[#fff] font-medium mr-1 sm:block">
+				<div className="flex items-center">
+					<span className="text-[10px] text-white font-medium sm:block">
 						Xin chào, {user?.name}
 					</span>
 					{/* <button

@@ -4,6 +4,7 @@ import { gooeyToast } from "goey-toast";
 import {
 	ArrowRight,
 	Car,
+	Delete,
 	FileQuestion,
 	ShoppingBag,
 	Utensils,
@@ -14,27 +15,171 @@ import { motion, useMotionValue, useTransform } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+type Account = {
+	id: string;
+	name: string;
+	type: string;
+	debt?: number;
+	balance?: number;
+};
+
 interface QuickPaymentModalProps {
 	isOpen: boolean;
-	accounts: Array<{
-		id: string;
-		name: string;
-		type: string;
-		debt?: number;
-		balance?: number;
-	}>;
+	accounts: Account[];
 	onClose: () => void;
 	onSuccess: () => void;
+}
+
+function PaymentSourceSelect({
+	accounts,
+	value,
+	onChange,
+	label,
+}: {
+	accounts: Account[];
+	value: string;
+	onChange: (id: string) => void;
+	label?: string;
+}) {
+	const selected = accounts.find((a) => a.id === value);
+
+	if (accounts.length === 0) {
+		return (
+			<div>
+				{label && (
+					<div className="text-[10px] font-semibold text-glacier-on-surface-variant mb-2 block">
+						{label}
+					</div>
+				)}
+				<div className="flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/30 rounded-xl px-4 py-2">
+					<span className="text-yellow-400 text-sm">⚠</span>
+					<p className="text-yellow-400 text-xs font-medium">
+						Chưa có nguồn tiền. Vui lòng thêm mới tài khoản.
+					</p>
+				</div>
+			</div>
+		);
+	}
+
+	return (
+		<>
+      <div className="flex items-end justify-between mb-0.5">
+        <span className="text-[10px] text-glacier-on-surface-variant">
+          {label}
+        </span>
+        {selected?.type === "Credit" && (
+          <div className="space-x-1 max-h-max text-[10px]">
+            <span className="">Dư nợ:</span>
+            <span className="font-semibold text-red-400">
+              {new Intl.NumberFormat("vi-VN", {
+                style: "currency",
+                currency: "VND",
+                maximumFractionDigits: 0,
+              }).format(Number(selected.debt || 0))}
+            </span>
+          </div>
+        )}
+        {!value && (
+          <span className="text-yellow-400 text-[10px]">
+            ⚠ Chưa có nguồn tiền
+          </span>
+        )}
+      </div>
+			<div className="relative">
+        <select
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="select select-accent glass-input w-full py-2 px-4 rounded-xl text-glacier-on-surface text-sm">
+          <option value="">- Chọn nguồn tiền -</option>
+          {accounts.map((a) => (
+            <option key={a.id} value={a.id}>
+              {a.name} ({a.type})
+            </option>
+          ))}
+        </select>
+			</div>
+		</>
+	);
+}
+
+function DatePicker({
+	value,
+	onChange,
+	label,
+}: {
+	value: string;
+	onChange: (date: string) => void;
+	label?: string;
+}) {
+	return (
+		<>
+      <div className="flex items-end justify-between mb-0.5">
+        {label && (
+          <label className="text-[10px] text-glacier-on-surface-variant">
+            {label}
+          </label>
+        )}
+      </div>
+			<input
+				type="date"
+				value={value}
+				max={new Date().toISOString().slice(0, 10)}
+				onChange={(e) => onChange(e.target.value)}
+				className="glass-input w-full max-w-max py-2 px-4 rounded-xl text-glacier-on-surface text-sm min-h-9.75"
+			/>
+		</>
+	);
+}
+
+type TxType = "expense" | "income";
+
+function TxTypeToggle({
+	txType,
+	onChange,
+}: {
+	txType: TxType;
+	onChange: (type: TxType) => void;
+}) {
+	return (
+		<div className="relative flex items-center justify-center gap-0 rounded-full bg-[rgba(125,211,252,0.08)] p-1 max-w-max mx-auto">
+			<motion.div
+				className={`absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-full ${txType === "expense" ? "bg-red-500/15 border border-red-400/40" : "bg-emerald-500/15 border border-emerald-400/40"}`}
+				animate={{ x: txType === "expense" ? 0 : "100%" }}
+				transition={{ type: "spring", stiffness: 350, damping: 30 }}
+				style={{ left: "4px" }}
+			/>
+			<button
+				onClick={() => onChange("expense")}
+				className={`relative z-10 flex-1 py-1 px-4 text-sm font-semibold transition-colors rounded-full max-w-max tracking-widest ${
+					txType === "expense"
+						? "text-red-400"
+						: "text-glacier-on-surface-variant"
+				}`}>
+				Chi
+			</button>
+			<button
+				onClick={() => onChange("income")}
+				className={`relative z-10 flex-1 py-1 px-4 text-sm font-semibold transition-colors rounded-full max-w-max tracking-widest ${
+					txType === "income"
+						? "text-emerald-400"
+						: "text-glacier-on-surface-variant"
+				}`}>
+				Thu
+			</button>
+		</div>
+	);
 }
 
 function SwipeToConfirm({
 	onConfirm,
 	disabled,
-  txType
+	txType,
+	loading,
 }: {
 	onConfirm: () => void;
 	disabled: boolean;
-  txType: "expense" | "income";
+	txType: TxType;
+	loading?: boolean;
 }) {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const x = useMotionValue(0);
@@ -53,13 +198,28 @@ function SwipeToConfirm({
 	const textOpacity = useTransform(x, [0, maxDrag * 0.5], [1, 0]);
 
 	const handleDragEnd = () => {
-		if (disabled) return;
+		if (disabled || loading) return;
 		const current = x.get();
 		if (current >= maxDrag * threshold) {
 			onConfirm();
 		}
 		x.set(0);
 	};
+
+	if (loading) {
+		return (
+			<div ref={containerRef} className="absolute inset-0 flex items-center justify-center">
+				<div className="absolute inset-0 rounded-full bg-glacier-primary/20" />
+				<div className="relative z-10 flex items-center gap-2">
+					<svg className="animate-spin h-5 w-5 text-glacier-primary" viewBox="0 0 24 24" fill="none">
+						<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+						<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+					</svg>
+					<span className="text-sm font-bold text-glacier-primary">Đang xử lý...</span>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div ref={containerRef} className="absolute inset-0 flex items-center">
@@ -72,7 +232,7 @@ function SwipeToConfirm({
 			<motion.span
 				className="absolute inset-0 flex items-center justify-center text-sm font-bold text-glacier-primary pointer-events-none"
 				style={{ opacity: textOpacity }}>
-				Vuốt để xác nhận {txType === "expense" ? "chi tiêu" : "thu nhập"} →
+				Vuốt để xác nhận →
 			</motion.span>
 			{/* Draggable thumb */}
 			<motion.div
@@ -89,13 +249,110 @@ function SwipeToConfirm({
 	);
 }
 
+function AmountDisplay({ amount, txType }: { amount: number; txType: TxType }) {
+	return (
+		<div className="relative flex items-center justify-center min-h-12 my-6">
+			<span className={`text-5xl font-extrabold ${txType === "expense" ? "text-red-400" : "text-emerald-400"}`}>
+				{new Intl.NumberFormat("vi-VN", {
+					style: "currency",
+					currency: "VND",
+					maximumFractionDigits: 0,
+				}).format(amount)}
+			</span>
+		</div>
+	);
+}
+
 const categories = [
 	{ id: "utilities", label: "Tiện ích", icon: Zap },
 	{ id: "retail", label: "Mua sắm", icon: ShoppingBag },
-	{ id: "dining", label: "Nhà hàng", icon: Utensils },
-	{ id: "other", label: "Khác", icon: FileQuestion },
+	{ id: "dining", label: "Ăn uống", icon: Utensils },
 	{ id: "travel", label: "Du lịch", icon: Car },
+	{ id: "other", label: "Khác", icon: FileQuestion },
 ];
+
+function CategorySelect({
+	value,
+	onChange,
+}: {
+	value: string;
+	onChange: (id: string) => void;
+}) {
+	const selected = categories.find((c) => c.id === value);
+	return (
+		<div className="relative flex items-center justify-center gap-4 mt-4">
+      <span className="text-xs">Danh mục</span>
+      <div className="flex items-center gap-1">
+        <span className="text-xs text-glacier-on-surface-variant lowercase">{selected?.label ?? "Danh mục"}</span>
+        <svg width="12" height="12" viewBox="0 0 12 12" className="text-glacier-on-surface-variant"><path d="M3 5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        <select
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="absolute inset-0 opacity-0 cursor-pointer">
+          {categories.map(({ id, label }) => (
+            <option key={id} value={id}>
+              {label}
+            </option>
+          ))}
+        </select>
+      </div>
+		</div>
+	);
+}
+
+function Numpad({
+	onInput,
+	onDelete,
+	digitCount,
+	maxDigits = 9,
+}: {
+	onInput: (value: string) => void;
+	onDelete: () => void;
+	digitCount: number;
+	maxDigits?: number;
+}) {
+	const keys = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
+	const btnClass =
+		"h-12 rounded-2xl bg-[rgba(125,211,252,0.06)] border border-[rgba(125,211,252,0.1)] flex items-center justify-center active:scale-95 active:bg-[rgba(125,211,252,0.15)] transition-all";
+	const disabledClass = "opacity-30 pointer-events-none";
+
+	const atLimit = digitCount >= maxDigits;
+
+	return (
+		<div className="grid grid-cols-3 gap-2">
+			{keys.map((num) => (
+				<button
+					key={num}
+					type="button"
+					onClick={() => onInput(String(num))}
+					disabled={atLimit}
+					className={`${btnClass} text-3xl font-medium text-glacier-on-surface ${atLimit ? disabledClass : ""}`}>
+					{num}
+				</button>
+			))}
+			<button
+				type="button"
+				onClick={() => onInput("000")}
+				disabled={digitCount + 3 > maxDigits}
+				className={`${btnClass} text-3xl font-bold text-glacier-on-surface-variant ${digitCount + 3 > maxDigits ? disabledClass : ""}`}>
+				000
+			</button>
+			<button
+				type="button"
+				onClick={() => onInput("0")}
+				disabled={atLimit}
+				className={`${btnClass} text-3xl font-medium text-glacier-on-surface ${atLimit ? disabledClass : ""}`}>
+				0
+			</button>
+			<button
+				type="button"
+				onClick={onDelete}
+				className={`${btnClass} text-glacier-on-surface-variant`}>
+				<Delete size={32} />
+			</button>
+		</div>
+	);
+}
 
 export default function QuickPaymentModal({
 	isOpen,
@@ -110,7 +367,7 @@ export default function QuickPaymentModal({
 	const [paymentSourceId, setPaymentSourceId] = useState(
 		accounts[0]?.id || "",
 	);
-	const [txType, setTxType] = useState<"expense" | "income">("expense");
+	const [txType, setTxType] = useState<TxType>("expense");
 	const [debtAction, setDebtAction] = useState<"none" | "charge" | "payment">(
 		"none",
 	);
@@ -162,6 +419,8 @@ export default function QuickPaymentModal({
 			resetForm();
 		}
 	}, [isOpen, resetForm]);
+
+	const drawerRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
 		if (!isOpen) return;
@@ -249,217 +508,55 @@ export default function QuickPaymentModal({
 
 			{/* Drawer — always rendered, slides in/out via top */}
 			<div
-				className={`fixed mb-0 left-0 right-0 z-60 glass-panel-elevated rounded-t-3xl px-6 pt-4 pb-10 animate-in slide-in-from-bottom duration-300 transition-[bottom] ease-in-out max-h-[80vh] ${isOpen ? "bottom-0" : "bottom-[-100vh]"}`}>
+				ref={drawerRef}
+				className={`fixed mb-0 left-0 right-0 z-60 glass-panel-elevated rounded-t-3xl px-4 pt-2 pb-10 animate-in slide-in-from-bottom duration-300 transition-[bottom] ease-in-out max-h-[80vh] ${isOpen ? "bottom-0" : "bottom-[-100vh]"}`}>
 				{/* Handle */}
-				<div className="w-10 h-1 bg-[rgba(125,211,252,0.2)] rounded-full mx-auto mb-4" />
-				<div className="overflow-y-auto">
+				<div className="w-10 h-1 bg-[rgba(125,211,252,0.2)] rounded-full mx-auto mb-2" />
+				<div className="overflow-y-auto space-y-2">
 					{/* Amount Display */}
-					<div className="text-center mb-4">
-						<div className="mb-4">
-						<div className="flex items-center justify-center gap-4">
-							<button
-								onClick={() => setTxType("expense")}
-								className={`text-lg font-semibold transition-all active:scale-95 ${
-									txType === "expense"
-										? "border-red-400/50 text-red-400"
-										: "border-[rgba(125,211,252,0.1)] text-glacier-on-surface-variant"
-								}`}>
-								Chi tiền
-							</button>
-							<button
-								onClick={() => setTxType("income")}
-								className={`text-lg font-semibold transition-all active:scale-95 ${
-									txType === "income"
-										? "border-emerald-400/50 text-emerald-400"
-										: "border-[rgba(125,211,252,0.1)] text-glacier-on-surface-variant"
-								}`}>
-								Thu tiền
-							</button>
-						</div>
-					</div>
-
-						<div className="relative">
-							<span className="text-3xl font-extrabold text-[#7dd3fc]">
-								{new Intl.NumberFormat("vi-VN", {
-									style: "currency",
-									currency: "VND",
-									maximumFractionDigits: 0,
-								}).format(displayAmount)}
-							</span>
-						</div>
+					<div className="text-center">
+						<TxTypeToggle txType={txType} onChange={setTxType} />
+            <CategorySelect value={category} onChange={setCategory} />
+						<AmountDisplay amount={displayAmount} txType={txType} />
+						{/* Hidden input for form compatibility */}
 						<input
 							ref={inputRef}
-							type="number"
+							type="hidden"
 							value={amount}
-							onChange={(e) => {
-								setAmount(e.target.value);
-								setError("");
-							}}
-							className="glass-input w-full mt-2 py-2 px-4 rounded-xl text-center text-glacier-on-surface text-xl font-bold placeholder:text-glacier-on-surface-variant"
-							placeholder="0"
-							min="0"
-							step="1000"
-							inputMode="numeric"
-							autoFocus
 						/>
 					</div>
 
-					{/* Transaction Type */}
-					{/* <div className="mb-4">
-						<label className="text-xs font-semibold text-glacier-on-surface-variant mb-2 block">
-							Loại giao dịch
-						</label>
-						<div className="flex gap-3">
-							<button
-								onClick={() => setTxType("expense")}
-								className={`flex-1 py-2.5 rounded-xl border text-xs font-semibold transition-all active:scale-95 ${
-									txType === "expense"
-										? "border-red-400/50 bg-red-500/10 text-red-400"
-										: "border-[rgba(125,211,252,0.1)] text-glacier-on-surface-variant"
-								}`}>
-								Chi tiêu
-							</button>
-							<button
-								onClick={() => setTxType("income")}
-								className={`flex-1 py-2.5 rounded-xl border text-xs font-semibold transition-all active:scale-95 ${
-									txType === "income"
-										? "border-emerald-400/50 bg-emerald-500/10 text-emerald-400"
-										: "border-[rgba(125,211,252,0.1)] text-glacier-on-surface-variant"
-								}`}>
-								Thu nhập
-							</button>
-						</div>
-					</div> */}
-
 					{/* Account Selector */}
-					<div className="flex items-center gap-4 mb-6 relative">
+					<div className="flex items-center gap-2 relative">
 						{/* Date */}
 						<div className="clear-both w-full">
-							<label className="text-xs font-semibold text-[#a0b4c4] mb-2 block">
-								Ngày giao dịch
-							</label>
-							<input
-								type="date"
+							<DatePicker
 								value={transactionDate}
-								max={new Date().toISOString().slice(0, 10)}
-								onChange={(e) =>
-									setTransactionDate(e.target.value)
-								}
-								className="glass-input w-full max-w-max py-2 px-4 rounded-xl text-glacier-on-surface text-sm min-h-9.75"
+								onChange={setTransactionDate}
+								label="Ngày giao dịch"
 							/>
 						</div>
 						<div className="clear-both w-full">
-							<label className="text-xs font-semibold text-[#a0b4c4] mb-2 block">
-								Nguồn thanh toán
-							</label>
-							{accounts.length === 0 ? (
-								<div className="flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/30 rounded-xl px-4 py-2">
-									<span className="text-yellow-400 text-sm">
-										⚠
-									</span>
-									<p className="text-yellow-400 text-sm font-medium">
-										Bạn chưa có nguồn thanh toán nào. Vui
-										lòng thêm tài khoản trước.
-									</p>
-								</div>
-							) : (
-								<>
-									<select
-										value={paymentSourceId}
-										onChange={(e) =>
-											setPaymentSourceId(e.target.value)
-										}
-										className="select select-accent glass-input w-full py-2 px-4 rounded-xl text-glacier-on-surface text-sm">
-										<option value="">
-											- Chọn nguồn tiền -
-										</option>
-										{accounts.map((a) => (
-											<option key={a.id} value={a.id}>
-												{a.name} ({a.type})
-											</option>
-										))}
-									</select>
-									{!paymentSourceId && (
-										<p className="text-yellow-400 text-xs mt-1.5">
-											⚠ Vui lòng chọn nguồn tiền
-										</p>
-									)}
-								</>
-							)}
-							{paymentSourceId &&
-								(() => {
-									const selected = accounts.find(
-										(a) => a.id === paymentSourceId,
-									);
-									if (!selected) return null;
-									return (
-										<div className="absolute right-0 -bottom-6">
-											{selected.type === "Credit" ? (
-												<div className="space-x-1">
-													<span className="text-xs">
-														Dư nợ:
-													</span>
-													<span className="text-xs font-semibold text-red-400">
-														{new Intl.NumberFormat(
-															"vi-VN",
-															{
-																style: "currency",
-																currency: "VND",
-																maximumFractionDigits: 0,
-															},
-														).format(
-															Number(
-																selected.debt ||
-																	0,
-															),
-														)}
-													</span>
-												</div>
-											) : null}
-										</div>
-									);
-								})()}
+							<PaymentSourceSelect
+								accounts={accounts}
+								value={paymentSourceId}
+								onChange={setPaymentSourceId}
+								label="Nguồn tiền"
+							/>
 						</div>
 					</div>
 
-					{/* Category */}
-					<div className="mb-4">
-						<div className="flex justify-between items-center mb-2">
-							<p className="text-xs font-semibold text-[#a0b4c4]">
-								Danh mục
-							</p>
-							{/* <button className="text-[#7dd3fc] text-xs font-medium">Xem tất cả</button> */}
-						</div>
-						<div className="flex gap-3">
-							{categories.map(({ id, label, icon: Icon }) => (
-								<button
-									key={id}
-									onClick={() => setCategory(id)}
-									className={`flex-1 flex flex-col items-center gap-2 py-3 rounded-xl border transition-all active:scale-95 ${
-										category === id
-											? "border-[rgba(125,211,252,0.5)] bg-[rgba(125,211,252,0.1)] text-glacier-primary"
-											: "border-[rgba(125,211,252,0.1)] bg-[rgba(15,21,36,0.4)] text-glacier-on-surface"
-									}`}>
-									<Icon size={16} />
-									<span className="text-[8px] font-bold uppercase tracking-wide">
-										{label}
-									</span>
-								</button>
-							))}
-						</div>
-					</div>
+
 
 					{/* Note */}
-					<div className="mb-4">
-						<input
-							type="text"
-							value={note}
-							onChange={(e) => setNote(e.target.value)}
-							placeholder="Ghi chú (tuỳ chọn) — Dùng để làm gì?"
-							className="glass-input w-full py-3 px-4 rounded-xl text-glacier-on-surface placeholder:text-glacier-on-surface text-sm"
-							maxLength={200}
-						/>
-					</div>
+          <textarea
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Ghi chú (tuỳ chọn)"
+            className="glass-input w-full py-2 px-4 rounded-xl text-glacier-on-surface placeholder:text-glacier-on-surface text-sm resize-none placeholder:opacity-80"
+            maxLength={200}
+            rows={1}
+          />
 
 					{error && (
 						<p className="text-red-400 text-sm mb-4">{error}</p>
@@ -475,7 +572,17 @@ export default function QuickPaymentModal({
 								!paymentSourceId ||
 								accounts.length === 0
 							}
-              txType={txType}
+							txType={txType}
+							loading={loading}
+						/>
+					</div>
+
+					{/* Numpad */}
+					<div className="w-full">
+						<Numpad
+							digitCount={amount.length}
+							onInput={(val) => { setAmount((prev) => prev + val); setError(""); }}
+							onDelete={() => { setAmount((prev) => prev.slice(0, -1)); setError(""); }}
 						/>
 					</div>
 				</div>
