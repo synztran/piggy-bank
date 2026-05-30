@@ -142,11 +142,19 @@
 
   /* height of the fixed TransactionFilter bar (collapsed) */
   .h-filter {
-    height: 5rem;
+    height: 4.5rem;
   }
 
   .h-filter-expanded {
-    height: calc(5rem + 2.5rem); /* 10rem is the approximate height of the expanded filter options */
+    height: calc(4.5rem + 2.5rem);
+  }
+
+  .h-search-expanded {
+    height: calc(4.5rem + 2.5rem);
+  }
+
+  .h-filter-expanded.h-search-expanded {
+    height: calc(4.5rem + 2.5rem + 2.25rem);
   }
 
   .pb-nav {

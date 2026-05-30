@@ -48,13 +48,13 @@ const TransactionFilter = memo(function TransactionFilter({
 }: TransactionFilterProps) {
 	return (
 		<div
-			className="space-y-4 fixed left-0 w-full px-6 z-20 bg-glacier-bg/80 backdrop-blur-sm py-4 "
+			className="space-y-2 fixed left-0 w-full px-6 z-20 bg-glacier-bg/80 backdrop-blur-sm py-4 mb-0!"
 			style={{ top: "calc(4rem + env(safe-area-inset-top))" }}>
 			<div className="clear-both relative">
 				<div className="flex items-center justify-between mb-1">
-					<h2 className="text-xl font-extrabold text-glacier-on-surface tracking-tight">
+					<span className="text-lg font-extrabold text-glacier-on-surface tracking-tight">
 						Lịch sử giao dịch
-					</h2>
+					</span>
 					<div className="flex items-center gap-2">
 						<button
 							onClick={onToggleSearch}
@@ -68,19 +68,19 @@ const TransactionFilter = memo(function TransactionFilter({
 						</button>
 						<button
 							onClick={onToggleFilter}
-							className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+							className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-[10px] font-semibold transition-all ${
 								isFiltered
 									? "bg-[rgba(125,211,252,0.15)] text-glacier-primary border border-[rgba(125,211,252,0.3)]"
 									: "bg-[rgba(125,211,252,0.06)] text-glacier-on-surface-variant border border-[rgba(125,211,252,0.1)]"
 							}`}>
-							<SlidersHorizontal size={13} />
+							<SlidersHorizontal size={12} />
 							Lọc{isFiltered ? " (đang lọc)" : ""}
 						</button>
 					</div>
 				</div>
-				<p className="text-glacier-on-surface-variant text-xs">
+				{/* <p className="text-glacier-on-surface-variant text-[10px]">
 					Xem lại toàn bộ giao dịch của bạn.
-				</p>
+				</p> */}
 			</div>
 
 			{showFilter && (
@@ -169,8 +169,8 @@ const TransactionFilter = memo(function TransactionFilter({
 					<button
 						onClick={onSearchClear}
 						className="flex items-center gap-1 text-[10px] font-bold text-red-400 hover:text-red-300 transition-colors">
-						<X size={11} />
-						Xoá
+						<X size={12} />
+						Xoá tìm kiếm
 					</button>
 				</div>
 			)}

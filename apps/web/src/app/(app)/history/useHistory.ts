@@ -38,16 +38,17 @@ export function useHistory() {
 	const [activeSearchQuery, setActiveSearchQuery] = useState("");
 	const [startDate, setStartDate] = useState(() => {
 		const d = new Date();
-		return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, "0")}/01`;
+		return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-01`;
 	});
 	const [endDate, setEndDate] = useState(() => {
 		const d = new Date();
-		return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")}`;
+		return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 	});
 	const [activeStart, setActiveStart] = useState("");
 	const [activeEnd, setActiveEnd] = useState("");
 
 	const isFiltered = !!(activeStart || activeEnd);
+  const isSearching = !!activeSearchQuery;
 
 	const [monthlySummary, setMonthlySummary] = useState({
 		totalSpent: 0,
@@ -265,6 +266,7 @@ export function useHistory() {
 		deleting,
 		sentinelRef,
 		isFiltered,
+    isSearching,
 		monthlySummary,
 		groups,
 		transactions,

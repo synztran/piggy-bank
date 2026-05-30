@@ -14,6 +14,7 @@ export default function HistoryPage() {
 		deleting,
 		sentinelRef,
 		isFiltered,
+		isSearching,
 		monthlySummary,
 		groups,
 		transactions,
@@ -29,7 +30,7 @@ export default function HistoryPage() {
 
 				{/* spacer to push content below the fixed TransactionFilter */}
 				<div
-					className={`h-filter${isFiltered ? " h-filter-expanded" : ""}`}
+					className={`mb-0! h-filter${isFiltered ? " h-filter-expanded" : ""}${isSearching ? " h-search-expanded" : ""}`}
 				/>
 
 				<TransactionSummary

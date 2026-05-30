@@ -28,7 +28,7 @@ export default function AppHeader({ showBack, backHref }: AppHeaderProps) {
 		: "GP";
 
 	return (
-		<header className="fixed top-0 left-0 right-0 z-10 bg-[rgba(10,14,26,0.6)] backdrop-blur-xl border-b border-[rgba(125,211,252,0.1)] shadow-[0_0_30px_rgba(125,211,252,0.05)]">
+		<header className="fixed top-0 left-0 right-0 z-20 bg-[rgba(10,14,26,0.6)] backdrop-blur-xl border-b border-[rgba(125,211,252,0.1)] shadow-[0_0_30px_rgba(125,211,252,0.05)]">
 			<div
 				className="flex justify-between items-center h-16 px-6"
 				style={{

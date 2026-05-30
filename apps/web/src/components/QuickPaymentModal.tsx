@@ -101,7 +101,7 @@ const DatePicker = memo(function DatePicker({
 	label?: string;
 }) {
 	return (
-		<>
+		<div className="w-full clear">
       <div className="flex items-end justify-between mb-0.5">
         {label && (
           <label className="text-[10px] text-slate-500">
@@ -114,9 +114,9 @@ const DatePicker = memo(function DatePicker({
 				value={value}
 				max={new Date().toISOString().slice(0, 10)}
 				onChange={(e) => onChange(e.target.value)}
-				className="w-full max-w-max py-2 px-4 rounded-xl bg-slate-100 border border-slate-200 text-slate-800 text-sm min-h-9.75 [&::-webkit-calendar-picker-indicator]:invert-[0.4]"
+				className="w-full h-10 py-2 px-4 rounded-xl bg-slate-100 border border-slate-200 text-slate-800 text-sm appearance-none [&::-webkit-calendar-picker-indicator]:invert-[0.4] [&::-webkit-date-and-time-value]:text-left"
 			/>
-		</>
+		</div>
 	);
 });
 
@@ -238,7 +238,7 @@ const SwipeToConfirm = memo(function SwipeToConfirm({
 
 const AmountDisplay = memo(function AmountDisplay({ amount, txType }: { amount: number; txType: TxType }) {
 	return (
-		<div className="relative flex items-center justify-center min-h-12 mt-6 mb-5">
+		<div className="relative flex items-center justify-center my-4">
 			<span className={`text-[41px] font-extrabold tracking-tighter leading-none ${txType === "expense" ? "text-red-400" : "text-emerald-500"}`}>
 				{new Intl.NumberFormat("vi-VN", {
 					style: "currency",
@@ -267,7 +267,7 @@ const CategorySelect = memo(function CategorySelect({
 }) {
 	const selected = categories.find((c) => c.id === value);
 	return (
-		<div className="relative flex items-center justify-center gap-2 mt-4">
+		<div className="relative flex items-center justify-center gap-2 mt-2">
       <span className="text-xs text-slate-600">Danh mục</span>•
       <div className="flex items-center gap-1">
         <span className="text-xs text-slate-400 lowercase">{selected?.label ?? "Danh mục"}</span>
@@ -336,7 +336,7 @@ const Numpad = memo(function Numpad({
 }) {
 	const keys = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
 	const btnClass =
-		"h-[4.5rem] rounded-2xl glass-key flex items-center justify-center active:scale-95 transition-all";
+		"h-12 rounded-2xl glass-key flex items-center justify-center active:scale-95 transition-all";
 	const disabledClass = "opacity-30 pointer-events-none";
 
 	const deleteInterval = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -362,7 +362,7 @@ const Numpad = memo(function Numpad({
 	const tripleZeroDisabled = isLeadingZero || digitCount + 3 > maxDigits;
 
 	return (
-		<div className="grid grid-cols-3 gap-y-2 gap-x-2 p-4 rounded-xl bg-[#f1f5f9]">
+		<div className="grid grid-cols-3 gap-y-2 gap-x-2 p-2 rounded-xl bg-[#f1f5f9]">
 			{keys.map((num) => (
 				<button
 					key={num}
@@ -471,7 +471,11 @@ export default function QuickPaymentModal({
 
 	useEffect(() => {
 		if (!isOpen) return;
-		const prevent = (e: TouchEvent | WheelEvent) => e.preventDefault();
+		const prevent = (e: TouchEvent | WheelEvent) => {
+			const target = e.target as HTMLElement;
+			if (target.closest('input[type="date"]') || target.closest("select") || target.closest("textarea")) return;
+			e.preventDefault();
+		};
 		document.addEventListener("touchmove", prevent, { passive: false });
 		document.addEventListener("wheel", prevent, { passive: false });
 		return () => {
@@ -560,10 +564,10 @@ export default function QuickPaymentModal({
 				ref={drawerRef}
 				className={`fixed mb-0 left-0 right-0 z-60 glass-panel-light rounded-t-[2.5rem] px-6 pt-4 pb-8 animate-in slide-in-from-bottom duration-300 transition-[bottom] ease-in-out max-h-[85vh] ${isOpen ? "bottom-0" : "bottom-[-100vh]"}`}>
 				{/* Handle */}
-				<div className="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-6" />
+				<div className="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-2" />
 				<div className="overflow-y-auto space-y-2">
 					{/* Amount Display */}
-					<div className="text-center mb-4">
+					<div className="text-center mb-2">
 						<TxTypeToggle txType={txType} onChange={setTxType} />
             <CategorySelect value={category} onChange={setCategory} />
 						<AmountDisplay amount={displayAmount} txType={txType} />
@@ -579,14 +583,12 @@ export default function QuickPaymentModal({
 					{/* Account Selector */}
 					<div className="flex items-center gap-2 relative">
 						{/* Date */}
-						<div className="clear-both w-full flex-1">
-							<DatePicker
-								value={transactionDate}
-								onChange={setTransactionDate}
-								label="Ngày giao dịch"
-							/>
-						</div>
-						<div className="clear-both w-full flex-2">
+            <DatePicker
+              value={transactionDate}
+              onChange={setTransactionDate}
+              label="Ngày giao dịch"
+            />
+						<div className="clear-both w-full">
 							<PaymentSourceSelect
 								accounts={accounts}
 								value={paymentSourceId}
@@ -603,14 +605,13 @@ export default function QuickPaymentModal({
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Ghi chú (tuỳ chọn)"
-            className="w-full py-2 px-4 rounded-xl bg-slate-100 border border-slate-200 text-slate-800 placeholder:text-slate-400 text-sm resize-none focus:border-black focus:outline-none"
+            className="block w-full px-4 py-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-800 placeholder:text-slate-400 text-sm resize-none focus:border-black focus:outline-none"
             maxLength={200}
-            rows={1}
           />
 
-					{error && (
+					{/* {error && (
 						<p className="text-red-500 text-sm mb-4">{error}</p>
-					)}
+					)} */}
 
 					{/* Swipe to Confirm */}
 					<div className="relative w-full h-14 rounded-full bg-slate-100 border border-slate-200 overflow-hidden">
