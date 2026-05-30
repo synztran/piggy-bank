@@ -113,7 +113,7 @@ export default function PullToRefresh({ onRefresh, children }: PullToRefreshProp
       >
         <RefreshCw
           size={18}
-          className="text-[#7dd3fc]"
+          className="text-glacier-primary"
           style={{
             opacity: refreshing ? 1 : progress,
             transform: refreshing ? undefined : `rotate(${progress * 360}deg)`,

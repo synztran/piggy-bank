@@ -14,15 +14,19 @@ export async function GET() {
 	const now = new Date();
 	const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-	const [user, allUsers, monthlyExpenses, recentTransactions] =
+	const [user, allUsers, monthlyExpenses, monthlyIncome, recentTransactions] =
 		await Promise.all([
 			User.findById(session.userId).select(
 				"currentBalance paymentSources name",
 			),
 			User.find({}).select("name currentBalance"),
 			Transaction.find({
-				userId: session.userId,
 				type: "expense",
+				transactionDate: { $gte: startOfMonth },
+				isRemove: { $ne: true },
+			}),
+			Transaction.find({
+				type: "income",
 				transactionDate: { $gte: startOfMonth },
 				isRemove: { $ne: true },
 			}),
@@ -43,6 +47,14 @@ export async function GET() {
 		(sum, t) => sum + parseFloat(t.amount.toString()),
 		0,
 	);
+
+	const totalIncomeThisMonth = monthlyIncome.reduce(
+		(sum, t) => sum + parseFloat(t.amount.toString()),
+		0,
+	);
+
+	const totalTransactionsIn = monthlyIncome.length;
+	const totalTransactionsOut = monthlyExpenses.length;
 
 	// Category breakdown
 	const categoryMap: Record<string, number> = {};
@@ -69,6 +81,9 @@ export async function GET() {
 	return NextResponse.json({
 		totalBalance,
 		totalSpentThisMonth,
+		totalIncomeThisMonth,
+		totalTransactionsIn,
+		totalTransactionsOut,
 		spending,
 		recentTransactions: recentTransactions.map((t) => t.toJSON()),
 		paymentSourceCount: user.paymentSources.length,

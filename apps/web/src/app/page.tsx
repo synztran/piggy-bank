@@ -86,12 +86,12 @@ function LoginForm() {
 							<Key size={18} className="text-[#1a002e]" />
 						</div>
 					</div>
-					<h1 className="text-4xl font-extrabold text-[#e0e8f0] tracking-tight mb-2">
+					<h1 className="text-4xl font-extrabold text-glacier-on-surface tracking-tight mb-2">
 						HaJaw Piggy Bank
 					</h1>
-					<p className="text-[#a0b4c4] font-medium text-center px-8">
+					<p className="text-glacier-on-surface-variant font-medium text-center px-8">
 						Tiết kiệm của bạn sẽ không bao giờ tan chảy. <br />
-						<span className="text-[#7dd3fc] italic">
+						<span className="text-glacier-primary italic">
 							Chào mừng trở lại, Người chi tiêu!
 						</span>
 					</p>
@@ -111,14 +111,14 @@ function LoginForm() {
 						className="space-y-6 relative">
 						{/* Username */}
 						<div className="space-y-2">
-							<label className="block text-sm font-semibold text-[#a0b4c4] ml-1">
+							<label className="block text-sm font-semibold text-glacier-on-surface-variant ml-1">
 								Tên đăng nhập
 							</label>
 							<div className="relative">
 								<div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
 									<User
 										size={18}
-										className="text-[rgba(125,211,252,0.6)]"  
+										className="text-[rgba(125,211,252,0.6)]"
 									/>
 								</div>
 								<input
@@ -128,7 +128,7 @@ function LoginForm() {
 										setUsername(e.target.value);
 										setError("");
 									}}
-									className="glass-input w-full pl-11 pr-4 py-3.5 rounded-lg text-[#e0e8f0] placeholder:text-[rgba(160,180,196,0.4)]"
+									className="glass-input w-full pl-11 pr-4 py-3.5 rounded-lg text-glacier-on-surface placeholder:text-[rgba(160,180,196,0.4)]"
 									placeholder="vd. NguyenVanA"
 									autoComplete="username"
 									autoCapitalize="none"
@@ -139,10 +139,10 @@ function LoginForm() {
 						{/* Password */}
 						<div className="space-y-2">
 							<div className="flex justify-between items-center ml-1">
-								<label className="block text-sm font-semibold text-[#a0b4c4]">
+								<label className="block text-sm font-semibold text-glacier-on-surface-variant">
 									Mật khẩu
 								</label>
-								{/* <button type="button" className="text-xs font-bold text-[#7dd3fc] hover:text-[#c8eaff] transition-colors">
+								{/* <button type="button" className="text-xs font-bold text-glacier-primary hover:text-[#c8eaff] transition-colors">
                   Forgot it again?
                 </button> */}
 							</div>
@@ -160,7 +160,7 @@ function LoginForm() {
 										setPassword(e.target.value);
 										setError("");
 									}}
-									className="glass-input w-full pl-11 pr-12 py-3.5 rounded-lg text-[#e0e8f0] placeholder:text-[rgba(160,180,196,0.4)]"
+									className="glass-input w-full pl-11 pr-12 py-3.5 rounded-lg text-glacier-on-surface placeholder:text-[rgba(160,180,196,0.4)]"
 									placeholder="••••••••"
 									autoComplete="current-password"
 								/>
@@ -169,7 +169,7 @@ function LoginForm() {
 									onClick={() =>
 										setShowPassword(!showPassword)
 									}
-									className="absolute inset-y-0 right-0 pr-4 flex items-center text-[rgba(160,180,196,0.6)] hover:text-[#7dd3fc] transition-colors">
+									className="absolute inset-y-0 right-0 pr-4 flex items-center text-[rgba(160,180,196,0.6)] hover:text-glacier-primary transition-colors">
 									{showPassword ? (
 										<EyeOff size={18} />
 									) : (
@@ -190,9 +190,9 @@ function LoginForm() {
 							<button
 								type="submit"
 								disabled={loading}
-								className="w-full bg-[rgba(125,211,252,0.15)] border border-[rgba(125,211,252,0.35)] hover:bg-[rgba(125,211,252,0.25)] active:scale-[0.98] py-4 rounded-lg text-[#7dd3fc] font-bold text-lg tracking-wide transition-all shadow-[0_0_20px_rgba(125,211,252,0.1)] hover:shadow-[0_0_30px_rgba(125,211,252,0.2)] flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
+								className="w-full bg-[rgba(125,211,252,0.15)] border border-[rgba(125,211,252,0.35)] hover:bg-[rgba(125,211,252,0.25)] active:scale-[0.98] py-4 rounded-lg text-glacier-primary font-bold text-lg tracking-wide transition-all shadow-[0_0_20px_rgba(125,211,252,0.1)] hover:shadow-[0_0_30px_rgba(125,211,252,0.2)] flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
 								{loading ? (
-									<span className="inline-block w-5 h-5 border-2 border-[#7dd3fc] border-t-transparent rounded-full animate-spin" />
+									<span className="inline-block w-5 h-5 border-2 borderglacier-primary border-t-transparent rounded-full animate-spin" />
 								) : (
 									<>
 										Mở khoá
@@ -204,11 +204,11 @@ function LoginForm() {
 					</form>
 
 					{/* <div className="mt-8 text-center">
-            <p className="text-sm text-[#a0b4c4]">
+            <p className="text-sm text-glacier-on-surface-variant">
               New to the freezer?{" "}
               <Link
                 href="/register"
-                className="text-[#c8a0f0] font-bold hover:underline underline-offset-4 decoration-2"
+                className="text-glacier-tertiary font-bold hover:underline underline-offset-4 decoration-2"
               >
                 Create Account
               </Link>

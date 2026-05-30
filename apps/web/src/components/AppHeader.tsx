@@ -39,7 +39,7 @@ export default function AppHeader({ showBack, backHref }: AppHeaderProps) {
 					{showBack ? (
 						<button
 							onClick={handleBack}
-							className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-[rgba(125,211,252,0.1)] transition-colors text-[#e0e8f0] active:scale-95"
+							className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-[rgba(125,211,252,0.1)] transition-colors text-glacier-on-surface active:scale-95"
 							aria-label="Go back">
 							<ArrowLeft size={20} />
 						</button>
@@ -57,7 +57,7 @@ export default function AppHeader({ showBack, backHref }: AppHeaderProps) {
 						Xin chào, {user?.name}
 					</span>
 					{/* <button
-          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-[rgba(125,211,252,0.1)] transition-colors text-[#a0b4c4] active:scale-95"
+          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-[rgba(125,211,252,0.1)] transition-colors text-glacier-on-surface-variant active:scale-95"
           aria-label="Notifications"
         >
           <Bell size={20} />
@@ -65,7 +65,7 @@ export default function AppHeader({ showBack, backHref }: AppHeaderProps) {
 					{user && (
 						<button
 							onClick={logout}
-							className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-red-500/10 transition-colors text-[#a0b4c4] hover:text-red-400 active:scale-95"
+							className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-red-500/10 transition-colors text-glacier-on-surface-variant hover:text-red-400 active:scale-95"
 							aria-label="Logout">
 							<LogOut size={18} />
 						</button>

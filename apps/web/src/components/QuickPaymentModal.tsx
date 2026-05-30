@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type Account = {
 	id: string;
@@ -31,7 +31,7 @@ interface QuickPaymentModalProps {
   balance: number;
 }
 
-function PaymentSourceSelect({
+const PaymentSourceSelect = memo(function PaymentSourceSelect({
 	accounts,
 	value,
 	onChange,
@@ -48,13 +48,13 @@ function PaymentSourceSelect({
 		return (
 			<div>
 				{label && (
-					<div className="text-[10px] font-semibold text-glacier-on-surface-variant mb-2 block">
+					<div className="text-[10px] font-semibold text-slate-400 mb-2 block">
 						{label}
 					</div>
 				)}
 				<div className="flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/30 rounded-xl px-4 py-2">
 					<span className="text-yellow-400 text-sm">⚠</span>
-					<p className="text-yellow-400 text-xs font-medium">
+					<p className="text-yellow-600 text-xs font-medium">
 						Chưa có nguồn tiền. Vui lòng thêm mới tài khoản.
 					</p>
 				</div>
@@ -65,21 +65,9 @@ function PaymentSourceSelect({
 	return (
 		<>
       <div className="flex items-end justify-between mb-0.5">
-        <span className="text-[10px] text-glacier-on-surface-variant">
+        <span className="text-[10px] text-slate-500">
           {label}
         </span>
-        {/* {selected?.type === "Credit" && (
-          <div className="space-x-1 max-h-max text-[10px]">
-            <span className="">Dư nợ:</span>
-            <span className="font-semibold text-red-400">
-              {new Intl.NumberFormat("vi-VN", {
-                style: "currency",
-                currency: "VND",
-                maximumFractionDigits: 0,
-              }).format(Number(selected.debt || 0))}
-            </span>
-          </div>
-        )} */}
         {!value && (
           <span className="text-yellow-400 text-[10px]">
             ⚠ Chưa có nguồn tiền
@@ -90,7 +78,7 @@ function PaymentSourceSelect({
         <select
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="select select-accent glass-input w-full py-2 px-4 rounded-xl text-glacier-on-surface text-sm">
+          className="select select-accent w-full py-2 px-4 rounded-xl bg-slate-100 border border-slate-200 text-slate-800 text-sm">
           <option value="">- Chọn nguồn tiền -</option>
           {accounts.map((a) => (
             <option key={a.id} value={a.id}>
@@ -101,9 +89,9 @@ function PaymentSourceSelect({
 			</div>
 		</>
 	);
-}
+});
 
-function DatePicker({
+const DatePicker = memo(function DatePicker({
 	value,
 	onChange,
 	label,
@@ -116,7 +104,7 @@ function DatePicker({
 		<>
       <div className="flex items-end justify-between mb-0.5">
         {label && (
-          <label className="text-[10px] text-glacier-on-surface-variant">
+          <label className="text-[10px] text-slate-500">
             {label}
           </label>
         )}
@@ -126,15 +114,15 @@ function DatePicker({
 				value={value}
 				max={new Date().toISOString().slice(0, 10)}
 				onChange={(e) => onChange(e.target.value)}
-				className="glass-input w-full max-w-max py-2 px-4 rounded-xl text-glacier-on-surface text-sm min-h-9.75"
+				className="w-full max-w-max py-2 px-4 rounded-xl bg-slate-100 border border-slate-200 text-slate-800 text-sm min-h-9.75 [&::-webkit-calendar-picker-indicator]:invert-[0.4]"
 			/>
 		</>
 	);
-}
+});
 
 type TxType = "expense" | "income";
 
-function TxTypeToggle({
+const TxTypeToggle = memo(function TxTypeToggle({
 	txType,
 	onChange,
 }: {
@@ -142,7 +130,7 @@ function TxTypeToggle({
 	onChange: (type: TxType) => void;
 }) {
 	return (
-		<div className="relative flex items-center justify-center gap-0 rounded-full bg-[rgba(125,211,252,0.08)] p-1 max-w-max mx-auto">
+		<div className="relative flex items-center justify-center gap-0 rounded-full bg-slate-100 p-1 max-w-max mx-auto">
 			<motion.div
 				className={`absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-full ${txType === "expense" ? "bg-red-500/15 border border-red-400/40" : "bg-emerald-500/15 border border-emerald-400/40"}`}
 				animate={{ x: txType === "expense" ? 0 : "100%" }}
@@ -151,35 +139,33 @@ function TxTypeToggle({
 			/>
 			<button
 				onClick={() => onChange("expense")}
-				className={`relative z-10 flex-1 py-1 px-4 text-sm font-semibold transition-colors rounded-full max-w-max tracking-widest ${
+				className={`relative z-10 flex-1 py-1 px-4 text-sm font-extrabold transition-colors rounded-full max-w-max tracking-widest ${
 					txType === "expense"
 						? "text-red-400"
-						: "text-glacier-on-surface-variant"
+						: "text-slate-400"
 				}`}>
 				Chi
 			</button>
 			<button
 				onClick={() => onChange("income")}
-				className={`relative z-10 flex-1 py-1 px-4 text-sm font-semibold transition-colors rounded-full max-w-max tracking-widest ${
+				className={`relative z-10 flex-1 py-1 px-4 text-sm font-extrabold transition-colors rounded-full max-w-max tracking-widest ${
 					txType === "income"
 						? "text-emerald-400"
-						: "text-glacier-on-surface-variant"
+						: "text-slate-400"
 				}`}>
 				Thu
 			</button>
 		</div>
 	);
-}
+});
 
-function SwipeToConfirm({
+const SwipeToConfirm = memo(function SwipeToConfirm({
 	onConfirm,
 	disabled,
-	txType,
 	loading,
 }: {
 	onConfirm: () => void;
 	disabled: boolean;
-	txType: TxType;
 	loading?: boolean;
 }) {
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -210,13 +196,13 @@ function SwipeToConfirm({
 	if (loading) {
 		return (
 			<div ref={containerRef} className="absolute inset-0 flex items-center justify-center">
-				<div className="absolute inset-0 rounded-full bg-glacier-primary/20" />
+				<div className="absolute inset-0 rounded-full bg-slate-100" />
 				<div className="relative z-10 flex items-center gap-2">
-					<svg className="animate-spin h-5 w-5 text-glacier-primary" viewBox="0 0 24 24" fill="none">
+					<svg className="animate-spin h-5 w-5 text-slate-800" viewBox="0 0 24 24" fill="none">
 						<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
 						<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
 					</svg>
-					<span className="text-sm font-bold text-glacier-primary">Đang xử lý...</span>
+					<span className="text-sm font-bold text-slate-800">Đang xử lý...</span>
 				</div>
 			</div>
 		);
@@ -226,12 +212,12 @@ function SwipeToConfirm({
 		<div ref={containerRef} className="absolute inset-0 flex items-center">
 			{/* Background fill */}
 			<motion.div
-				className="absolute inset-0 rounded-full bg-glacier-primary"
+				className="absolute inset-0 rounded-full bg-slate-300"
 				style={{ opacity: bgOpacity }}
 			/>
 			{/* Label */}
 			<motion.span
-				className="absolute inset-0 flex items-center justify-center text-sm font-bold text-glacier-primary pointer-events-none"
+				className="absolute inset-0 flex items-center justify-center font-bold text-slate-400 pointer-events-none"
 				style={{ opacity: textOpacity }}>
 				Vuốt để xác nhận →
 			</motion.span>
@@ -243,17 +229,17 @@ function SwipeToConfirm({
 				dragMomentum={false}
 				onDragEnd={handleDragEnd}
 				style={{ x }}
-				className={`relative z-10 ml-1 w-12 h-12 rounded-full bg-glacier-primary flex items-center justify-center shadow-lg cursor-grab active:cursor-grabbing ${disabled ? "opacity-50 pointer-events-none" : ""}`}>
-				<ArrowRight size={22} className="text-[#001f2e]" />
+				className={`relative z-10 ml-1 w-12 h-12 rounded-full bg-slate-900 flex items-center justify-center shadow-lg cursor-grab active:cursor-grabbing ${disabled ? "opacity-50 pointer-events-none" : ""}`}>
+				<ArrowRight size={22} className="text-white" />
 			</motion.div>
 		</div>
 	);
-}
+});
 
-function AmountDisplay({ amount, txType }: { amount: number; txType: TxType }) {
+const AmountDisplay = memo(function AmountDisplay({ amount, txType }: { amount: number; txType: TxType }) {
 	return (
 		<div className="relative flex items-center justify-center min-h-12 mt-6 mb-5">
-			<span className={`text-[41px] font-extrabold ${txType === "expense" ? "text-red-400" : "text-emerald-400"}`}>
+			<span className={`text-[41px] font-extrabold tracking-tighter leading-none ${txType === "expense" ? "text-red-400" : "text-emerald-500"}`}>
 				{new Intl.NumberFormat("vi-VN", {
 					style: "currency",
 					currency: "VND",
@@ -262,7 +248,7 @@ function AmountDisplay({ amount, txType }: { amount: number; txType: TxType }) {
 			</span>
 		</div>
 	);
-}
+});
 
 const categories = [
 	{ id: "utilities", label: "Tiện ích", icon: Zap },
@@ -272,7 +258,7 @@ const categories = [
 	{ id: "other", label: "Khác", icon: FileQuestion },
 ];
 
-function CategorySelect({
+const CategorySelect = memo(function CategorySelect({
 	value,
 	onChange,
 }: {
@@ -282,10 +268,10 @@ function CategorySelect({
 	const selected = categories.find((c) => c.id === value);
 	return (
 		<div className="relative flex items-center justify-center gap-2 mt-4">
-      <span className="text-xs">Danh mục</span>•
+      <span className="text-xs text-slate-600">Danh mục</span>•
       <div className="flex items-center gap-1">
-        <span className="text-xs text-glacier-on-surface-variant lowercase">{selected?.label ?? "Danh mục"}</span>
-        <svg width="12" height="12" viewBox="0 0 12 12" className="text-glacier-on-surface-variant"><path d="M3 5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        <span className="text-xs text-slate-400 lowercase">{selected?.label ?? "Danh mục"}</span>
+        <svg width="12" height="12" viewBox="0 0 12 12" className="text-slate-400"><path d="M3 5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
         <select
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -299,17 +285,17 @@ function CategorySelect({
       </div>
 		</div>
 	);
-}
+});
 
-function AccountDebtInfo({ account, balance }: { account: Account | undefined; balance: number }) {
+const AccountDebtInfo = memo(function AccountDebtInfo({ account, balance }: { account: Account | undefined; balance: number }) {
 	if (!account) return <div className="min-h-4" />;
 
 	if (account.type === "Credit") {
 		return (
 			<div className="min-h-4">
 				<div className="space-x-1 max-h-max text-sm">
-					<span>Dư nợ:</span>
-					<span className={`font-semibold ${account.debt && Number(account.debt) > 0 ? "text-red-400" : "text-green-400"}`}>
+					<span className="text-slate-500">Dư nợ:</span>
+					<span className={`font-semibold ${account.debt && Number(account.debt) > 0 ? "text-red-500" : "text-green-500"}`}>
 						{new Intl.NumberFormat("vi-VN", {
 							style: "currency",
 							currency: "VND",
@@ -324,8 +310,8 @@ function AccountDebtInfo({ account, balance }: { account: Account | undefined; b
 	return (
 		<div className="min-h-4">
 			<div className="space-x-1 max-h-max text-sm">
-				<span className="opacity-80">Số dư:</span>
-				<span className="font-bold text-glacier-on-surface-variant">
+				<span className="text-slate-500">Khả dụng</span>
+				<span className="font-bold text-slate-500">
 					{new Intl.NumberFormat("vi-VN", {
 						style: "currency",
 						currency: "VND",
@@ -335,9 +321,9 @@ function AccountDebtInfo({ account, balance }: { account: Account | undefined; b
 			</div>
 		</div>
 	);
-}
+});
 
-function Numpad({
+const Numpad = memo(function Numpad({
 	onInput,
 	onDelete,
 	digitCount,
@@ -350,46 +336,69 @@ function Numpad({
 }) {
 	const keys = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
 	const btnClass =
-		"h-12 rounded-2xl bg-[rgba(125,211,252,0.06)] border border-[rgba(125,211,252,0.1)] flex items-center justify-center active:scale-95 active:bg-[rgba(125,211,252,0.15)] transition-all";
+		"h-[4.5rem] rounded-2xl glass-key flex items-center justify-center active:scale-95 transition-all";
 	const disabledClass = "opacity-30 pointer-events-none";
 
+	const deleteInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+	const deleteTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+	const startDelete = useCallback(() => {
+		onDelete();
+		deleteTimeout.current = setTimeout(() => {
+			deleteInterval.current = setInterval(onDelete, 80);
+		}, 400);
+	}, [onDelete]);
+
+	const stopDelete = useCallback(() => {
+		if (deleteTimeout.current) { clearTimeout(deleteTimeout.current); deleteTimeout.current = null; }
+		if (deleteInterval.current) { clearInterval(deleteInterval.current); deleteInterval.current = null; }
+	}, []);
+
+	useEffect(() => () => stopDelete(), [stopDelete]);
+
 	const atLimit = digitCount >= maxDigits;
+	const isLeadingZero = digitCount === 0;
+	const zeroDisabled = isLeadingZero || atLimit;
+	const tripleZeroDisabled = isLeadingZero || digitCount + 3 > maxDigits;
 
 	return (
-		<div className="grid grid-cols-3 gap-2">
+		<div className="grid grid-cols-3 gap-y-2 gap-x-2 p-4 rounded-xl bg-[#f1f5f9]">
 			{keys.map((num) => (
 				<button
 					key={num}
 					type="button"
 					onClick={() => onInput(String(num))}
 					disabled={atLimit}
-					className={`${btnClass} text-3xl font-medium text-glacier-on-surface ${atLimit ? disabledClass : ""}`}>
+					className={`${btnClass} text-[28px] font-medium text-slate-800 ${atLimit ? disabledClass : ""}`}>
 					{num}
 				</button>
 			))}
 			<button
 				type="button"
 				onClick={() => onInput("000")}
-				disabled={digitCount + 3 > maxDigits}
-				className={`${btnClass} text-3xl font-bold text-glacier-on-surface-variant ${digitCount + 3 > maxDigits ? disabledClass : ""}`}>
+				disabled={tripleZeroDisabled}
+				className={`${btnClass} text-[28px] font-bold text-slate-800 ${tripleZeroDisabled ? disabledClass : ""}`}>
 				000
 			</button>
 			<button
 				type="button"
 				onClick={() => onInput("0")}
-				disabled={atLimit}
-				className={`${btnClass} text-3xl font-medium text-glacier-on-surface ${atLimit ? disabledClass : ""}`}>
+				disabled={zeroDisabled}
+				className={`${btnClass} text-[28px] font-bold text-slate-800 ${zeroDisabled ? disabledClass : ""}`}>
 				0
 			</button>
 			<button
 				type="button"
-				onClick={onDelete}
-				className={`${btnClass} text-glacier-on-surface-variant`}>
-				<Delete size={32} />
+				onPointerDown={startDelete}
+				onPointerUp={stopDelete}
+				onPointerLeave={stopDelete}
+				onContextMenu={(e) => e.preventDefault()}
+				className={`${btnClass} text-slate-800`}>
+				<Delete size={28} />
 			</button>
 		</div>
 	);
-}
+});
 
 export default function QuickPaymentModal({
 	isOpen,
@@ -549,12 +558,12 @@ export default function QuickPaymentModal({
 			{/* Drawer — always rendered, slides in/out via top */}
 			<div
 				ref={drawerRef}
-				className={`fixed mb-0 left-0 right-0 z-60 glass-panel-elevated rounded-t-3xl px-6 pt-2 pb-10 animate-in slide-in-from-bottom duration-300 transition-[bottom] ease-in-out max-h-[85vh] ${isOpen ? "bottom-0" : "bottom-[-100vh]"}`}>
+				className={`fixed mb-0 left-0 right-0 z-60 glass-panel-light rounded-t-[2.5rem] px-6 pt-4 pb-8 animate-in slide-in-from-bottom duration-300 transition-[bottom] ease-in-out max-h-[85vh] ${isOpen ? "bottom-0" : "bottom-[-100vh]"}`}>
 				{/* Handle */}
-				<div className="w-10 h-1 bg-[rgba(125,211,252,0.2)] rounded-full mx-auto mb-2" />
+				<div className="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-6" />
 				<div className="overflow-y-auto space-y-2">
 					{/* Amount Display */}
-					<div className="text-center">
+					<div className="text-center mb-4">
 						<TxTypeToggle txType={txType} onChange={setTxType} />
             <CategorySelect value={category} onChange={setCategory} />
 						<AmountDisplay amount={displayAmount} txType={txType} />
@@ -570,14 +579,14 @@ export default function QuickPaymentModal({
 					{/* Account Selector */}
 					<div className="flex items-center gap-2 relative">
 						{/* Date */}
-						<div className="clear-both w-full">
+						<div className="clear-both w-full flex-1">
 							<DatePicker
 								value={transactionDate}
 								onChange={setTransactionDate}
 								label="Ngày giao dịch"
 							/>
 						</div>
-						<div className="clear-both w-full">
+						<div className="clear-both w-full flex-2">
 							<PaymentSourceSelect
 								accounts={accounts}
 								value={paymentSourceId}
@@ -594,17 +603,17 @@ export default function QuickPaymentModal({
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Ghi chú (tuỳ chọn)"
-            className="glass-input w-full py-2 px-4 rounded-xl text-glacier-on-surface placeholder:text-glacier-on-surface text-sm resize-none placeholder:opacity-80"
+            className="w-full py-2 px-4 rounded-xl bg-slate-100 border border-slate-200 text-slate-800 placeholder:text-slate-400 text-sm resize-none focus:border-black focus:outline-none"
             maxLength={200}
             rows={1}
           />
 
 					{error && (
-						<p className="text-red-400 text-sm mb-4">{error}</p>
+						<p className="text-red-500 text-sm mb-4">{error}</p>
 					)}
 
 					{/* Swipe to Confirm */}
-					<div className="relative w-full h-14 rounded-full bg-[rgba(125,211,252,0.1)] border border-[rgba(125,211,252,0.2)] overflow-hidden">
+					<div className="relative w-full h-14 rounded-full bg-slate-100 border border-slate-200 overflow-hidden">
 						<SwipeToConfirm
 							onConfirm={handleConfirm}
 							disabled={
@@ -613,7 +622,6 @@ export default function QuickPaymentModal({
 								!paymentSourceId ||
 								accounts.length === 0
 							}
-							txType={txType}
 							loading={loading}
 						/>
 					</div>

@@ -18,10 +18,10 @@ const TransactionGroup = memo(function TransactionGroup({
 }: TransactionGroupProps) {
 	return (
 		<div>
-			<h3 className="sticky top-0 z-10 text-[11px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4 ml-1 py-1 bg-glacier-bg/80 backdrop-blur-sm">
+			<h3 className="sticky top-0 z-10 text-[11px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2">
 				{label}
 			</h3>
-			<div className="space-y-3">
+			<div className="space-y-4">
 				{transactions.map((tx) => (
 					<TransactionItem
 						key={tx._id}

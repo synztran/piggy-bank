@@ -33,9 +33,9 @@ const accountIcon = {
 };
 
 const accountIconColor = {
-	Cash: "text-[#7dd3fc] bg-[rgba(125,211,252,0.1)] border-[rgba(125,211,252,0.2)]",
-	Debit: "text-[#c8a0f0] bg-[rgba(200,160,240,0.1)] border-[rgba(200,160,240,0.2)]",
-	Credit: "text-[#7dd3fc] bg-[rgba(125,211,252,0.08)] border-[rgba(125,211,252,0.3)]",
+	Cash: "text-glacier-primary bg-[rgba(125,211,252,0.1)] border-[rgba(125,211,252,0.2)]",
+	Debit: "text-glacier-tertiary bg-[rgba(200,160,240,0.1)] border-[rgba(200,160,240,0.2)]",
+	Credit: "text-glacier-primary bg-[rgba(125,211,252,0.08)] border-[rgba(125,211,252,0.3)]",
 	Transfer: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
 };
 
@@ -96,7 +96,7 @@ export default function AccountsPage() {
 				{/* Header */}
 				<div className="flex justify-between items-end">
 					<div>
-						<h2 className="text-2xl font-bold text-[#e0e8f0] tracking-tight">
+						<h2 className="text-2xl font-bold text-glacier-on-surface tracking-tight">
 							Tài khoản
 						</h2>
 					</div>
@@ -145,7 +145,7 @@ export default function AccountsPage() {
 													? ` •••• ${account.last4Digits}`
 													: ""}</span>
 											</div>
-											<p className="text-xs text-[#a0b4c4]">
+											<p className="text-xs text-glacier-on-surface-variant">
 												{accountTypeLabel[
 													account.type
 												] || account.type}

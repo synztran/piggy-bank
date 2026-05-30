@@ -128,10 +128,10 @@ export default function UpdateBalanceDrawer({
 
 				<div className="flex justify-between items-start mb-6">
 					<div>
-						<h2 className="text-2xl font-bold text-[#e0e8f0]">
+						<h2 className="text-2xl font-bold text-glacier-on-surface">
 							Điều chỉnh số dư
 						</h2>
-						<p className="text-sm text-[#a0b4c4] mt-1">
+						<p className="text-sm text-glacier-on-surface-variant mt-1">
 							Nhập số dương để cộng, số âm để trừ
 						</p>
 					</div>
@@ -140,11 +140,11 @@ export default function UpdateBalanceDrawer({
 				{/* Input */}
 				{/* Result preview */}
 				<div className="mb-4 text-center">
-					<p className="text-[10px] font-bold uppercase tracking-widest text-[#a0b4c4] mb-1">
+					<p className="text-[10px] font-bold uppercase tracking-widest text-glacier-on-surface-variant mb-1">
 						Số dư sau điều chỉnh
 					</p>
 					<span
-						className={`text-3xl font-extrabold ${resultBalance < 0 ? "text-red-400" : "text-[#7dd3fc]"}`}>
+						className={`text-3xl font-extrabold ${resultBalance < 0 ? "text-red-400" : "text-glacier-primary"}`}>
 						{new Intl.NumberFormat("vi-VN", {
 							style: "currency",
 							currency: "VND",
@@ -162,12 +162,12 @@ export default function UpdateBalanceDrawer({
 							setError("");
 						}}
 						placeholder="0"
-						className="glass-input w-full pl-4 pr-12 py-4 rounded-xl text-[#e0e8f0] text-2xl font-bold placeholder:text-[#4a6070]"
+						className="glass-input w-full pl-4 pr-12 py-4 rounded-xl text-glacier-on-surface text-2xl font-bold placeholder:text-[#4a6070]"
 						step="1000"
 						inputMode="numeric"
 						autoFocus
 					/>
-					<span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#a0b4c4] font-bold text-base">
+					<span className="absolute right-4 top-1/2 -translate-y-1/2 text-glacier-on-surface-variant font-bold text-base">
 						₫
 					</span>
 				</div>
@@ -180,7 +180,7 @@ export default function UpdateBalanceDrawer({
 						<button
 							key={p}
 							onClick={() => handlePreset(p)}
-							className="flex-1 py-2.5 rounded-full border border-[rgba(125,211,252,0.2)] text-[#e0e8f0] text-sm font-medium hover:bg-[rgba(125,211,252,0.1)] transition-colors active:scale-95">
+							className="flex-1 py-2.5 rounded-full border border-[rgba(125,211,252,0.2)] text-glacier-on-surface text-sm font-medium hover:bg-[rgba(125,211,252,0.1)] transition-colors active:scale-95">
 							+{formatPreset(p)}
 						</button>
 					))}
@@ -190,7 +190,7 @@ export default function UpdateBalanceDrawer({
 				<button
 					onClick={handleUpdate}
 					disabled={loading || !amount}
-					className="w-full py-4 rounded-full bg-[#7dd3fc] text-[#001f2e] font-bold text-base flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#93d9fc] transition-colors active:scale-[0.98]">
+					className="w-full py-4 rounded-full bg-glacier-primary text-[#001f2e] font-bold text-base flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#93d9fc] transition-colors active:scale-[0.98]">
 					{loading ? (
 						<RefreshCw size={20} className="animate-spin" />
 					) : (

@@ -101,7 +101,7 @@ export default function DashboardPage() {
 				tabIndex={-1}
 			/>
 
-			<div className="space-y-6 pt-2">
+			<div className="space-y-4">
 				{loading ? (
 					<div className="relative p-4 space-y-4">
 						<div className="flex gap-2">
@@ -127,19 +127,16 @@ export default function DashboardPage() {
 					/>
 				)}
 
-				{!loading && (
-					<SpendingInsights spending={summary?.spending ?? []} />
-				)}
-				{loading && (
+				{loading ? (
 					<div className="grid grid-cols-2 gap-4">
 						{[0, 1].map((i) => (
 							<div
 								key={i}
-								className="glass-panel p-5 rounded-xl h-36 animate-pulse"
+								className="glass-panel p-5 rounded-xl h-14 animate-pulse"
 							/>
 						))}
 					</div>
-				)}
+				) : <SpendingInsights spending={summary?.spending ?? []} />}
 
 				<RecentTransactionsList
 					transactions={summary?.recentTransactions ?? []}

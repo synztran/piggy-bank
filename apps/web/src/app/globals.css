@@ -62,6 +62,23 @@
     border: 1px solid rgba(125, 211, 252, 0.15);
   }
 
+  .glass-panel-light {
+    background: #ffffff;
+    backdrop-filter: blur(24px);
+    border: none;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
+  }
+
+  .glass-key {
+    background-color: #fefefe;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .glass-key:active {
+    background-color: #fcfcfc;
+  }
+
   .glass-input {
     /* background: rgba(20, 28, 46, 0.4); */
     backdrop-filter: blur(8px);

@@ -58,10 +58,10 @@ export default function RegisterPage() {
           <div className="w-16 h-16 glass-panel rounded-full flex items-center justify-center text-3xl mb-5 border border-[rgba(200,160,240,0.3)]">
             ❄️
           </div>
-          <h1 className="text-3xl font-extrabold text-[#e0e8f0] tracking-tight mb-2">
+          <h1 className="text-3xl font-extrabold text-glacier-on-surface tracking-tight mb-2">
             Create Account
           </h1>
-          <p className="text-[#a0b4c4] text-sm text-center">
+          <p className="text-glacier-on-surface-variant text-sm text-center">
             Join the vault. Your savings await.
           </p>
         </div>
@@ -70,7 +70,7 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Name */}
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-[#a0b4c4] ml-1">
+              <label className="block text-sm font-semibold text-glacier-on-surface-variant ml-1">
                 Full Name
               </label>
               <div className="relative">
@@ -81,7 +81,7 @@ export default function RegisterPage() {
                   type="text"
                   value={name}
                   onChange={(e) => { setName(e.target.value); setError(""); }}
-                  className="glass-input w-full pl-11 pr-4 py-3.5 rounded-lg text-[#e0e8f0] placeholder:text-[rgba(160,180,196,0.4)]"
+                  className="glass-input w-full pl-11 pr-4 py-3.5 rounded-lg text-glacier-on-surface placeholder:text-[rgba(160,180,196,0.4)]"
                   placeholder="Your full name"
                   autoComplete="name"
                 />
@@ -90,7 +90,7 @@ export default function RegisterPage() {
 
             {/* Username */}
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-[#a0b4c4] ml-1">
+              <label className="block text-sm font-semibold text-glacier-on-surface-variant ml-1">
                 Username
               </label>
               <div className="relative">
@@ -101,7 +101,7 @@ export default function RegisterPage() {
                   type="text"
                   value={username}
                   onChange={(e) => { setUsername(e.target.value); setError(""); }}
-                  className="glass-input w-full pl-11 pr-4 py-3.5 rounded-lg text-[#e0e8f0] placeholder:text-[rgba(160,180,196,0.4)]"
+                  className="glass-input w-full pl-11 pr-4 py-3.5 rounded-lg text-glacier-on-surface placeholder:text-[rgba(160,180,196,0.4)]"
                   placeholder="e.g. SatoshiNakamoto"
                   autoComplete="username"
                   autoCapitalize="none"
@@ -111,7 +111,7 @@ export default function RegisterPage() {
 
             {/* Password */}
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-[#a0b4c4] ml-1">
+              <label className="block text-sm font-semibold text-glacier-on-surface-variant ml-1">
                 Password
               </label>
               <div className="relative">
@@ -122,14 +122,14 @@ export default function RegisterPage() {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => { setPassword(e.target.value); setError(""); }}
-                  className="glass-input w-full pl-11 pr-12 py-3.5 rounded-lg text-[#e0e8f0] placeholder:text-[rgba(160,180,196,0.4)]"
+                  className="glass-input w-full pl-11 pr-12 py-3.5 rounded-lg text-glacier-on-surface placeholder:text-[rgba(160,180,196,0.4)]"
                   placeholder="Min. 6 characters"
                   autoComplete="new-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-[rgba(160,180,196,0.6)] hover:text-[#7dd3fc] transition-colors"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-[rgba(160,180,196,0.6)] hover:text-glacier-primary transition-colors"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -146,7 +146,7 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[rgba(200,160,240,0.2)] border border-[rgba(200,160,240,0.35)] hover:bg-[rgba(200,160,240,0.3)] active:scale-[0.98] py-4 rounded-lg text-[#c8a0f0] font-bold text-lg tracking-wide transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full bg-[rgba(200,160,240,0.2)] border border-[rgba(200,160,240,0.35)] hover:bg-[rgba(200,160,240,0.3)] active:scale-[0.98] py-4 rounded-lg text-glacier-tertiary font-bold text-lg tracking-wide transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <span className="inline-block w-5 h-5 border-2 border-[#c8a0f0] border-t-transparent rounded-full animate-spin" />
@@ -158,11 +158,11 @@ export default function RegisterPage() {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-[#a0b4c4]">
+            <p className="text-sm text-glacier-on-surface-variant">
               Already frozen?{" "}
               <Link
                 href="/"
-                className="text-[#7dd3fc] font-bold hover:underline underline-offset-4 decoration-2"
+                className="text-glacier-primary font-bold hover:underline underline-offset-4 decoration-2"
               >
                 Sign in
               </Link>

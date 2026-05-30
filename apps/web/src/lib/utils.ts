@@ -1,7 +1,10 @@
-export function formatCurrency(amount: number): string {
+export function formatCurrency(
+	amount: number,
+	showCurrency = true,
+): string {
 	return new Intl.NumberFormat("vi-VN", {
-		style: "currency",
-		currency: "VND",
+		style: showCurrency ? "currency" : "decimal",
+		currency: showCurrency ? "VND" : undefined,
 		minimumFractionDigits: 0,
 		maximumFractionDigits: 0,
 	}).format(amount);
@@ -9,10 +12,9 @@ export function formatCurrency(amount: number): string {
 
 export function formatDate(date: Date | string): string {
 	return new Intl.DateTimeFormat("vi-VN", {
-		month: "short",
-		day: "numeric",
-		hour: "2-digit",
-		minute: "2-digit",
+		day: "2-digit",
+		month: "2-digit",
+		year: "numeric",
 	}).format(new Date(date));
 }
 

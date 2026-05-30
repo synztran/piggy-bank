@@ -24,7 +24,7 @@ export default function BottomNav() {
 					<Link
 						key={href}
 						href={href}
-						className={`flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-3xl transition-all active:scale-90 duration-150 ${
+						className={`flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-3xl transition-all active:scale-90 duration-150 min-w-20 ${
 							isActive
 								? "text-glacier-on-surface bg-black"
 								: "text-slate-500 hover:text-slate-300"

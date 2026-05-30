@@ -145,12 +145,12 @@ const SpendingInsights = React.memo(function SpendingInsights({
 							<PlaySquare size={22} />
 						</div>
 						<div>
-							<p className="text-[#a0b4c4] text-sm">
+							<p className="text-glacier-on-surface-variant text-sm">
 								Đăng ký dịch vụ
 							</p>
-							<p className="text-lg font-bold text-[#e0e8f0]">
+							<p className="text-lg font-bold text-glacier-on-surface">
 								{formatCurrency(subscriptions.amount)}{" "}
-								<span className="text-xs font-normal text-[#a0b4c4]">
+								<span className="text-xs font-normal text-glacier-on-surface-variant">
 									/tháng
 								</span>
 							</p>

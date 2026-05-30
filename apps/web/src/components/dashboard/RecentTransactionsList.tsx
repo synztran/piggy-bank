@@ -2,6 +2,7 @@
 
 import { formatCurrency, formatDate } from "@/lib/utils";
 import {
+  CircleQuestionMark,
 	FileQuestion,
 	Plane,
 	PlaySquare,
@@ -33,7 +34,7 @@ const categoryIcon: Record<string, React.ElementType> = {
 	subscriptions: PlaySquare,
 	retail: ShoppingBag,
 	utilities: Zap,
-	other: FileQuestion,
+	other: CircleQuestionMark,
 };
 
 const categoryColor: Record<string, string> = {
@@ -74,13 +75,13 @@ const RecentTransactionsList = React.memo(function RecentTransactionsList({
 }: RecentTransactionsListProps) {
 	return (
 		<section className="space-y-4">
-			<div className="flex justify-between items-end">
-				<h2 className="text-xl font-bold text-[#e0e8f0] tracking-tight">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-bold text-glacier-on-surface tracking-tight">
 					Giao dịch gần đây
 				</h2>
 				<Link
 					href="/history"
-					className="text-[#7dd3fc] text-sm font-medium hover:underline">
+					className="text-glacier-primary text-sm font-medium hover:underline">
 					Xem tất cả
 				</Link>
 			</div>
@@ -94,7 +95,7 @@ const RecentTransactionsList = React.memo(function RecentTransactionsList({
 						/>
 					))}
 				{!loading && transactions.length === 0 && (
-					<div className="glass-panel p-5 rounded-xl text-center text-[#a0b4c4] text-sm">
+					<div className="glass-panel p-5 rounded-xl text-center text-glacier-on-surface text-sm">
 						Chưa có giao dịch nào.
 					</div>
 				)}
@@ -110,16 +111,16 @@ const RecentTransactionsList = React.memo(function RecentTransactionsList({
 							<div
 								key={tx._id}
 								className="glass-panel p-3 rounded-xl flex items-center justify-between hover:bg-[rgba(125,211,252,0.04)] transition-colors">
-								<div className="flex items-center gap-4">
+								<div className="flex items-center gap-2">
 									<div
-										className={`min-w-10 h-10 rounded-xl flex items-center justify-center border ${bgClass} ${textColor}`}>
-										<Icon size={20} />
+										className={`min-w-10 h-10 flex items-center justify-center ${textColor}`}>
+										<Icon size={28} />
 									</div>
 									<div>
-										<p className="text-[#e0e8f0] font-semibold text-sm line-clamp-2">
+										<p className="text-glacier-on-surface font-semibold text-sm line-clamp-2">
 											{tx.description}
 										</p>
-										<p className="text-[10px] text-[#a0b4c4] capitalize line-clamp-1">
+										<p className="text-[10px] text-glacier-on-surface capitalize line-clamp-1">
 											{formatDate(tx.transactionDate)} ·{" "}
 											{categoryLabel[tx.category] ||
 												tx.category}

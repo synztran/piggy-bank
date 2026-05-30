@@ -60,13 +60,8 @@ const HeroBalanceCard = React.memo(function HeroBalanceCard({
 										: "border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.03)]"
 								}`}>
 								<div className="flex items-center justify-between">
-									<p className="text-[10px] font-bold uppercase tracking-wider text-glacier-on-surface-variant">
+									<p className="text-xs font-bold tracking-wider text-glacier-on-surface-variant">
 										{m.name.split(" ")[0]}
-										{m.isCurrentUser && (
-											<span className="ml-1 text-glacier-primary">
-												(tôi)
-											</span>
-										)}
 									</p>
 									<button
 										onClick={() => toggleMemberBalance(m.name)}

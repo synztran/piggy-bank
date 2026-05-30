@@ -1,6 +1,6 @@
 "use client";
 
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, formatDate } from "@/lib/utils";
 import {
 	CreditCard,
 	FileQuestion,
@@ -44,15 +44,37 @@ const categoryIcon: Record<string, React.ElementType> = {
 	other: FileQuestion,
 };
 
-const categoryColor: Record<string, string> = {
-	food: "text-orange-400 bg-orange-500/10 border-orange-500/20",
-	dining: "text-sky-400 bg-sky-500/10 border-sky-500/20",
-	travel: "text-sky-400 bg-sky-500/10 border-sky-500/20",
-	subscriptions: "text-slate-400 bg-slate-500/10 border-slate-500/20",
-	retail: "text-[#7dd3fc] bg-[rgba(125,211,252,0.1)] border-[rgba(125,211,252,0.2)]",
-	utilities: "text-[#c8a0f0] bg-purple-500/10 border-purple-500/20",
-	income: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
-	other: "text-red-200 bg-red-200/10 border-red-200/20",
+const categoryTextColor: Record<string, string> = {
+	food: "text-orange-400",
+	dining: "text-sky-400",
+	travel: "text-sky-400",
+	subscriptions: "text-slate-400",
+	retail: "text-glacier-primary",
+	utilities: "text-glacier-tertiary",
+	income: "text-emerald-400",
+	other: "text-red-200",
+};
+
+const categoryBgColor: Record<string, string> = {
+	food: "bg-orange-500/10",
+	dining: "bg-sky-500/10",
+	travel: "bg-sky-500/10",
+	subscriptions: "bg-slate-500/10",
+	retail: "bg-[rgba(125,211,252,0.1)]",
+	utilities: "bg-purple-500/10",
+	income: "bg-emerald-500/10",
+	other: "bg-red-200/10",
+};
+
+const categoryBorderColor: Record<string, string> = {
+	food: "border-orange-500/20",
+	dining: "border-sky-500/20",
+	travel: "border-sky-500/20",
+	subscriptions: "border-slate-500/20",
+	retail: "border-[rgba(125,211,252,0.2)]",
+	utilities: "border-purple-500/20",
+	income: "border-emerald-500/20",
+	other: "border-red-200/20",
 };
 
 const TransactionItem = React.memo(function TransactionItem({
@@ -61,17 +83,19 @@ const TransactionItem = React.memo(function TransactionItem({
 	onDelete,
 }: TransactionItemProps) {
 	const Icon = categoryIcon[tx.category] || ShoppingBag;
-	const colorClass = categoryColor[tx.category] || categoryColor.other;
+	const textColor = categoryTextColor[tx.category] || categoryTextColor.other;
+	const bgColor = categoryBgColor[tx.category] || categoryBgColor.other;
+	const borderColor = categoryBorderColor[tx.category] || categoryBorderColor.other;
 
 	return (
 		<div
-			className={`relative glass-panel gap-4 p-4 rounded-xl flex items-center justify-between transition-colors group ${
+			className={`relative glass-panel gap-4 py-2 pl-2 pr-4 rounded-xl flex items-center justify-between transition-colors group ${
 				tx.isRemove ? "opacity-50" : "hover:bg-[rgba(125,211,252,0.04)]"
 			}`}>
 			<div className="flex items-center gap-2">
 				<div
-					className={`min-w-12 h-12 rounded-xl flex items-center justify-center border ${colorClass}`}>
-					<Icon size={20} />
+					className={`min-w-12 h-12 flex items-center justify-center ${textColor} ${borderColor}`}>
+					<Icon size={28} />
 				</div>
 				<div className="space-y-1">
 					<div className="flex items-center gap-2 flex-wrap">
@@ -81,11 +105,11 @@ const TransactionItem = React.memo(function TransactionItem({
 					</div>
 					<div className="flex items-center gap-1 font-semibold text-sm line-clamp-2">
 						{tx.paymentSourceName && !tx.isRemove && (
-							<span className="text-[11px] font-medium px-1.5 py-0.5 rounded-md bg-[rgba(125,211,252,0.06)] text-[#a0b4c4] border border-[rgba(125,211,252,0.12)]">
+							<span className="text-[11px] font-medium px-1.5 py-0.5 rounded-md bg-[rgba(125,211,252,0.06)] text-glacier-on-surface-variant border border-[rgba(125,211,252,0.12)]">
 								{tx.paymentSourceName}
 							</span>
 						)}
-						<span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-[rgba(125,211,252,0.08)] text-[#7dd3fc] border border-[rgba(125,211,252,0.15)]">
+						<span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-[rgba(125,211,252,0.08)] text-glacier-primary border border-[rgba(125,211,252,0.15)]">
 							{tx.userName || "Ẩn danh"}
 						</span>
 						{tx.isRemove && (
@@ -104,18 +128,12 @@ const TransactionItem = React.memo(function TransactionItem({
 						{formatCurrency(tx.amount)}
 					</div>
 					<div className="text-[10px] text-slate-500">
-						{new Date(tx.transactionDate).toLocaleString("vi-VN", {
-							day: "2-digit",
-							month: "2-digit",
-							year: "numeric",
-							hour: "2-digit",
-							minute: "2-digit",
-						})}
+            {formatDate(tx.transactionDate)}
 					</div>
 				</div>
 			</div>
 			{tx.isOwn && !tx.isRemove ? (
-				<div className="absolute -top-1.5 -right-2">
+				<div className="absolute -top-3 -right-2">
 					<button
 						onClick={() => onDelete(tx._id)}
 						disabled={deleting === tx._id}

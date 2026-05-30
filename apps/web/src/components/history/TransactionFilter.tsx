@@ -1,6 +1,6 @@
 "use client";
 
-import { SlidersHorizontal, X } from "lucide-react";
+import { Search, SlidersHorizontal, X } from "lucide-react";
 import { memo } from "react";
 
 interface TransactionFilterProps {
@@ -10,7 +10,14 @@ interface TransactionFilterProps {
 	endDate: string;
 	activeStart: string;
 	activeEnd: string;
+	showSearch: boolean;
+	searchQuery: string;
+	activeSearchQuery: string;
 	onToggleFilter: () => void;
+	onToggleSearch: () => void;
+	onSearchQueryChange: (v: string) => void;
+	onSearchApply: () => void;
+	onSearchClear: () => void;
 	onStartDateChange: (v: string) => void;
 	onEndDateChange: (v: string) => void;
 	onApply: () => void;
@@ -25,7 +32,14 @@ const TransactionFilter = memo(function TransactionFilter({
 	endDate,
 	activeStart,
 	activeEnd,
+	showSearch,
+	searchQuery,
+	activeSearchQuery,
 	onToggleFilter,
+	onToggleSearch,
+	onSearchQueryChange,
+	onSearchApply,
+	onSearchClear,
 	onStartDateChange,
 	onEndDateChange,
 	onApply,
@@ -38,33 +52,45 @@ const TransactionFilter = memo(function TransactionFilter({
 			style={{ top: "calc(4rem + env(safe-area-inset-top))" }}>
 			<div className="clear-both relative">
 				<div className="flex items-center justify-between mb-1">
-					<h2 className="text-2xl font-extrabold text-[#e0e8f0] tracking-tight">
+					<h2 className="text-xl font-extrabold text-glacier-on-surface tracking-tight">
 						Lịch sử giao dịch
 					</h2>
-					<button
-						onClick={onToggleFilter}
-						className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-							isFiltered
-								? "bg-[rgba(125,211,252,0.15)] text-[#7dd3fc] border border-[rgba(125,211,252,0.3)]"
-								: "bg-[rgba(125,211,252,0.06)] text-[#a0b4c4] border border-[rgba(125,211,252,0.1)]"
-						}`}>
-						<SlidersHorizontal size={13} />
-						Lọc{isFiltered ? " (đang lọc)" : ""}
-					</button>
+					<div className="flex items-center gap-2">
+						<button
+							onClick={onToggleSearch}
+							className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+								activeSearchQuery
+									? "bg-[rgba(125,211,252,0.15)] text-glacier-primary border border-[rgba(125,211,252,0.3)]"
+									: "bg-[rgba(125,211,252,0.06)] text-glacier-on-surface-variant border border-[rgba(125,211,252,0.1)]"
+							}`}>
+							<Search size={13} />
+							Tìm
+						</button>
+						<button
+							onClick={onToggleFilter}
+							className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+								isFiltered
+									? "bg-[rgba(125,211,252,0.15)] text-glacier-primary border border-[rgba(125,211,252,0.3)]"
+									: "bg-[rgba(125,211,252,0.06)] text-glacier-on-surface-variant border border-[rgba(125,211,252,0.1)]"
+							}`}>
+							<SlidersHorizontal size={13} />
+							Lọc{isFiltered ? " (đang lọc)" : ""}
+						</button>
+					</div>
 				</div>
-				<p className="text-[#a0b4c4] text-xs">
+				<p className="text-glacier-on-surface-variant text-xs">
 					Xem lại toàn bộ giao dịch của bạn.
 				</p>
 			</div>
 
 			{showFilter && (
 				<div className="glass-panel p-4 rounded-xl space-y-3 animate-in slide-in-from-top duration-200">
-					<p className="text-sm font-bold uppercase tracking-widest text-[#a0b4c4]">
+					<p className="text-sm font-bold uppercase tracking-widest text-glacier-on-surface-variant">
 						Bộ lọc
 					</p>
 					<div className="grid grid-cols-2 gap-3">
 						<div className="w-full">
-							<label className="text-xs text-[#a0b4c4] mb-1 block">
+							<label className="text-xs text-glacier-on-surface-variant mb-1 block">
 								Từ ngày
 							</label>
 							<input
@@ -73,11 +99,11 @@ const TransactionFilter = memo(function TransactionFilter({
 								onChange={(e) =>
 									onStartDateChange(e.target.value)
 								}
-								className="glass-input py-2 px-3 rounded-lg text-[#e0e8f0] text-sm"
+								className="glass-input py-2 px-3 rounded-lg text-glacier-on-surface text-sm"
 							/>
 						</div>
 						<div className="w-full">
-							<label className="text-xs text-[#a0b4c4] mb-1 block">
+							<label className="text-xs text-glacier-on-surface-variant mb-1 block">
 								Đến ngày
 							</label>
 							<input
@@ -86,7 +112,7 @@ const TransactionFilter = memo(function TransactionFilter({
 								onChange={(e) =>
 									onEndDateChange(e.target.value)
 								}
-								className="glass-input py-2 px-3 rounded-lg text-[#e0e8f0] text-sm"
+								className="glass-input py-2 px-3 rounded-lg text-glacier-on-surface text-sm"
 							/>
 						</div>
 					</div>
@@ -94,21 +120,64 @@ const TransactionFilter = memo(function TransactionFilter({
 						<button
 							onClick={onApply}
 							disabled={!startDate && !endDate}
-							className="flex-1 py-2 rounded-lg bg-[#7dd3fc] text-[#001f2e] text-sm font-bold disabled:opacity-40">
+							className="flex-1 py-2 rounded-lg bg-glacier-primary text-[#001f2e] text-sm font-bold disabled:opacity-40">
 							Áp dụng
 						</button>
 						<button
 							onClick={onClose}
-							className="px-4 py-2 rounded-lg border border-[rgba(125,211,252,0.15)] text-[#a0b4c4] text-sm">
+							className="px-4 py-2 rounded-lg border border-[rgba(125,211,252,0.15)] text-glacier-on-surface-variant text-sm">
 							Đóng
 						</button>
 					</div>
 				</div>
 			)}
 
+			{showSearch && (
+				<div className="glass-panel p-4 rounded-xl space-y-3 animate-in slide-in-from-top duration-200">
+					<p className="text-sm font-bold uppercase tracking-widest text-glacier-on-surface-variant">
+						Tìm kiếm
+					</p>
+					<input
+						type="text"
+						value={searchQuery}
+						onChange={(e) => onSearchQueryChange(e.target.value)}
+						onKeyDown={(e) => e.key === "Enter" && onSearchApply()}
+						placeholder="Nhập tên giao dịch..."
+						className="glass-input w-full py-2 px-3 rounded-lg text-glacier-on-surface text-sm placeholder:text-glacier-on-surface-variant"
+					/>
+					<div className="flex gap-2 pt-1">
+						<button
+							onClick={onSearchApply}
+							disabled={!searchQuery.trim()}
+							className="flex-1 py-2 rounded-lg bg-glacier-primary text-[#001f2e] text-sm font-bold disabled:opacity-40">
+							Tìm
+						</button>
+						<button
+							onClick={onToggleSearch}
+							className="px-4 py-2 rounded-lg border border-[rgba(125,211,252,0.15)] text-glacier-on-surface-variant text-sm">
+							Đóng
+						</button>
+					</div>
+				</div>
+			)}
+
+			{activeSearchQuery && (
+				<div className="flex items-center justify-between px-3 py-2 rounded-lg bg-[rgba(125,211,252,0.08)] border border-[rgba(125,211,252,0.2)]">
+					<span className="text-xs text-glacier-primary font-medium">
+						Tìm: &ldquo;{activeSearchQuery}&rdquo;
+					</span>
+					<button
+						onClick={onSearchClear}
+						className="flex items-center gap-1 text-[10px] font-bold text-red-400 hover:text-red-300 transition-colors">
+						<X size={11} />
+						Xoá
+					</button>
+				</div>
+			)}
+
 			{isFiltered && (
 				<div className="flex items-center justify-between px-3 py-2 rounded-lg bg-[rgba(125,211,252,0.08)] border border-[rgba(125,211,252,0.2)]">
-					<span className="text-xs text-[#7dd3fc] font-medium">
+					<span className="text-xs text-glacier-primary font-medium">
 						{activeStart && activeEnd
 							? `${activeStart} → ${activeEnd}`
 							: activeStart

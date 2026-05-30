@@ -16,6 +16,7 @@ export async function GET(req: NextRequest) {
 	const skip = (page - 1) * limit;
 	const startDate = searchParams.get("startDate");
 	const endDate = searchParams.get("endDate");
+	const search = searchParams.get("search");
 
 	await connectDB();
 
@@ -26,9 +27,12 @@ export async function GET(req: NextRequest) {
 		end.setHours(23, 59, 59, 999);
 		dateFilter.$lte = end;
 	}
-	const baseMatch = {
+	const baseMatch: Record<string, unknown> = {
 		...(Object.keys(dateFilter).length
 			? { transactionDate: dateFilter }
+			: {}),
+		...(search
+			? { description: { $regex: search, $options: "i" } }
 			: {}),
 	};
 
