@@ -6,6 +6,7 @@ import { memo } from "react";
 interface TransactionFilterProps {
 	showFilter: boolean;
 	isFiltered: boolean;
+  isSearching: boolean;
 	startDate: string;
 	endDate: string;
 	activeStart: string;
@@ -28,6 +29,7 @@ interface TransactionFilterProps {
 const TransactionFilter = memo(function TransactionFilter({
 	showFilter,
 	isFiltered,
+  isSearching,
 	startDate,
 	endDate,
 	activeStart,
@@ -55,16 +57,16 @@ const TransactionFilter = memo(function TransactionFilter({
 					<span className="text-lg font-extrabold text-glacier-on-surface tracking-tight">
 						Lịch sử giao dịch
 					</span>
-					<div className="flex items-center gap-2">
+					<div className="flex items-center gap-1.5">
 						<button
 							onClick={onToggleSearch}
-							className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+							className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-[10px] font-semibold transition-all ${
 								activeSearchQuery
 									? "bg-[rgba(125,211,252,0.15)] text-glacier-primary border border-[rgba(125,211,252,0.3)]"
 									: "bg-[rgba(125,211,252,0.06)] text-glacier-on-surface-variant border border-[rgba(125,211,252,0.1)]"
 							}`}>
-							<Search size={13} />
-							Tìm
+							<Search size={12} />
+							{isSearching ? "Đang tìm" : "Tìm"}
 						</button>
 						<button
 							onClick={onToggleFilter}
@@ -74,7 +76,7 @@ const TransactionFilter = memo(function TransactionFilter({
 									: "bg-[rgba(125,211,252,0.06)] text-glacier-on-surface-variant border border-[rgba(125,211,252,0.1)]"
 							}`}>
 							<SlidersHorizontal size={12} />
-							Lọc{isFiltered ? " (đang lọc)" : ""}
+							{isFiltered ? "Đang lọc" : "Lọc"}
 						</button>
 					</div>
 				</div>

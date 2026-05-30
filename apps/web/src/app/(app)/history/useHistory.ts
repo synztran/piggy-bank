@@ -238,6 +238,7 @@ export function useHistory() {
 	const filterProps = {
 		showFilter,
 		isFiltered,
+    isSearching,
 		startDate,
 		endDate,
 		activeStart,

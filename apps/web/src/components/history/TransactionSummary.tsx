@@ -72,9 +72,10 @@ const TransactionSummary = memo(function TransactionSummary({
 	return (
 		<div
 			className="flex items-center gap-2"
-			style={{
-				marginTop: "calc(env(safe-area-inset-top))",
-			}}>
+			// style={{
+			// 	marginTop: "calc(env(safe-area-inset-top))",
+			// }}
+      >
 			<MoneyCard totalSpent={totalSpent} totalIncome={totalIncome} />
 			<TransactionCountCard totalIn={totalTransactionsIn} totalOut={totalTransactionsOut} />
 		</div>
