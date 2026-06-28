@@ -1,5 +1,6 @@
 import { getSession } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
+import { sendPushNotification } from "@/lib/notification";
 import Transaction from "@/models/Transaction";
 import User, { IPaymentSource } from "@/models/User";
 import mongoose from "mongoose";
@@ -233,8 +234,58 @@ export async function POST(req: NextRequest) {
 				: new Date(),
 		});
 
+		const transactionJson = transaction.toJSON();
+
+		const categoryLabels: Record<string, string> = {
+			food: "Food",
+			transport: "Transport",
+			shopping: "Shopping",
+			bills: "Bills",
+			entertainment: "Entertainment",
+			health: "Health",
+			education: "Education",
+			other: "Other",
+			income: "Income",
+		};
+
+		const emojiMap: Record<string, string> = {
+			food: "🍽️",
+			transport: "🚗",
+			shopping: "🛍️",
+			bills: "📄",
+			entertainment: "🎬",
+			health: "💊",
+			education: "📚",
+			other: "📌",
+			income: "💰",
+		};
+
+		const fmtAmount = new Intl.NumberFormat("vi-VN", {
+			style: "currency",
+			currency: "VND",
+			minimumFractionDigits: 0,
+		}).format(parsedAmount);
+
+		const emoji = emojiMap[category || "other"] || "📌";
+		const catLabel = categoryLabels[category || "other"] || category;
+
+		const title =
+			type === "expense"
+				? `${emoji} Spent ${fmtAmount}`
+				: `${emoji} Received ${fmtAmount}`;
+		const body = description?.trim()
+			? `${catLabel}: ${description.trim()}`
+			: catLabel;
+
+		sendPushNotification(session.userId, title, body, {
+			transactionId: transaction._id?.toString(),
+			type,
+			amount: parsedAmount,
+			category,
+		});
+
 		return NextResponse.json(
-			{ transaction: transaction.toJSON() },
+			{ transaction: transactionJson },
 			{ status: 201 },
 		);
 	} catch {

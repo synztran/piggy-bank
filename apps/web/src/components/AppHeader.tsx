@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/lib/auth-context";
 import { ArrowLeft, LogOut } from "lucide-react";
+import NotificationBell from "./NotificationBell";
 import { useRouter } from "next/navigation";
 
 interface AppHeaderProps {
@@ -52,16 +53,11 @@ export default function AppHeader({ showBack, backHref }: AppHeaderProps) {
 						HaJa
 					</span>
 				</div>
-				<div className="flex items-center">
+				<div className="flex items-center gap-1">
 					<span className="text-[10px] text-white font-medium sm:block">
 						Xin chào, {user?.name}
 					</span>
-					{/* <button
-          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-[rgba(125,211,252,0.1)] transition-colors text-glacier-on-surface-variant active:scale-95"
-          aria-label="Notifications"
-        >
-          <Bell size={20} />
-        </button> */}
+					<NotificationBell />
 					{user && (
 						<button
 							onClick={logout}
