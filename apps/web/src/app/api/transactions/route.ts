@@ -266,16 +266,17 @@ export async function POST(req: NextRequest) {
 			minimumFractionDigits: 0,
 		}).format(parsedAmount);
 
-		const emoji = emojiMap[category || "other"] || "📌";
-		const catLabel = categoryLabels[category || "other"] || category;
+		const emoji = emojiMap[category || "Khác"] || "📌";
+		const catLabel = categoryLabels[category || "Khác"] || category;
 
 		const masked = maskAmount(fmtAmount);
+		const who = user.name;
 		const title =
 			type === "expense"
-				? `${emoji} Đã chi ${masked}`
-				: `${emoji} Đã nhận ${masked}`;
+				? `${emoji} ${who} đã chi ${masked}`
+				: `${emoji} ${who} đã nhận ${masked}`;
 		const body = description?.trim()
-			? `${catLabel}: ${description.trim()}`
+			? `Danh mục: ${description.trim()}`
 			: catLabel;
 
 		const otherUsers = await User.find({ _id: { $ne: session.userId } }).select("_id");

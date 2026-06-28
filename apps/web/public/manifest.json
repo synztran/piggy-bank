@@ -1,6 +1,6 @@
 {
 	"name": "HaJa Piggy Bank",
-	"short_name": "HaJa",
+	"short_name": "HaJa Bank",
 	"description": "Where your savings don't melt away.",
 	"start_url": "/dashboard",
 	"scope": "/",
@@ -17,10 +17,16 @@
 			"purpose": "any maskable"
 		},
 		{
-			"src": "/icon.png",
+			"src": "/apple-icon.png",
 			"sizes": "180x180",
 			"type": "image/png",
 			"purpose": "any"
+		},
+		{
+			"src": "/icon.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "maskable"
 		}
 	]
 }

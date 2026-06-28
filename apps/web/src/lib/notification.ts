@@ -15,7 +15,7 @@ export function getVapidPublicKey(): string {
 }
 
 export function maskAmount(formatted: string): string {
-  return formatted.replace(/\d/g, "*");
+  return formatted.replace(/\d/g, "*").replace(/[.,]/g, "");
 }
 
 export async function sendPushNotification(
