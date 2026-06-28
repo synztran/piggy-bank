@@ -1,6 +1,6 @@
 import { getSession } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
-import { sendPushNotification } from "@/lib/notification";
+import { maskAmount, sendPushNotification } from "@/lib/notification";
 import Transaction from "@/models/Transaction";
 import User, { IPaymentSource } from "@/models/User";
 import mongoose from "mongoose";
@@ -269,10 +269,11 @@ export async function POST(req: NextRequest) {
 		const emoji = emojiMap[category || "other"] || "📌";
 		const catLabel = categoryLabels[category || "other"] || category;
 
+		const masked = maskAmount(fmtAmount);
 		const title =
 			type === "expense"
-				? `${emoji} Spent ${fmtAmount}`
-				: `${emoji} Received ${fmtAmount}`;
+				? `${emoji} Đã chi ${masked}`
+				: `${emoji} Đã nhận ${masked}`;
 		const body = description?.trim()
 			? `${catLabel}: ${description.trim()}`
 			: catLabel;

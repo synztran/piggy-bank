@@ -14,6 +14,10 @@ export function getVapidPublicKey(): string {
   return VAPID_PUBLIC_KEY;
 }
 
+export function maskAmount(formatted: string): string {
+  return formatted.replace(/\d/g, "*");
+}
+
 export async function sendPushNotification(
   userIds: string | string[],
   title: string,
