@@ -15,7 +15,7 @@ export function getVapidPublicKey(): string {
 }
 
 export async function sendPushNotification(
-  userId: string,
+  userIds: string | string[],
   title: string,
   body: string,
   data?: Record<string, unknown>,
@@ -28,7 +28,10 @@ export async function sendPushNotification(
   try {
     await connectDB();
 
-    const subscriptions = await PushSubscription.find({ userId });
+    const ids = Array.isArray(userIds) ? userIds : [userIds];
+    if (ids.length === 0) return;
+
+    const subscriptions = await PushSubscription.find({ userId: { $in: ids } });
 
     const payload = JSON.stringify({
       title,

@@ -87,7 +87,7 @@ function LoginForm() {
 						</div>
 					</div>
 					<h1 className="text-4xl font-extrabold text-glacier-on-surface tracking-tight mb-2">
-						HaJaw Piggy Bank
+						HaJa Piggy Bank
 					</h1>
 					<p className="text-glacier-on-surface-variant font-medium text-center px-8">
 						Tiết kiệm của bạn sẽ không bao giờ tan chảy. <br />

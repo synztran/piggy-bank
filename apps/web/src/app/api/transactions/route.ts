@@ -277,12 +277,16 @@ export async function POST(req: NextRequest) {
 			? `${catLabel}: ${description.trim()}`
 			: catLabel;
 
-		sendPushNotification(session.userId, title, body, {
-			transactionId: transaction._id?.toString(),
-			type,
-			amount: parsedAmount,
-			category,
-		});
+		const otherUsers = await User.find({ _id: { $ne: session.userId } }).select("_id");
+		const otherUserIds = otherUsers.map((u) => u._id.toString());
+		if (otherUserIds.length > 0) {
+			sendPushNotification(otherUserIds, title, body, {
+				transactionId: transaction._id?.toString(),
+				type,
+				amount: parsedAmount,
+				category,
+			});
+		}
 
 		return NextResponse.json(
 			{ transaction: transactionJson },
