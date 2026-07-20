@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
 		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
 	try {
-		const { type, name, boughtAt, price, source, quantityUnit, quantity } =
+		const { type, name, boughtAt, price, currentPrice, source, quantityUnit, quantity } =
 			await req.json();
 
 		if (!type || !name || !boughtAt || price == null || !source) {
@@ -47,6 +47,7 @@ export async function POST(req: NextRequest) {
 			name: name.trim(),
 			boughtAt: new Date(boughtAt),
 			price: Number(price),
+			...(currentPrice != null && { currentPrice: Number(currentPrice) }),
 			source: source.trim(),
 			...(quantity != null && { quantity: Number(quantity) }),
 			...(quantityUnit && { quantityUnit: quantityUnit.trim() }),

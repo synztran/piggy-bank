@@ -15,6 +15,8 @@
   --color-glacier-on-surface-variant: #a0b4c4;
   --color-glacier-outline: #4a6070;
   --color-glacier-outline-variant: #2a3a48;
+  --color-income: #34d399;
+  --color-expense: #ef4444;
   --page-scroll-bg: transparent;
   --root-bg: transparent;
 }
@@ -179,5 +181,11 @@
 
   .no-spinner {
     -moz-appearance: textfield;
+  }
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
   }
 }

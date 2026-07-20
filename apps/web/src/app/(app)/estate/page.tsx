@@ -1,13 +1,14 @@
 "use client";
 
 import AddEstateDrawer from "@/components/AddEstateDrawer";
+import EstateCard from "@/components/EstateCard";
+import EstateDetailDrawer from "@/components/EstateDetailDrawer";
+import EstateSummaryCard from "@/components/EstateSummaryCard";
 import PullToRefresh from "@/components/PullToRefresh";
 import { useAuth } from "@/lib/auth-context";
-import { formatCurrency, formatDate } from "@/lib/utils";
 import { gooeyToast } from "goey-toast";
 import { AnimatePresence, motion } from "framer-motion";
 import { Eye, EyeOff, Plus, PlusCircle } from "lucide-react";
-import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 interface EstateItem {
@@ -16,9 +17,19 @@ interface EstateItem {
 	name: string;
 	boughtAt: string;
 	price: number;
+	currentPrice?: number;
 	source: string;
 	quantityUnit?: string;
 	quantity?: number;
+}
+
+interface EstateGroup {
+	type: string;
+	label: string;
+	items: EstateItem[];
+	boughtPrice: number;
+	currentPrice: number;
+	totalQuantity: string;
 }
 
 const ALLOWED_KEYBOARD_USER_ID = "69c55ee4c121525ca058f09b";
@@ -29,40 +40,10 @@ const BASE_ESTATE_TYPES = [
 	{ key: "stock", label: "Cổ phiếu" },
 ];
 
-const typeIcons: Record<string, string> = {
-	gold: "/icons/golds.png",
-	stock: "/icons/stocks.png",
-	keyboard: "/icons/keyboards.png",
-};
-
-const typeColors: Record<string, string> = {
-	gold: "text-yellow-400 bg-yellow-500/10 border-yellow-500/20",
-	stock: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
-	keyboard: "text-purple-400 bg-purple-500/10 border-purple-500/20",
-};
-
-const typeGradients: Record<string, string> = {
-	gold: "bg-gradient-to-br from-[#3a2a0a] via-[#5a4a1a] to-[#8a7a2a]",
-	stock: "bg-gradient-to-br from-[#0a3a1a] via-[#1a5a3a] to-[#2a7a5a]",
-	keyboard: "bg-gradient-to-br from-[#2a0a3a] via-[#4a1a5a] to-[#6a2a7a]",
-};
-
 const typeLabel: Record<string, string> = {
 	gold: "Vàng",
 	stock: "Cổ phiếu",
 	keyboard: "Bàn phím",
-};
-
-const cardVariants = {
-	initial: { opacity: 0, y: 20, scale: 0.97 },
-	animate: { opacity: 1, y: 0, scale: 1 },
-	exit: { opacity: 0, y: -10, scale: 0.97 },
-};
-
-const containerVariants = {
-	animate: {
-		transition: { staggerChildren: 0.05 },
-	},
 };
 
 export default function EstatePage() {
@@ -72,6 +53,13 @@ export default function EstatePage() {
 	const [activeTab, setActiveTab] = useState("all");
 	const [drawerOpen, setDrawerOpen] = useState(false);
 	const [showValues, setShowValues] = useState(false);
+	const [selectedGroup, setSelectedGroup] = useState<{
+		type: string;
+		label: string;
+		items: EstateItem[];
+		boughtPrice: number;
+		currentPrice: number;
+	} | null>(null);
 	const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 	const [deleting, setDeleting] = useState(false);
 	const dialogRef = useRef<HTMLDialogElement>(null);
@@ -139,20 +127,62 @@ export default function EstatePage() {
 		fetchEstates();
 	}, [fetchEstates]);
 
-	const filtered =
-		activeTab === "all"
-			? estates
-			: estates.filter((e) => e.type === activeTab);
-
-	const totalsByType = useMemo(() => {
-		const map: Record<string, number> = {};
+	const estateGroups = useMemo(() => {
+		const groups: Record<string, EstateItem[]> = {};
 		for (const e of estates) {
-			map[e.type] = (map[e.type] || 0) + e.price;
+			if (!groups[e.type]) groups[e.type] = [];
+			groups[e.type].push(e);
 		}
-		return map;
+		return Object.entries(groups).map(([type, items]) => {
+			const boughtPrice = items.reduce((sum, i) => sum + i.price, 0);
+			const currentPrice = items.reduce(
+				(sum, i) => sum + (i.currentPrice ?? i.price),
+				0,
+			);
+
+			let totalQuantity = "";
+			if (type === "gold") {
+				let totalChi = 0;
+				for (const i of items) {
+					if (i.quantity == null) continue;
+					if (i.quantityUnit === "lượng") {
+						totalChi += i.quantity * 10;
+					} else {
+						totalChi += i.quantity;
+					}
+				}
+				if (totalChi > 0) {
+					const luong = Math.floor(totalChi / 10);
+					const chi = Math.round((totalChi % 10) * 100) / 100;
+					totalQuantity = `${luong > 0 ? `${luong} lượng ` : ""}${chi} chỉ`;
+				}
+			} else if (type === "stock") {
+				const totalShares = items.reduce(
+					(sum, i) => sum + (i.quantity ?? 0),
+					0,
+				);
+				if (totalShares > 0) {
+					totalQuantity = `${totalShares} cổ phiếu`;
+				}
+			} else if (type === "keyboard") {
+				totalQuantity = `${items.length} cái`;
+			}
+
+			return {
+				type,
+				label: typeLabel[type] || type,
+				items,
+				boughtPrice,
+				currentPrice,
+				totalQuantity,
+			};
+		});
 	}, [estates]);
 
-	const totalAll = Object.values(totalsByType).reduce((a, b) => a + b, 0);
+	const filteredGroups = useMemo(() => {
+		if (activeTab === "all") return estateGroups;
+		return estateGroups.filter((g) => g.type === activeTab);
+	}, [estateGroups, activeTab]);
 
 	const handleDelete = (id: string) => {
 		setDeleteConfirmId(id);
@@ -171,7 +201,11 @@ export default function EstatePage() {
 						<button
 							onClick={() => setShowValues(!showValues)}
 							className="p-2 rounded-md bg-white/10 backdrop-blur-xl border border-white/20 text-glacier-on-surface-variant hover:text-glacier-on-surface transition-colors">
-							{showValues ? <Eye size={16} /> : <EyeOff size={16} />}
+							{showValues ? (
+								<Eye size={16} />
+							) : (
+								<EyeOff size={16} />
+							)}
 						</button>
 						<button
 							onClick={() => setDrawerOpen(true)}
@@ -181,35 +215,11 @@ export default function EstatePage() {
 					</div>
 				</div>
 
-				{/* Summary Card */}
 				{!loading && estates.length > 0 && (
-					<motion.div
-						initial={{ opacity: 0, y: 10 }}
-						animate={{ opacity: 1, y: 0 }}
-						className="glass-panel p-4 rounded-xl space-y-3">
-						<div className="flex items-center justify-between">
-							<span className="text-sm text-glacier-on-surface-variant">
-								Tổng giá trị
-							</span>
-							<span className="text-xl font-bold text-glacier-on-surface">
-								{showValues ? formatCurrency(totalAll) : "••••••"}
-							</span>
-						</div>
-						<div className="flex gap-4 pt-2 border-t border-white/10">
-							{Object.entries(totalsByType).map(
-								([type, total]) => (
-									<div key={type} className="flex-1">
-										<p className="text-[10px] uppercase tracking-wide text-glacier-on-surface-variant">
-											{typeLabel[type] || type}
-										</p>
-										<p className="text-xs font-semibold text-glacier-on-surface mt-0.5">
-											{showValues ? formatCurrency(total) : "••••••"}
-										</p>
-									</div>
-								),
-							)}
-						</div>
-					</motion.div>
+					<EstateSummaryCard
+						estates={estates}
+						showValues={showValues}
+					/>
 				)}
 
 				{/* Type Tabs */}
@@ -239,7 +249,7 @@ export default function EstatePage() {
 						))}
 
 					<AnimatePresence mode="popLayout">
-						{!loading && filtered.length === 0 && (
+						{!loading && filteredGroups.length === 0 && (
 							<motion.div
 								key="empty"
 								initial={{ opacity: 0 }}
@@ -263,117 +273,34 @@ export default function EstatePage() {
 						{!loading && (
 							<motion.div
 								key={activeTab}
-								variants={containerVariants}
+								variants={{
+									animate: {
+										transition: {
+											staggerChildren: 0.05,
+										},
+									},
+								}}
 								initial="initial"
 								animate="animate"
-								className="space-y-4">
+								className="space-y-2">
 								<AnimatePresence mode="popLayout">
-									{filtered.map((item) => {
-										const iconSrc =
-											typeIcons[item.type] ||
-											"/icons/golds.png";
-										const colorClass =
-											typeColors[item.type] ||
-											typeColors.gold;
-										const gradient =
-											typeGradients[item.type] ||
-											typeGradients.gold;
-
-										return (
-											<motion.div
-												key={item._id}
-												layout
-												variants={cardVariants}
-												initial="initial"
-												animate="animate"
-												exit="exit"
-												transition={{
-													type: "spring",
-													stiffness: 300,
-													damping: 25,
-												}}
-												className={`p-4 rounded-xl relative group ${gradient}`}>
-												<div className="flex items-start gap-2 relative z-10">
-													<div
-														className={`w-12 h-12 rounded-xl flex items-center justify-center border shrink-0 ${colorClass}`}>
-														<Image
-															src={iconSrc}
-															alt=""
-															width={22}
-															height={22}
-															className="object-contain"
-															unoptimized
-														/>
-													</div>
-													<div className="flex-1 min-w-0">
-														<div className="flex items-center gap-2">
-															<span className="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-semibold uppercase tracking-wide bg-white/10 text-glacier-on-surface-variant backdrop-blur-xl border border-white/10">
-																{typeLabel[
-																	item.type
-																] || item.type}
-															</span>
-															<h3 className="font-semibold text-glacier-on-surface text-lg truncate">
-																{item.name}
-															</h3>
-															<button
-																onClick={() =>
-																	handleDelete(
-																		item._id,
-																	)
-																}
-																className="px-1.5 py-0.5 text-xs rounded-md border border-red-400 group-hover:opacity-100 ml-auto text-red-400">
-																Xóa
-															</button>
-														</div>
-
-														<div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-sm">
-															{item.quantity !=
-																null && (
-																<span className="text-glacier-on-surface font-medium">
-																	{showValues
-																		? item.quantity
-																		: "••••••"}{" "}
-																	{showValues && item.quantityUnit && (
-																		<span className="text-glacier-on-surface-variant">
-																			{
-																				item.quantityUnit
-																			}
-																		</span>
-																	)}
-																</span>
-															)}
-															<span className="text-glacier-on-surface-variant">
-																{showValues
-																	? formatCurrency(
-																			item.price,
-																		)
-																	: "••••••"}
-															</span>
-														</div>
-														<div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-xs text-glacier-on-surface-variant">
-															<span>
-																Nguồn:{" "}
-																{item.source}
-															</span>
-															<span>
-																Mua:{" "}
-																{formatDate(
-																	item.boughtAt,
-																)}
-															</span>
-														</div>
-													</div>
-												</div>
-											</motion.div>
-										);
-									})}
+									{filteredGroups.map((group) => (
+										<EstateCard
+											key={group.type}
+											group={group}
+											showValues={showValues}
+											onClick={() =>
+												setSelectedGroup(group)
+											}
+										/>
+									))}
 								</AnimatePresence>
 							</motion.div>
 						)}
 					</AnimatePresence>
 				</div>
 
-				{!loading && filtered.length > 0 && (
+				{!loading && filteredGroups.length > 0 && (
 					<motion.button
 						initial={{ opacity: 0, y: 10 }}
 						animate={{ opacity: 1, y: 0 }}
@@ -424,6 +351,33 @@ export default function EstatePage() {
 				isOpen={drawerOpen}
 				onClose={() => setDrawerOpen(false)}
 				onSaved={(estate) => setEstates((prev) => [...prev, estate])}
+			/>
+
+			<EstateDetailDrawer
+				isOpen={selectedGroup !== null}
+				onClose={() => setSelectedGroup(null)}
+				group={
+					selectedGroup || {
+						type: "",
+						label: "",
+						items: [],
+						boughtPrice: 0,
+						currentPrice: 0,
+					}
+				}
+				showValues={showValues}
+				onItemsChange={(updatedItems) => {
+					setEstates((prev) =>
+						prev.map(
+							(e) =>
+								updatedItems.find((u) => u._id === e._id) ||
+								e,
+						),
+					);
+				}}
+				onItemDelete={(id) => {
+					setEstates((prev) => prev.filter((e) => e._id !== id));
+				}}
 			/>
 		</PullToRefresh>
 	);

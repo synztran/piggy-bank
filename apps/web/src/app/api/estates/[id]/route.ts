@@ -21,6 +21,8 @@ export async function PUT(
 		if (body.name !== undefined) update.name = body.name.trim();
 		if (body.boughtAt !== undefined) update.boughtAt = new Date(body.boughtAt);
 		if (body.price !== undefined) update.price = Number(body.price);
+		if (body.currentPrice !== undefined)
+			update.currentPrice = Number(body.currentPrice);
 		if (body.source !== undefined) update.source = body.source.trim();
 		if (body.quantityUnit !== undefined)
 			update.quantityUnit = body.quantityUnit.trim();

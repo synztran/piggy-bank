@@ -9,6 +9,7 @@ export interface IEstate extends Document {
 	name: string;
 	boughtAt: Date;
 	price: number;
+	currentPrice?: number;
 	source: string;
 	quantityUnit?: string;
 	quantity?: number;
@@ -42,6 +43,10 @@ const EstateSchema = new Schema<IEstate>(
 		price: {
 			type: Number,
 			required: true,
+			min: 0,
+		},
+		currentPrice: {
+			type: Number,
 			min: 0,
 		},
 		source: {

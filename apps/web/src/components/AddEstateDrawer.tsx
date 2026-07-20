@@ -45,6 +45,11 @@ const GOLD_UNIT_OPTIONS = [
 	{ value: "lượng", label: "Lượng" },
 ];
 
+const GOLD_SOURCE_OPTIONS = [
+	{ value: "Mi Hồng", label: "Mi Hồng" },
+	{ value: "Hiệp Thành", label: "Hiệp Thành" },
+];
+
 const STOCK_SOURCE_OPTIONS = [
 	{ value: "Bank", label: "Bank" },
 	{ value: "SSI", label: "SSI" },
@@ -181,18 +186,18 @@ export default function AddEstateDrawer({
 		<>
 			{isOpen && (
 				<div
-					className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm"
+					className="fixed inset-0 z-60 bg-black/60 backdrop-blur-sm"
 					onClick={onClose}
 				/>
 			)}
 
 			<div
-				className={`fixed bottom-0 left-0 right-0 z-[70] glass-panel-elevated rounded-t-3xl animate-in slide-in-from-bottom duration-300 max-h-[92dvh] flex flex-col ${isOpen ? "top-[10dvh]" : "top-[100dvh]"}`}>
+				className={`fixed bottom-0 left-0 right-0 z-70 glass-panel-elevated rounded-t-3xl animate-in slide-in-from-bottom duration-300 max-h-[92dvh] flex flex-col safe-padding-bottom px-6 pt-4 pb-8 space-y-4 ${isOpen ? "top-[10dvh]" : "top-[100dvh]"}`}>
 				<div className="shrink-0">
-					<div className="flex justify-center pt-3 pb-1">
+					<div className="flex justify-center">
 						<div className="w-10 h-1 rounded-md bg-[rgba(125,211,252,0.2)]" />
 					</div>
-					<div className="flex justify-between items-center px-6 pb-3">
+					<div className="flex justify-between items-center">
 						<h2 className="text-xl font-bold text-glacier-on-surface">
 							Thêm tài sản
 						</h2>
@@ -204,11 +209,11 @@ export default function AddEstateDrawer({
 					</div>
 				</div>
 
-				<div className="overflow-y-auto flex-1 px-6">
+				<div className="overflow-y-auto flex-1">
 					<form
 						id="add-estate-form"
 						onSubmit={handleSubmit}
-						className="space-y-5">
+						className="space-y-4">
 						{/* Type selector */}
 						<div className="space-y-2">
 							<label className="block text-sm font-medium text-glacier-on-surface">
@@ -323,7 +328,6 @@ export default function AddEstateDrawer({
 										placeholder="0"
 										className="glass-input w-full py-3 px-4 rounded-md text-glacier-on-surface placeholder:text-[#4a6070]"
 										min="0"
-										step="1000"
 									/>
 									{price && (
 										<small className="absolute -bottom-4 right-0 text-orange-400 text-xs">
@@ -336,17 +340,21 @@ export default function AddEstateDrawer({
 									<label className="block text-sm font-medium text-glacier-on-surface">
 										Nguồn gốc
 									</label>
-									<input
-										type="text"
+									<select
 										value={source}
 										onChange={(e) => {
 											setSource(e.target.value);
 											setError("");
 										}}
-										placeholder="vd. PNJ, tiệm vàng"
-										className="glass-input w-full py-3 px-4 rounded-md text-glacier-on-surface placeholder:text-[#4a6070]"
-										maxLength={100}
-									/>
+										className="glass-input w-full py-3 px-4 rounded-md text-glacier-on-surface appearance-none">
+										{GOLD_SOURCE_OPTIONS.map((opt) => (
+											<option
+												key={opt.value}
+												value={opt.value}>
+												{opt.label}
+											</option>
+										))}
+									</select>
 								</div>
 							</>
 						)}
@@ -387,7 +395,6 @@ export default function AddEstateDrawer({
 										placeholder="100"
 										className="glass-input w-full py-3 px-4 rounded-md text-glacier-on-surface placeholder:text-[#4a6070]"
 										min="0"
-										step="1"
 									/>
 								</div>
 
@@ -426,7 +433,6 @@ export default function AddEstateDrawer({
 										placeholder="0"
 										className="glass-input w-full py-3 px-4 rounded-md text-glacier-on-surface placeholder:text-[#4a6070]"
 										min="0"
-										step="1000"
 									/>
 									{price && (
 										<small className="absolute -bottom-4 right-0 text-orange-400 text-xs">
@@ -523,7 +529,7 @@ export default function AddEstateDrawer({
 					</form>
 				</div>
 
-				<div className="shrink-0 px-6 py-4">
+				<div className="shrink-0">
 					<div className="flex gap-3">
 						<button
 							type="submit"
