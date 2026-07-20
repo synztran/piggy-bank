@@ -159,7 +159,7 @@
 
   .pb-nav {
     /* 3.5rem ≈ nav height (pt-3 + icon + label + pb-safe) */
-    padding-bottom: calc(3rem + env(safe-area-inset-bottom));
+    padding-bottom: calc(4rem + env(safe-area-inset-bottom));
   }
 
   .no-scrollbar::-webkit-scrollbar {
@@ -169,5 +169,15 @@
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  .no-spinner::-webkit-inner-spin-button,
+  .no-spinner::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .no-spinner {
+    -moz-appearance: textfield;
   }
 }

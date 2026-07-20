@@ -1,12 +1,13 @@
 "use client";
 
-import { Clock, Home, Wallet } from "lucide-react";
+import { Clock, Gem, Home, Wallet } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navItems = [
 	{ href: "/history", label: "Lịch sử", icon: Clock },
 	{ href: "/dashboard", label: "Trang chủ", icon: Home },
+	{ href: "/estate", label: "Tài sản", icon: Gem },
 	{ href: "/accounts", label: "Tài khoản", icon: Wallet },
 ];
 
