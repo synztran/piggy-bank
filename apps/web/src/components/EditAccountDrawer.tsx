@@ -9,6 +9,7 @@ import {
 	X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useDrawer } from "@/lib/drawer-context";
 
 interface PaymentSource {
 	id: string;
@@ -48,6 +49,7 @@ export default function EditAccountDrawer({
 	const [balance, setBalance] = useState<string>(
 		String(account?.balance ?? 0),
 	);
+	const { setDrawerOpen } = useDrawer();
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
 
@@ -60,6 +62,12 @@ export default function EditAccountDrawer({
 		setBalance(String(account?.balance ?? 0));
 		setError("");
 	}, [account]);
+
+	// sync drawer open state
+	useEffect(() => {
+		setDrawerOpen(isOpen);
+		return () => setDrawerOpen(false);
+	}, [isOpen, setDrawerOpen]);
 
 	const handleSave = async (e: React.FormEvent) => {
 		e.preventDefault();

@@ -3,6 +3,7 @@
 import { Clock, Gem, Home, Wallet } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useDrawer } from "@/lib/drawer-context";
 
 const navItems = [
 	{ href: "/history", label: "Lịch sử", icon: Clock },
@@ -13,6 +14,9 @@ const navItems = [
 
 export default function BottomNav() {
 	const pathname = usePathname();
+	const { isDrawerOpen } = useDrawer();
+
+	if (isDrawerOpen) return null;
 
 	return (
 		<nav
