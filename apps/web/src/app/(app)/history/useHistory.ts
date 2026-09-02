@@ -46,8 +46,10 @@ export function useHistory() {
 	});
 	const [activeStart, setActiveStart] = useState("");
 	const [activeEnd, setActiveEnd] = useState("");
+	const [category, setCategory] = useState("");
+	const [activeCategory, setActiveCategory] = useState("");
 
-	const isFiltered = !!(activeStart || activeEnd);
+	const isFiltered = !!(activeStart || activeEnd || activeCategory);
   const isSearching = !!activeSearchQuery;
 
 	const [monthlySummary, setMonthlySummary] = useState({
@@ -64,6 +66,7 @@ export function useHistory() {
 			from = activeStart,
 			to = activeEnd,
 			search = activeSearchQuery,
+			cat = activeCategory,
 		) => {
 			try {
 				const params = new URLSearchParams({
@@ -73,6 +76,7 @@ export function useHistory() {
 				if (from) params.set("startDate", from);
 				if (to) params.set("endDate", to);
 				if (search) params.set("search", search);
+				if (cat) params.set("category", cat);
 				const res = await fetch(`/api/transactions?${params}`);
 				if (res.ok) {
 					const data = await res.json();
@@ -91,23 +95,31 @@ export function useHistory() {
 				setLoading(false);
 			}
 		},
-		[activeStart, activeEnd, activeSearchQuery],
+		[activeStart, activeEnd, activeSearchQuery, activeCategory],
 	);
 
-	const fetchMonthlySummary = useCallback(async () => {
-		try {
-			const res = await fetch("/api/summary");
-			if (res.ok) {
-				const data = await res.json();
-				setMonthlySummary({
-					totalSpent: data.totalSpentThisMonth ?? 0,
-					totalIncome: data.totalIncomeThisMonth ?? 0,
-					transactionsIn: data.totalTransactionsIn ?? 0,
-					transactionsOut: data.totalTransactionsOut ?? 0,
-				});
-			}
-		} catch {}
-	}, []);
+	const fetchMonthlySummary = useCallback(
+		async (from = activeStart, to = activeEnd, cat = activeCategory) => {
+			try {
+				const params = new URLSearchParams();
+				if (from) params.set("startDate", from);
+				if (to) params.set("endDate", to);
+				if (cat) params.set("category", cat);
+				const qs = params.toString();
+				const res = await fetch(`/api/summary${qs ? `?${qs}` : ""}`);
+				if (res.ok) {
+					const data = await res.json();
+					setMonthlySummary({
+						totalSpent: data.totalSpent ?? 0,
+						totalIncome: data.totalIncome ?? 0,
+						transactionsIn: data.totalTransactionsIn ?? 0,
+						transactionsOut: data.totalTransactionsOut ?? 0,
+					});
+				}
+			} catch {}
+		},
+		[activeStart, activeEnd, activeCategory],
+	);
 
 	useEffect(() => {
 		fetchTransactions(1);
@@ -145,11 +157,13 @@ export function useHistory() {
 	const handleApplyFilter = useCallback(() => {
 		setActiveStart(startDate);
 		setActiveEnd(endDate);
+		setActiveCategory(category);
 		setPage(1);
 		setLoading(true);
 		setShowFilter(false);
-		fetchTransactions(1, false, startDate, endDate);
-	}, [startDate, endDate, fetchTransactions]);
+		fetchTransactions(1, false, startDate, endDate, "", category);
+		fetchMonthlySummary(startDate, endDate, category);
+	}, [startDate, endDate, category, fetchTransactions, fetchMonthlySummary]);
 
 	const handleClearFilter = useCallback(() => {
 		const d = new Date();
@@ -159,30 +173,37 @@ export function useHistory() {
 		setEndDate(endDateMonth);
 		setActiveStart("");
 		setActiveEnd("");
+		setCategory("");
+		setActiveCategory("");
 		setPage(1);
 		setLoading(true);
 		fetchTransactions(1, false, "", "");
-	}, [fetchTransactions]);
+		fetchMonthlySummary("", "");
+	}, [fetchTransactions, fetchMonthlySummary]);
 
 	const handleToggleFilter = useCallback(() => setShowFilter((v) => !v), []);
 	const handleCloseFilter = useCallback(() => setShowFilter(false), []);
 	const handleToggleSearch = useCallback(() => setShowSearch((v) => !v), []);
+	const handleCategoryChange = useCallback(
+		(v: string) => setCategory((prev) => (prev === v ? "" : v)),
+		[],
+	);
 
 	const handleSearchApply = useCallback(() => {
 		setActiveSearchQuery(searchQuery.trim());
 		setPage(1);
 		setLoading(true);
 		setShowSearch(false);
-		fetchTransactions(1, false, activeStart, activeEnd, searchQuery.trim());
-	}, [searchQuery, activeStart, activeEnd, fetchTransactions]);
+		fetchTransactions(1, false, activeStart, activeEnd, searchQuery.trim(), activeCategory);
+	}, [searchQuery, activeStart, activeEnd, activeCategory, fetchTransactions]);
 
 	const handleSearchClear = useCallback(() => {
 		setSearchQuery("");
 		setActiveSearchQuery("");
 		setPage(1);
 		setLoading(true);
-		fetchTransactions(1, false, activeStart, activeEnd, "");
-	}, [activeStart, activeEnd, fetchTransactions]);
+		fetchTransactions(1, false, activeStart, activeEnd, "", activeCategory);
+	}, [activeStart, activeEnd, activeCategory, fetchTransactions]);
 
 	const confirmDelete = useCallback((id: string) => {
 		setDeleting(id);
@@ -243,6 +264,8 @@ export function useHistory() {
 		endDate,
 		activeStart,
 		activeEnd,
+		category,
+		activeCategory,
 		showSearch,
 		searchQuery,
 		activeSearchQuery,
@@ -253,6 +276,7 @@ export function useHistory() {
 		onSearchClear: handleSearchClear,
 		onStartDateChange: setStartDate,
 		onEndDateChange: setEndDate,
+		onCategoryChange: handleCategoryChange,
 		onApply: handleApplyFilter,
 		onClose: handleCloseFilter,
 		onClear: handleClearFilter,

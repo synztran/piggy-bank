@@ -10,28 +10,40 @@ interface TransactionSummaryProps {
 	totalTransactionsIn: number;
 	totalTransactionsOut: number;
 	total: number;
+	label?: string;
 }
 
 const MoneyCard = memo(function MoneyCard({
 	totalSpent,
 	totalIncome,
+	label,
 }: {
 	totalSpent: number;
 	totalIncome: number;
+	label: string;
 }) {
 	return (
-		<div className="glass-panel p-4 rounded-xl">
+		<div className="glass-panel px-4 py-2 rounded-xl flex-2">
 			<div className="flex items-center gap-2 text-glacier-primary">
 				<Banknote size={14} />
 				<span className="text-[10px] font-bold uppercase tracking-wider flex items-center">
-					Tổng chi tiêu
+					Chi tiêu
 				</span>
 			</div>
 			<div className="font-bold text-glacier-on-surface">
-				<span className={`text-red-400 ${totalSpent >= totalIncome ? "text-sm" : "text-xs"}`}>{formatCurrency(totalSpent, false)}</span>&nbsp;/&nbsp;
-				<span className={`text-emerald-400 ${totalIncome >= totalSpent ? "text-sm" : "text-xs"}`}>{formatCurrency(totalIncome, false)}</span>
+				<span
+					className={`text-red-400 ${totalSpent >= totalIncome ? "text-sm" : "text-xs"}`}>
+					{formatCurrency(totalSpent, false)}
+				</span>
+				&nbsp;/&nbsp;
+				<span
+					className={`text-emerald-400 ${totalIncome >= totalSpent ? "text-sm" : "text-xs"}`}>
+					{formatCurrency(totalIncome, false)}
+				</span>
 			</div>
-			<div className="text-[10px] text-glacier-on-surface-variant mt-1">Tháng này</div>
+			<div className="text-[10px] text-glacier-on-surface-variant mt-1">
+				{label}
+			</div>
 		</div>
 	);
 });
@@ -39,24 +51,27 @@ const MoneyCard = memo(function MoneyCard({
 const TransactionCountCard = memo(function TransactionCountCard({
 	totalIn,
 	totalOut,
+	label,
 }: {
 	totalIn: number;
 	totalOut: number;
+	label: string;
 }) {
 	return (
-		<div className="glass-panel p-4 rounded-xl flex-1">
+		<div className="glass-panel px-4 py-2 rounded-xl flex-1">
 			<div className="flex items-center gap-2 text-glacier-tertiary">
 				<ArrowLeftRight size={14} />
 				<span className="text-[10px] font-bold uppercase tracking-wider">
-				  Giao dịch
+					Giao dịch
 				</span>
 			</div>
 			<div className="font-bold text-glacier-on-surface">
-				<span className="text-red-400 text-sm">{totalOut}</span>&nbsp;/&nbsp;
+				<span className="text-red-400 text-sm">{totalOut}</span>
+				&nbsp;/&nbsp;
 				<span className="text-emerald-400 text-sm">{totalIn}</span>
 			</div>
 			<div className="text-[10px] text-glacier-on-surface-variant mt-1">
-				Tháng này
+				{label}
 			</div>
 		</div>
 	);
@@ -68,16 +83,25 @@ const TransactionSummary = memo(function TransactionSummary({
 	totalTransactionsIn,
 	totalTransactionsOut,
 	total,
+	label = "Tháng này",
 }: TransactionSummaryProps) {
 	return (
 		<div
-			className="flex items-center gap-2"
+			className="flex items-center gap-2 mt-1"
 			// style={{
 			// 	marginTop: "calc(env(safe-area-inset-top))",
 			// }}
-      >
-			<MoneyCard totalSpent={totalSpent} totalIncome={totalIncome} />
-			<TransactionCountCard totalIn={totalTransactionsIn} totalOut={totalTransactionsOut} />
+		>
+			<MoneyCard
+				totalSpent={totalSpent}
+				totalIncome={totalIncome}
+				label={label}
+			/>
+			<TransactionCountCard
+				totalIn={totalTransactionsIn}
+				totalOut={totalTransactionsOut}
+				label={label}
+			/>
 		</div>
 	);
 });

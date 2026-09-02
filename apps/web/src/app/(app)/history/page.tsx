@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import PullToRefresh from "@/components/PullToRefresh";
 import TransactionFilter from "@/components/history/TransactionFilter";
 import TransactionGroup from "@/components/history/TransactionGroup";
@@ -23,6 +24,19 @@ export default function HistoryPage() {
 		handleRefresh,
 	} = useHistory();
 
+	const summaryLabel = useMemo(() => {
+		const { activeStart, activeEnd, activeCategory } = filterProps;
+		let label = "Tháng này";
+		if (activeStart || activeEnd || activeCategory) {
+			label = "Theo bộ lọc";
+		}
+		return label;
+	}, [
+		filterProps.activeStart,
+		filterProps.activeEnd,
+		filterProps.activeCategory,
+	]);
+
 	return (
 		<PullToRefresh onRefresh={handleRefresh}>
 			<div className="space-y-4">
@@ -39,6 +53,7 @@ export default function HistoryPage() {
 					totalTransactionsIn={monthlySummary.transactionsIn}
 					totalTransactionsOut={monthlySummary.transactionsOut}
 					total={total}
+					label={summaryLabel}
 				/>
 
 				<div className="space-y-4">

@@ -18,6 +18,7 @@ export async function GET(req: NextRequest) {
 	const startDate = searchParams.get("startDate");
 	const endDate = searchParams.get("endDate");
 	const search = searchParams.get("search");
+	const category = searchParams.get("category");
 
 	await connectDB();
 
@@ -35,6 +36,7 @@ export async function GET(req: NextRequest) {
 		...(search
 			? { description: { $regex: search, $options: "i" } }
 			: {}),
+		...(category ? { category } : {}),
 	};
 
 	const [transactions, total] = await Promise.all([

@@ -4,15 +4,39 @@ import User from "@/models/User";
 import Transaction from "@/models/Transaction";
 import { getSession } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(request: Request) {
 	const session = await getSession();
 	if (!session)
 		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
 	await connectDB();
 
+	const { searchParams } = new URL(request.url);
+	const startDateParam = searchParams.get("startDate");
+	const endDateParam = searchParams.get("endDate");
+	const category = searchParams.get("category");
+
 	const now = new Date();
-	const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+	let dateFrom: Date;
+	let dateTo: Date;
+
+	if (startDateParam || endDateParam) {
+		dateFrom = startDateParam
+			? new Date(startDateParam)
+			: new Date(0);
+		dateTo = endDateParam
+			? new Date(endDateParam + "T23:59:59.999Z")
+			: now;
+	} else {
+		dateFrom = new Date(now.getFullYear(), now.getMonth(), 1);
+		dateTo = now;
+	}
+
+	const dateMatch: Record<string, unknown> = {
+		transactionDate: { $gte: dateFrom, $lte: dateTo },
+		isRemove: { $ne: true },
+		...(category ? { category } : {}),
+	};
 
 	const [user, allUsers, monthlyExpenses, monthlyIncome, recentTransactions] =
 		await Promise.all([
@@ -20,16 +44,8 @@ export async function GET() {
 				"currentBalance paymentSources name",
 			),
 			User.find({}).select("name currentBalance"),
-			Transaction.find({
-				type: "expense",
-				transactionDate: { $gte: startOfMonth },
-				isRemove: { $ne: true },
-			}),
-			Transaction.find({
-				type: "income",
-				transactionDate: { $gte: startOfMonth },
-				isRemove: { $ne: true },
-			}),
+			Transaction.find({ type: "expense", ...dateMatch }),
+			Transaction.find({ type: "income", ...dateMatch }),
 			Transaction.find({
 				userId: session.userId,
 				isRemove: { $ne: true },
@@ -80,8 +96,10 @@ export async function GET() {
 
 	return NextResponse.json({
 		totalBalance,
-		totalSpentThisMonth,
-		totalIncomeThisMonth,
+		totalSpentThisMonth: totalSpentThisMonth,
+		totalIncomeThisMonth: totalIncomeThisMonth,
+		totalSpent: totalSpentThisMonth,
+		totalIncome: totalIncomeThisMonth,
 		totalTransactionsIn,
 		totalTransactionsOut,
 		spending,
