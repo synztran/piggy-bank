@@ -54,9 +54,13 @@ export default function AppHeader({ showBack, backHref }: AppHeaderProps) {
 					</span>
 				</div>
 				<div className="flex items-center gap-1">
-					<span className="text-[10px] text-white font-medium sm:block">
-						Xin chào, {user?.name}
-					</span>
+					{!user ? (
+						<div className="spinner" />
+					) : (
+						<span className="text-[10px] text-white font-medium sm:block">
+							Xin chào, {user?.name || user?.username}
+						</span>
+					)}
 					<NotificationBell />
 					{user && (
 						<button
