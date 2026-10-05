@@ -8,6 +8,7 @@ node_modules/
 # Next.js
 apps/web/.next/
 apps/web/out/
+*.tsbuildinfo
 
 # Environment
 .env

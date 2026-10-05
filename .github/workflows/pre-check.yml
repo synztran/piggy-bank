@@ -18,13 +18,15 @@ jobs:
           node-version: '24'
 
       - name: Install dependences
-        run: npm ci
+        run: |
+          corepack enable
+          yarn install --immutable
 
       - name: Type check
-        run: npx tsc --noEmit
+        run: yarn typecheck
 
       - name: Run Linter
-        run: npm run lint
+        run: yarn lint
 
       - name: Build NextJS App
-        run: npm run build
+        run: yarn build
