@@ -32,7 +32,6 @@ export interface IUser extends Document {
 	name: string;
 	username: string;
 	passwordHash: string;
-	currentBalance: Types.Decimal128;
 	paymentSources: IPaymentSource[];
 	createdAt: Date;
 	updatedAt: Date;
@@ -51,23 +50,10 @@ const UserSchema = new Schema<IUser>(
 			maxlength: 30,
 		},
 		passwordHash: { type: String, required: true },
-		currentBalance: {
-			type: Schema.Types.Decimal128,
-			required: true,
-			default: () => mongoose.Types.Decimal128.fromString("0.00"),
-		},
 		paymentSources: { type: [PaymentSourceSchema], default: [] },
 	},
 	{
 		timestamps: true,
-		toJSON: {
-			transform(_doc, ret: Record<string, unknown>) {
-				if (ret.currentBalance != null) {
-					ret.currentBalance = parseFloat(String(ret.currentBalance));
-				}
-				return ret;
-			},
-		},
 	},
 );
 

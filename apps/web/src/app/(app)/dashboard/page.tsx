@@ -121,6 +121,7 @@ export default function DashboardPage() {
 					<HeroBalanceCard
 						totalBalance={summary?.totalBalance ?? 0}
 						memberBalances={summary?.memberBalances ?? []}
+						sourceCount={accounts.length}
 						loading={loading}
 						onUpdateBalance={handleOpenUpdateBalance}
 						onQuickPayment={handleOpenQuickPayment}
@@ -145,6 +146,7 @@ export default function DashboardPage() {
 
 				<UpdateBalanceDrawer
 					currentBalance={summary?.totalBalance ?? 0}
+					accounts={accounts}
 					onClose={handleCloseUpdateBalance}
 					onUpdated={fetchData}
 					isOpen={showUpdateBalance}

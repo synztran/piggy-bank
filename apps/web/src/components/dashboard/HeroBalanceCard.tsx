@@ -2,6 +2,7 @@
 
 import { formatCurrency } from "@/lib/utils";
 import { Eye, EyeOff, Plus, RefreshCw } from "lucide-react";
+import Link from "next/link";
 import React, { use, useEffect, useState } from "react";
 
 interface MemberBalance {
@@ -13,6 +14,7 @@ interface MemberBalance {
 interface HeroBalanceCardProps {
 	totalBalance: number;
 	memberBalances: MemberBalance[];
+	sourceCount: number;
 	loading: boolean;
 	onUpdateBalance: () => void;
 	onQuickPayment: () => void;
@@ -21,6 +23,7 @@ interface HeroBalanceCardProps {
 const HeroBalanceCard = React.memo(function HeroBalanceCard({
 	totalBalance,
 	memberBalances,
+	sourceCount,
 	loading,
 	onUpdateBalance,
 	onQuickPayment,
@@ -84,11 +87,18 @@ const HeroBalanceCard = React.memo(function HeroBalanceCard({
 						{loading ? (
 							<div className="h-10 w-40 bg-[rgba(125,211,252,0.1)] rounded animate-pulse" />
 						) : (
-							<h1 className="text-5xl font-extrabold text-glacier-on-surface tracking-tight">
-								{showTotalBalance ? formatCurrency(totalBalance) : "••••••"}
-							</h1>
-						)}
-					</div>
+						<h1 className="text-5xl font-extrabold text-glacier-on-surface tracking-tight">
+							{showTotalBalance ? formatCurrency(totalBalance) : "••••••"}
+						</h1>
+					)}
+					{!loading && sourceCount > 0 && (
+						<Link
+							href="/accounts"
+							className="inline-block mt-1 text-xs font-medium text-glacier-on-surface-variant hover:text-glacier-primary transition-colors">
+							Tổng của {sourceCount} nguồn tiền →
+						</Link>
+					)}
+				</div>
 					<button
 						onClick={() => setShowTotalBalance(!showTotalBalance)}
 						className="p-1 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 text-glacier-on-surface-variant hover:text-glacier-on-surface transition-colors">

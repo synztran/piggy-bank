@@ -3,6 +3,7 @@ import connectDB from "@/lib/mongodb";
 import User from "@/models/User";
 import Transaction from "@/models/Transaction";
 import { getSession } from "@/lib/auth";
+import { totalBalance } from "@/lib/balance";
 
 export async function GET(request: Request) {
 	const session = await getSession();
@@ -33,6 +34,7 @@ export async function GET(request: Request) {
 	}
 
 	const dateMatch: Record<string, unknown> = {
+		userId: session.userId,
 		transactionDate: { $gte: dateFrom, $lte: dateTo },
 		isRemove: { $ne: true },
 		...(category ? { category } : {}),
@@ -40,10 +42,8 @@ export async function GET(request: Request) {
 
 	const [user, allUsers, monthlyExpenses, monthlyIncome, recentTransactions] =
 		await Promise.all([
-			User.findById(session.userId).select(
-				"currentBalance paymentSources name",
-			),
-			User.find({}).select("name currentBalance"),
+			User.findById(session.userId).select("paymentSources name"),
+			User.find({}).select("name paymentSources"),
 			Transaction.find({ type: "expense", ...dateMatch }),
 			Transaction.find({ type: "income", ...dateMatch }),
 			Transaction.find({
@@ -57,7 +57,7 @@ export async function GET(request: Request) {
 	if (!user)
 		return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-	const totalBalance = parseFloat(user.currentBalance.toString());
+	const total = totalBalance(user.paymentSources);
 
 	const totalSpentThisMonth = monthlyExpenses.reduce(
 		(sum, t) => sum + parseFloat(t.amount.toString()),
@@ -90,12 +90,12 @@ export async function GET(request: Request) {
 
 	const memberBalances = allUsers.map((u) => ({
 		name: u.name,
-		balance: parseFloat(u.currentBalance.toString()),
+		balance: totalBalance(u.paymentSources),
 		isCurrentUser: u._id.toString() === session.userId,
 	}));
 
 	return NextResponse.json({
-		totalBalance,
+		totalBalance: total,
 		totalSpentThisMonth: totalSpentThisMonth,
 		totalIncomeThisMonth: totalIncomeThisMonth,
 		totalSpent: totalSpentThisMonth,

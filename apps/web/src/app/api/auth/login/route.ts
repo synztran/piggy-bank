@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import connectDB from "@/lib/mongodb";
 import User from "@/models/User";
 import { signToken, getCookieName } from "@/lib/auth";
+import { totalBalance } from "@/lib/balance";
 
 export async function POST(req: NextRequest) {
 	try {
@@ -46,7 +47,7 @@ export async function POST(req: NextRequest) {
 				id: user._id.toString(),
 				username: user.username,
 				name: user.name,
-				currentBalance: parseFloat(user.currentBalance.toString()),
+				currentBalance: totalBalance(user.paymentSources),
 			},
 		});
 
