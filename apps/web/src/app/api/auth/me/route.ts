@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import User from "@/models/User";
 import { getSession } from "@/lib/auth";
+import { totalBalance } from "@/lib/balance";
 
 export async function GET() {
 	const session = await getSession();
@@ -19,6 +20,6 @@ export async function GET() {
 		id: user._id.toString(),
 		username: user.username,
 		name: user.name,
-		currentBalance: parseFloat(user.currentBalance.toString()),
+		currentBalance: totalBalance(user.paymentSources),
 	});
 }

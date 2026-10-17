@@ -28,6 +28,27 @@ export interface ITransaction extends Document {
 	updatedAt: Date;
 }
 
+/**
+ * Signed effect of this transaction on its payment source balance.
+ * `createDelta` is applied on insert; `-createDelta` on soft-delete, so the
+ * two stay symmetric. Shared by the POST and DELETE routes.
+ */
+export function sourceDelta(tx: {
+	type: TransactionType;
+	amount: Types.Decimal128;
+	debtAction?: "charge" | "payment";
+}): number {
+	const amount = parseFloat(tx.amount.toString());
+
+	// A charge puts money on the card instead of moving the source balance.
+	if (tx.debtAction === "charge" && tx.type === "expense") return 0;
+
+	// Paying down debt always leaves the source balance.
+	if (tx.debtAction === "payment") return -amount;
+
+	return tx.type === "income" ? amount : -amount;
+}
+
 const TransactionSchema = new Schema<ITransaction>(
 	{
 		userId: {
@@ -61,7 +82,7 @@ const TransactionSchema = new Schema<ITransaction>(
 			type: String,
 			required: false,
 			trim: true,
-			maxlength: 100,
+			maxlength: 200,
 			default: "",
 		},
 		transactionDate: { type: Date, required: true, index: true },

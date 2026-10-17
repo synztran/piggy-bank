@@ -1,7 +1,7 @@
 import { getSession } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
 import { maskAmount, sendPushNotification } from "@/lib/notification";
-import Transaction from "@/models/Transaction";
+import Transaction, { sourceDelta } from "@/models/Transaction";
 import User, { IPaymentSource } from "@/models/User";
 import mongoose from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
@@ -134,6 +134,13 @@ export async function POST(req: NextRequest) {
 			);
 		}
 
+		if (!paymentSourceId) {
+			return NextResponse.json(
+				{ error: "paymentSourceId is required" },
+				{ status: 400 },
+			);
+		}
+
 		if (!["expense", "income"].includes(type)) {
 			return NextResponse.json(
 				{ error: "type must be expense or income" },
@@ -148,9 +155,14 @@ export async function POST(req: NextRequest) {
 				{ status: 400 },
 			);
 
+		if (description && description.trim().length > 200)
+			return NextResponse.json(
+				{ error: "Description must be 200 characters or fewer" },
+				{ status: 400 },
+			);
+
 		await connectDB();
 
-		// Verify paymentSource belongs to user (only if provided)
 		const user = await User.findById(session.userId);
 		if (!user)
 			return NextResponse.json(
@@ -158,70 +170,18 @@ export async function POST(req: NextRequest) {
 				{ status: 404 },
 			);
 
-		if (paymentSourceId) {
-			const sourceExists = user.paymentSources.some(
-				(s: IPaymentSource) => s.id === paymentSourceId,
-			);
-			if (!sourceExists)
-				return NextResponse.json(
-					{ error: "Payment source not found" },
-					{ status: 404 },
-				);
-		}
-
-		// Handle debt adjustments and update currentBalance accordingly.
-		const currentBalance = parseFloat(user.currentBalance.toString());
-
-		// Determine whether this transaction should adjust user balance.
-		// If debtAction === 'charge' for an expense, we treat it as a card charge
-		// (increase card debt) and do NOT change the user's cash balance here.
-		const isChargeToCard = debtAction === "charge" && type === "expense";
-
-		const delta = isChargeToCard
-			? 0
-			: type === "income"
-				? parsedAmount
-				: -parsedAmount;
-		const newBalance = currentBalance + delta;
-
-		user.currentBalance = mongoose.Types.Decimal128.fromString(
-			newBalance.toFixed(2),
+		const sourceExists = user.paymentSources.some(
+			(s: IPaymentSource) => s.id === paymentSourceId,
 		);
-
-		// If paymentSourceId provided, adjust that payment source's debt and/or balance
-		if (paymentSourceId) {
-			const ps = user.paymentSources.find(
-				(s: IPaymentSource) => s.id === paymentSourceId,
+		if (!sourceExists)
+			return NextResponse.json(
+				{ error: "Payment source not found" },
+				{ status: 404 },
 			);
-			if (ps) {
-				const beforeDebt = Number(ps.debt || 0);
-				const beforeBalance = Number(ps.balance || 0);
-				const isCardType = ps.type === "Credit" || ps.type === "Debit";
-				if (debtAction === "charge" && type === "expense") {
-					// charge to card: increase debt, do not change balance
-					ps.debt = beforeDebt + parsedAmount;
-				} else if (debtAction === "payment") {
-					// paying down debt: reduce debt and subtract from the source balance
-					if (isCardType)
-						ps.debt = Math.max(0, beforeDebt - parsedAmount);
-					ps.balance = beforeBalance - parsedAmount;
-				} else {
-					// regular transaction: adjust balance; only touch debt for card types
-					if (type === "expense") {
-						ps.balance = beforeBalance - parsedAmount;
-						if (isCardType) ps.debt = beforeDebt + parsedAmount;
-					} else {
-						ps.balance = beforeBalance + parsedAmount;
-						if (isCardType)
-							ps.debt = Math.max(0, beforeDebt - parsedAmount);
-					}
-				}
-			}
-		}
 
-		await user.save();
-
-		const transaction = await Transaction.create({
+		// Validate the transaction before touching any money, so a schema
+		// violation can never leave a balance move without a ledger row.
+		const draft = new Transaction({
 			userId: session.userId,
 			amount: mongoose.Types.Decimal128.fromString(
 				parsedAmount.toFixed(2),
@@ -235,6 +195,59 @@ export async function POST(req: NextRequest) {
 				? new Date(transactionDate)
 				: new Date(),
 		});
+		if (isNaN(draft.transactionDate.getTime()))
+			return NextResponse.json(
+				{ error: "Invalid transactionDate" },
+				{ status: 400 },
+			);
+
+		const validationError = draft.validateSync();
+		if (validationError)
+			return NextResponse.json(
+				{ error: validationError.message },
+				{ status: 400 },
+			);
+
+		// The payment source balance is the only money field — it carries no
+		// independent running counter, so there is nothing else to keep in sync.
+		const ps = user.paymentSources.find(
+			(s: IPaymentSource) => s.id === paymentSourceId,
+		)!;
+		const beforeDebt = Number(ps.debt || 0);
+		const beforeBalance = Number(ps.balance || 0);
+		const isCardType = ps.type === "Credit" || ps.type === "Debit";
+
+		const delta = sourceDelta(draft);
+		ps.balance = beforeBalance + delta;
+
+		if (debtAction === "charge" && type === "expense") {
+			ps.debt = beforeDebt + parsedAmount;
+		} else if (debtAction === "payment") {
+			if (isCardType) ps.debt = Math.max(0, beforeDebt - parsedAmount);
+		} else {
+			if (type === "income") {
+				if (isCardType) ps.debt = Math.max(0, beforeDebt - parsedAmount);
+			} else if (isCardType) {
+				ps.debt = beforeDebt + parsedAmount;
+			}
+		}
+
+		// Persist the balance move and the ledger row together, so a failure in
+		// either one can never leave money moved with no transaction recorded.
+		const mongoSession = await mongoose.startSession();
+		let transaction: InstanceType<typeof Transaction>;
+		try {
+			transaction = await mongoSession.withTransaction(async () => {
+				await user.save({ session: mongoSession });
+				const [created] = await Transaction.create(
+					[draft.toObject()],
+					{ session: mongoSession },
+				);
+				return created;
+			});
+		} finally {
+			await mongoSession.endSession();
+		}
 
 		const transactionJson = transaction.toJSON();
 
@@ -296,10 +309,18 @@ export async function POST(req: NextRequest) {
 			{ transaction: transactionJson },
 			{ status: 201 },
 		);
-	} catch {
-		return NextResponse.json(
-			{ error: "Internal server error" },
-			{ status: 500 },
-		);
+	} catch (err) {
+		// Surface the real reason instead of an opaque 500 — a silent failure
+		// here used to leave the balance moved with no transaction row.
+		console.error("[transactions:create] error:", err);
+		const message =
+			err instanceof mongoose.Error.ValidationError
+				? Object.values(err.errors)
+						.map((e) => e.message)
+						.join(", ")
+				: err instanceof Error
+					? err.message
+					: "Internal server error";
+		return NextResponse.json({ error: message }, { status: 500 });
 	}
 }

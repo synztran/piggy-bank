@@ -6,8 +6,16 @@ import { CheckCircle, RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
+interface PaymentSource {
+	id: string;
+	name: string;
+	type: "Debit" | "Credit" | "Cash" | "Transfer";
+	balance?: number;
+}
+
 interface UpdateBalanceDrawerProps {
 	currentBalance: number;
+	accounts: PaymentSource[];
 	onClose: () => void;
 	onUpdated: () => void;
 	isOpen: boolean;
@@ -15,15 +23,23 @@ interface UpdateBalanceDrawerProps {
 
 export default function UpdateBalanceDrawer({
 	currentBalance,
+	accounts,
 	onClose,
 	onUpdated,
 	isOpen,
 }: UpdateBalanceDrawerProps) {
 	const [amount, setAmount] = useState("");
+	const [paymentSourceId, setPaymentSourceId] = useState("");
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
 	const router = useRouter();
 	const { updateBalance } = useAuth();
+
+	const selectedSource =
+		accounts.find((a) => a.id === paymentSourceId) ?? accounts[0];
+	const sourceBalance = selectedSource
+		? Number(selectedSource.balance || 0)
+		: 0;
 
 	const resetForm = useCallback(() => {
 		setAmount("");
@@ -34,6 +50,12 @@ export default function UpdateBalanceDrawer({
 		resetForm();
 		onClose();
 	}, [onClose, resetForm]);
+
+	useEffect(() => {
+		if (isOpen && !paymentSourceId && accounts.length > 0) {
+			setPaymentSourceId(accounts[0].id);
+		}
+	}, [isOpen, paymentSourceId, accounts]);
 
 	const presets = [100000, 500000, 1000000];
 
@@ -51,11 +73,17 @@ export default function UpdateBalanceDrawer({
 		}).format(val);
 
 	const delta = parseFloat(amount) || 0;
-	const resultBalance = currentBalance + delta;
+	const resultBalance = sourceBalance + delta;
+	const resultTotal = currentBalance + delta;
 
 	const handleUpdate = async () => {
 		if (isNaN(delta) || amount.trim() === "") {
 			setError("Vui lòng nhập số tiền hợp lệ");
+			return;
+		}
+
+		if (!selectedSource) {
+			setError("Vui lòng chọn nguồn tiền");
 			return;
 		}
 
@@ -65,7 +93,10 @@ export default function UpdateBalanceDrawer({
 			const res = await fetch("/api/user/balance", {
 				method: "PUT",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ balance: resultBalance }),
+				body: JSON.stringify({
+					balance: resultBalance,
+					paymentSourceId: selectedSource.id,
+				}),
 			});
 
 			if (!res.ok) {
@@ -81,9 +112,9 @@ export default function UpdateBalanceDrawer({
 					style: "currency",
 					currency: "VND",
 					maximumFractionDigits: 0,
-				}).format(resultBalance),
+				}).format(resultTotal),
 			});
-			updateBalance(resultBalance);
+			updateBalance(resultTotal);
 			resetForm();
 			onUpdated();
 			router.refresh();
@@ -138,22 +169,48 @@ export default function UpdateBalanceDrawer({
 				</div>
 
 				{/* Input */}
-				{/* Result preview */}
-				<div className="mb-4 text-center">
-					<p className="text-[10px] font-bold uppercase tracking-widest text-glacier-on-surface-variant mb-1">
-						Số dư sau điều chỉnh
-					</p>
-					<span
-						className={`text-3xl font-extrabold ${resultBalance < 0 ? "text-red-400" : "text-glacier-primary"}`}>
-						{new Intl.NumberFormat("vi-VN", {
-							style: "currency",
-							currency: "VND",
-							maximumFractionDigits: 0,
-						}).format(resultBalance)}
-					</span>
-				</div>
+			{/* Result preview */}
+			<div className="mb-4 text-center">
+				<p className="text-[10px] font-bold uppercase tracking-widest text-glacier-on-surface-variant mb-1">
+					Tổng sau điều chỉnh
+				</p>
+				<span
+					className={`text-3xl font-extrabold ${resultTotal < 0 ? "text-red-400" : "text-glacier-primary"}`}>
+					{new Intl.NumberFormat("vi-VN", {
+						style: "currency",
+						currency: "VND",
+						maximumFractionDigits: 0,
+					}).format(resultTotal)}
+				</span>
+			</div>
 
-				<div className="relative mb-4">
+			{/* Payment source */}
+			<div className="mb-4">
+				<p className="text-[10px] font-bold uppercase tracking-widest text-glacier-on-surface-variant mb-2">
+					Nguồn tiền
+				</p>
+				{accounts.length === 0 ? (
+					<p className="text-sm text-red-400">
+						Bạn chưa có nguồn tiền nào. Hãy thêm ở trang Tài khoản.
+					</p>
+				) : (
+					<select
+						value={selectedSource?.id ?? ""}
+						onChange={(e) => setPaymentSourceId(e.target.value)}
+						className="w-full rounded-xl border border-[rgba(125,211,252,0.2)] bg-glacier-surface px-4 py-3 text-glacier-on-surface text-sm focus:border-glacier-primary focus:outline-none">
+						{accounts.map((a) => (
+							<option key={a.id} value={a.id} className="bg-glacier-surface">
+								{a.name} · {a.type} ·{" "}
+								{new Intl.NumberFormat("vi-VN").format(
+									Number(a.balance || 0),
+								)}
+							</option>
+						))}
+					</select>
+				)}
+			</div>
+
+			<div className="relative mb-4">
 					<input
 						type="number"
 						value={amount}
@@ -189,7 +246,7 @@ export default function UpdateBalanceDrawer({
 				{/* Update Button */}
 				<button
 					onClick={handleUpdate}
-					disabled={loading || !amount}
+					disabled={loading || !amount || !selectedSource}
 					className="w-full py-4 rounded-full bg-glacier-primary text-[#001f2e] font-bold text-base flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#93d9fc] transition-colors active:scale-[0.98]">
 					{loading ? (
 						<RefreshCw size={20} className="animate-spin" />

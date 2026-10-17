@@ -46,7 +46,6 @@ export async function POST(req: NextRequest) {
 			username: username.toLowerCase().trim(),
 			passwordHash,
 			name: name.trim(),
-			currentBalance: 0,
 			paymentSources: [],
 		});
 
