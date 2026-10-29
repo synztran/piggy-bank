@@ -40,26 +40,122 @@ export async function PUT(
 
 	try {
 		const body = await req.json();
-		const { name, type, last4Digits, debt, balance } = body;
+		const { name, type, last4Digits, debt, balance, dueDay } = body;
+
+		if (name !== undefined && (!name || !name.trim())) {
+			return NextResponse.json(
+				{ error: "Name is required" },
+				{ status: 400 },
+			);
+		}
+		if (name !== undefined && name.trim().length > 50) {
+			return NextResponse.json(
+				{ error: "Name must be 50 characters or fewer" },
+				{ status: 400 },
+			);
+		}
+		if (
+			last4Digits !== undefined &&
+			last4Digits !== null &&
+			last4Digits !== "" &&
+			(typeof last4Digits !== "string" ||
+				!/^\d{1,4}$/.test(last4Digits))
+		) {
+			return NextResponse.json(
+				{ error: "Last 4 digits must be numeric" },
+				{ status: 400 },
+			);
+		}
+
+		const validTypes = ["Debit", "Credit", "Cash", "Transfer"];
+		if (type !== undefined && !validTypes.includes(type)) {
+			return NextResponse.json(
+				{ error: "Type must be Debit, Credit, Cash, or Transfer" },
+				{ status: 400 },
+			);
+		}
 
 		await connectDB();
 
-		const update: Record<string, any> = {};
-		if (name !== undefined) update["paymentSources.$.name"] = name.trim();
+		const currentUser = await User.findOne({
+			_id: session.userId,
+			"paymentSources.id": id,
+		})
+			.select("paymentSources")
+			.lean<IUser>();
+		const currentSource = currentUser?.paymentSources?.find(
+			(source) => source.id === id,
+		);
+
+		if (!currentSource) {
+			return NextResponse.json({ error: "Not found" }, { status: 404 });
+		}
+
+		const effectiveType = type ?? currentSource.type;
+		const isCredit = effectiveType === "Credit";
+		const update: Record<string, unknown> = {};
+
+		if (name !== undefined)
+			update["paymentSources.$.name"] = name.trim();
 		if (type !== undefined) update["paymentSources.$.type"] = type;
 		if (last4Digits !== undefined)
 			update["paymentSources.$.last4Digits"] = last4Digits;
-		if (debt !== undefined)
-			update["paymentSources.$.debt"] =
-				typeof debt === "number" ? debt : Number(debt);
-		if (balance !== undefined)
-			update["paymentSources.$.balance"] =
-				typeof balance === "number" ? balance : Number(balance);
+
+		if (debt !== undefined && isCredit) {
+			const parsedDebt =
+				debt === null || debt === "" ? 0 : Number(debt);
+			if (!Number.isFinite(parsedDebt) || parsedDebt < 0) {
+				return NextResponse.json(
+					{ error: "Debt must be a non-negative number" },
+					{ status: 400 },
+				);
+			}
+			update["paymentSources.$.debt"] = parsedDebt;
+		}
+
+		if (balance !== undefined && !isCredit) {
+			const parsedBalance =
+				balance === null || balance === "" ? 0 : Number(balance);
+			if (!Number.isFinite(parsedBalance) || parsedBalance < 0) {
+				return NextResponse.json(
+					{ error: "Balance must be a non-negative number" },
+					{ status: 400 },
+				);
+			}
+			update["paymentSources.$.balance"] = parsedBalance;
+		}
+
+		if (isCredit) {
+			// A credit card is a liability, never part of the main total.
+			update["paymentSources.$.balance"] = 0;
+
+			if (dueDay !== undefined) {
+				const parsedDueDay =
+					dueDay === null || dueDay === "" ? null : Number(dueDay);
+				if (
+					parsedDueDay !== null &&
+					(!Number.isInteger(parsedDueDay) ||
+						parsedDueDay < 1 ||
+						parsedDueDay > 31)
+				) {
+					return NextResponse.json(
+						{
+							error: "Due day must be an integer between 1 and 31",
+						},
+						{ status: 400 },
+					);
+				}
+				update["paymentSources.$.dueDay"] = parsedDueDay;
+			}
+		} else {
+			update["paymentSources.$.debt"] = 0;
+			update["paymentSources.$.dueDay"] = null;
+		}
 
 		const result = await User.findOneAndUpdate(
 			{ _id: session.userId, "paymentSources.id": id },
 			{ $set: update },
-			{ new: true },
+			{ new: true, runValidators: true },
 		)
 			.select("paymentSources")
 			.lean<IUser>();

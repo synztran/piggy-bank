@@ -46,6 +46,15 @@ export async function PUT(req: NextRequest) {
 				{ status: 404 },
 			);
 
+		if (ps.type === "Credit") {
+			return NextResponse.json(
+				{
+					error: "Credit cards are adjusted through debt payments",
+				},
+				{ status: 400 },
+			);
+		}
+
 		const oldBalance = Number(ps.balance || 0);
 		const diff = parsed - oldBalance;
 
@@ -72,8 +81,10 @@ export async function PUT(req: NextRequest) {
 		});
 	} catch (err) {
 		console.error("[user:balance] error:", err);
-		const message = err instanceof Error ? err.message : "Internal server error";
-		return NextResponse.json({ error: message }, { status: 500 });
+		return NextResponse.json(
+			{ error: "Internal server error" },
+			{ status: 500 },
+		);
 	}
 }
 

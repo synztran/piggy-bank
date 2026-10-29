@@ -8,6 +8,8 @@ export interface IPaymentSource {
 	last4Digits?: string;
 	debt?: number;
 	balance?: number;
+	/** Day of month (1-31) the credit card payment is due. */
+	dueDay?: number;
 }
 
 const PaymentSourceSchema = new Schema<IPaymentSource>(
@@ -22,6 +24,16 @@ const PaymentSourceSchema = new Schema<IPaymentSource>(
 		last4Digits: { type: String, maxlength: 4 },
 		debt: { type: Number, required: true, default: 0 },
 		balance: { type: Number, required: true, default: 0 },
+		dueDay: {
+			type: Number,
+			min: 1,
+			max: 31,
+			validate: {
+				validator: (value: number | null | undefined) =>
+					value == null || Number.isInteger(value),
+				message: "dueDay must be an integer between 1 and 31",
+			},
+		},
 	},
 	{ _id: false },
 );
@@ -49,7 +61,7 @@ const UserSchema = new Schema<IUser>(
 			minlength: 3,
 			maxlength: 30,
 		},
-		passwordHash: { type: String, required: true },
+		passwordHash: { type: String, required: true, select: false },
 		paymentSources: { type: [PaymentSourceSchema], default: [] },
 	},
 	{

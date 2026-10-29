@@ -25,6 +25,7 @@ export interface Transaction {
 	isRemove?: boolean;
 	deletedByName?: string | null;
 	paymentSourceName?: string | null;
+	debtTargetName?: string | null;
 }
 
 interface TransactionItemProps {
@@ -107,6 +108,11 @@ const TransactionItem = React.memo(function TransactionItem({
 						{tx.paymentSourceName && !tx.isRemove && (
 							<span className="text-[11px] font-medium px-1.5 py-0.5 rounded-md bg-[rgba(125,211,252,0.06)] text-glacier-on-surface-variant border border-[rgba(125,211,252,0.12)]">
 								{tx.paymentSourceName}
+							</span>
+						)}
+						{tx.debtTargetName && !tx.isRemove && (
+							<span className="text-[11px] font-medium px-1.5 py-0.5 rounded-md bg-[rgba(248,113,113,0.08)] text-red-300 border border-[rgba(248,113,113,0.2)]">
+								→ {tx.debtTargetName}
 							</span>
 						)}
 						<span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-[rgba(125,211,252,0.08)] text-glacier-primary border border-[rgba(125,211,252,0.15)]">

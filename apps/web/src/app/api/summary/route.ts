@@ -4,6 +4,7 @@ import User from "@/models/User";
 import Transaction from "@/models/Transaction";
 import { getSession } from "@/lib/auth";
 import { totalBalance } from "@/lib/balance";
+import { buildCreditDebts } from "@/lib/debt";
 
 export async function GET(request: Request) {
 	const session = await getSession();
@@ -44,7 +45,12 @@ export async function GET(request: Request) {
 		await Promise.all([
 			User.findById(session.userId).select("paymentSources name"),
 			User.find({}).select("name paymentSources"),
-			Transaction.find({ type: "expense", ...dateMatch }),
+			Transaction.find({
+				type: "expense",
+				// Paying off a card is a transfer, not new spending.
+				debtAction: { $ne: "payment" },
+				...dateMatch,
+			}),
 			Transaction.find({ type: "income", ...dateMatch }),
 			Transaction.find({
 				userId: session.userId,
@@ -58,6 +64,11 @@ export async function GET(request: Request) {
 		return NextResponse.json({ error: "User not found" }, { status: 404 });
 
 	const total = totalBalance(user.paymentSources);
+	const creditDebts = buildCreditDebts(user.paymentSources);
+	const creditDebtTotal = creditDebts.reduce(
+		(sum, debt) => sum + debt.debt,
+		0,
+	);
 
 	const totalSpentThisMonth = monthlyExpenses.reduce(
 		(sum, t) => sum + parseFloat(t.amount.toString()),
@@ -106,5 +117,7 @@ export async function GET(request: Request) {
 		recentTransactions: recentTransactions.map((t) => t.toJSON()),
 		paymentSourceCount: user.paymentSources.length,
 		memberBalances,
+		creditDebts,
+		totalDebt: creditDebtTotal,
 	});
 }

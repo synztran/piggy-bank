@@ -4,23 +4,44 @@ import connectDB from "@/lib/mongodb";
 import User from "@/models/User";
 import { signToken, getCookieName } from "@/lib/auth";
 import { totalBalance } from "@/lib/balance";
+import { clientKey, rateLimit, tooManyRequests } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
 	try {
 		const { username, password } = await req.json();
 
-		if (!username || !password) {
+		if (typeof username !== "string" || typeof password !== "string") {
 			return NextResponse.json(
 				{ error: "Username and password are required" },
 				{ status: 400 },
 			);
 		}
 
+		if (!username.trim() || !password) {
+			return NextResponse.json(
+				{ error: "Username and password are required" },
+				{ status: 400 },
+			);
+		}
+
+		const normalized = username.toLowerCase().trim();
+
+		// Brute-force protection: per IP and per targeted account.
+		const ipLimit = rateLimit(clientKey(req, "login"), 10, 5 * 60 * 1000);
+		if (!ipLimit.ok) return tooManyRequests(ipLimit.retryAfter);
+
+		const accountLimit = rateLimit(
+			`login-user:${normalized}`,
+			8,
+			5 * 60 * 1000,
+		);
+		if (!accountLimit.ok) return tooManyRequests(accountLimit.retryAfter);
+
 		await connectDB();
 
-		const user = await User.findOne({
-			username: username.toLowerCase().trim(),
-		});
+		const user = await User.findOne({ username: normalized }).select(
+			"+passwordHash",
+		);
 		if (!user) {
 			return NextResponse.json(
 				{ error: "Invalid credentials" },
@@ -63,10 +84,7 @@ export async function POST(req: NextRequest) {
 	} catch (err) {
 		console.error("[login] error:", err);
 		return NextResponse.json(
-			{
-				error: "Internal server error",
-				detail: err instanceof Error ? err.message : String(err),
-			},
+			{ error: "Internal server error" },
 			{ status: 500 },
 		);
 	}

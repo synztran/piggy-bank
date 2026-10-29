@@ -35,8 +35,12 @@ export default function UpdateBalanceDrawer({
 	const router = useRouter();
 	const { updateBalance } = useAuth();
 
+	// Credit cards are liabilities; their balance is not spendable money.
+	const usableAccounts = accounts.filter((a) => a.type !== "Credit");
+
 	const selectedSource =
-		accounts.find((a) => a.id === paymentSourceId) ?? accounts[0];
+		usableAccounts.find((a) => a.id === paymentSourceId) ??
+		usableAccounts[0];
 	const sourceBalance = selectedSource
 		? Number(selectedSource.balance || 0)
 		: 0;
@@ -52,10 +56,10 @@ export default function UpdateBalanceDrawer({
 	}, [onClose, resetForm]);
 
 	useEffect(() => {
-		if (isOpen && !paymentSourceId && accounts.length > 0) {
-			setPaymentSourceId(accounts[0].id);
+		if (isOpen && !paymentSourceId && usableAccounts.length > 0) {
+			setPaymentSourceId(usableAccounts[0].id);
 		}
-	}, [isOpen, paymentSourceId, accounts]);
+	}, [isOpen, paymentSourceId, usableAccounts]);
 
 	const presets = [100000, 500000, 1000000];
 
@@ -189,7 +193,7 @@ export default function UpdateBalanceDrawer({
 				<p className="text-[10px] font-bold uppercase tracking-widest text-glacier-on-surface-variant mb-2">
 					Nguồn tiền
 				</p>
-				{accounts.length === 0 ? (
+				{usableAccounts.length === 0 ? (
 					<p className="text-sm text-red-400">
 						Bạn chưa có nguồn tiền nào. Hãy thêm ở trang Tài khoản.
 					</p>
@@ -198,7 +202,7 @@ export default function UpdateBalanceDrawer({
 						value={selectedSource?.id ?? ""}
 						onChange={(e) => setPaymentSourceId(e.target.value)}
 						className="w-full rounded-xl border border-[rgba(125,211,252,0.2)] bg-glacier-surface px-4 py-3 text-glacier-on-surface text-sm focus:border-glacier-primary focus:outline-none">
-						{accounts.map((a) => (
+						{usableAccounts.map((a) => (
 							<option key={a.id} value={a.id} className="bg-glacier-surface">
 								{a.name} · {a.type} ·{" "}
 								{new Intl.NumberFormat("vi-VN").format(
