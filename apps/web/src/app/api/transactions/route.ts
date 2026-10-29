@@ -1,10 +1,22 @@
 import { getSession } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
 import { maskAmount, sendPushNotification } from "@/lib/notification";
+import { clientKey, rateLimit, tooManyRequests } from "@/lib/rate-limit";
 import Transaction, { sourceDelta } from "@/models/Transaction";
 import User, { IPaymentSource } from "@/models/User";
 import mongoose from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
+
+const MAX_SEARCH_LENGTH = 100;
+
+function escapeRegex(value: string): string {
+	return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function positiveInt(value: string | null, fallback: number): number {
+	const parsed = Number.parseInt(value ?? "", 10);
+	return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
 
 export async function GET(req: NextRequest) {
 	const session = await getSession();
@@ -12,29 +24,35 @@ export async function GET(req: NextRequest) {
 		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
 	const { searchParams } = new URL(req.url);
-	const page = Math.max(1, parseInt(searchParams.get("page") || "1"));
-	const limit = Math.min(50, parseInt(searchParams.get("limit") || "20"));
+	const page = Math.min(10_000, positiveInt(searchParams.get("page"), 1));
+	const limit = Math.min(50, positiveInt(searchParams.get("limit"), 20));
 	const skip = (page - 1) * limit;
 	const startDate = searchParams.get("startDate");
 	const endDate = searchParams.get("endDate");
-	const search = searchParams.get("search");
+	const rawSearch = searchParams.get("search");
+	const search = rawSearch?.trim().slice(0, MAX_SEARCH_LENGTH);
 	const category = searchParams.get("category");
 
 	await connectDB();
 
 	const dateFilter: Record<string, Date> = {};
-	if (startDate) dateFilter.$gte = new Date(startDate);
+	if (startDate) {
+		const start = new Date(startDate);
+		if (!Number.isNaN(start.getTime())) dateFilter.$gte = start;
+	}
 	if (endDate) {
 		const end = new Date(endDate);
-		end.setHours(23, 59, 59, 999);
-		dateFilter.$lte = end;
+		if (!Number.isNaN(end.getTime())) {
+			end.setHours(23, 59, 59, 999);
+			dateFilter.$lte = end;
+		}
 	}
 	const baseMatch: Record<string, unknown> = {
 		...(Object.keys(dateFilter).length
 			? { transactionDate: dateFilter }
 			: {}),
 		...(search
-			? { description: { $regex: search, $options: "i" } }
+			? { description: { $regex: escapeRegex(search), $options: "i" } }
 			: {}),
 		...(category ? { category } : {}),
 	};
@@ -140,6 +158,9 @@ export async function POST(req: NextRequest) {
 	const session = await getSession();
 	if (!session)
 		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+	const limit = rateLimit(`tx-create:${session.userId}`, 60, 60 * 1000);
+	if (!limit.ok) return tooManyRequests(limit.retryAfter);
 
 	try {
 		const {
@@ -398,17 +419,16 @@ export async function POST(req: NextRequest) {
 				: type === "expense"
 					? `${emoji} ${who} đã chi ${masked}`
 					: `${emoji} ${who} đã nhận ${masked}`;
-		const body = description?.trim()
-			? `Danh mục: ${description.trim()}`
-			: catLabel;
+		const body = debtAction === "payment" ? "Thanh toán khoản nợ" : catLabel;
 
-		const otherUsers = await User.find({ _id: { $ne: session.userId } }).select("_id");
+		const otherUsers = await User.find({
+			_id: { $ne: session.userId },
+		}).select("_id");
 		const otherUserIds = otherUsers.map((u) => u._id.toString());
 		if (otherUserIds.length > 0) {
 			sendPushNotification(otherUserIds, title, body, {
 				transactionId: transaction._id?.toString(),
 				type,
-				amount: parsedAmount,
 				category,
 			});
 		}
@@ -418,17 +438,11 @@ export async function POST(req: NextRequest) {
 			{ status: 201 },
 		);
 	} catch (err) {
-		// Surface the real reason instead of an opaque 500 — a silent failure
-		// here used to leave the balance moved with no transaction row.
+		// Keep internals server-side; clients only need a generic failure.
 		console.error("[transactions:create] error:", err);
-		const message =
-			err instanceof mongoose.Error.ValidationError
-				? Object.values(err.errors)
-						.map((e) => e.message)
-						.join(", ")
-				: err instanceof Error
-					? err.message
-					: "Internal server error";
-		return NextResponse.json({ error: message }, { status: 500 });
+		return NextResponse.json(
+			{ error: "Internal server error" },
+			{ status: 500 },
+		);
 	}
 }

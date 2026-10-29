@@ -61,7 +61,7 @@ const UserSchema = new Schema<IUser>(
 			minlength: 3,
 			maxlength: 30,
 		},
-		passwordHash: { type: String, required: true },
+		passwordHash: { type: String, required: true, select: false },
 		paymentSources: { type: [PaymentSourceSchema], default: [] },
 	},
 	{

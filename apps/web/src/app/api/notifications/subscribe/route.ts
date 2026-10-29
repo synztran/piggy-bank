@@ -11,7 +11,15 @@ export async function POST(req: NextRequest) {
   try {
     const { endpoint, keys, userAgent } = await req.json();
 
-    if (!endpoint || !keys?.p256dh || !keys?.auth) {
+    if (
+      typeof endpoint !== "string" ||
+      !/^https:\/\//.test(endpoint) ||
+      endpoint.length > 2048 ||
+      typeof keys?.p256dh !== "string" ||
+      typeof keys?.auth !== "string" ||
+      keys.p256dh.length > 255 ||
+      keys.auth.length > 255
+    ) {
       return NextResponse.json(
         { error: "Invalid subscription object" },
         { status: 400 },

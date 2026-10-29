@@ -108,6 +108,29 @@ export async function middleware(req: NextRequest) {
 	const token = req.cookies.get(COOKIE_NAME)?.value;
 	const session = token ? await verifyToken(token) : null;
 
+	// Same-site cookie already blocks most CSRF; this rejects cross-origin
+	// state changes that manage to send a stale cookie anyway.
+	if (
+		pathname.startsWith("/api/") &&
+		!["GET", "HEAD", "OPTIONS"].includes(req.method)
+	) {
+		const origin = req.headers.get("origin");
+		if (origin) {
+			let originHost: string | null = null;
+			try {
+				originHost = new URL(origin).host;
+			} catch {
+				originHost = null;
+			}
+			if (!originHost || originHost !== req.nextUrl.host) {
+				return NextResponse.json(
+					{ error: "Cross-origin request blocked" },
+					{ status: 403 },
+				);
+			}
+		}
+	}
+
 	// Public pages are only for logged-out visitors.
 	if (PUBLIC_PAGES.has(pathname)) {
 		if (session) {

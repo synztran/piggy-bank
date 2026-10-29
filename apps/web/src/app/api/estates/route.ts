@@ -39,22 +39,74 @@ export async function POST(req: NextRequest) {
 				{ status: 400 },
 			);
 
+		if (typeof name !== "string" || !name.trim() || name.trim().length > 100)
+			return NextResponse.json(
+				{ error: "Name must be 1-100 characters" },
+				{ status: 400 },
+			);
+
+		if (typeof source !== "string" || !source.trim() || source.trim().length > 100)
+			return NextResponse.json(
+				{ error: "Source must be 1-100 characters" },
+				{ status: 400 },
+			);
+
+		const boughtAtDate = new Date(boughtAt);
+		if (Number.isNaN(boughtAtDate.getTime()))
+			return NextResponse.json(
+				{ error: "Invalid boughtAt" },
+				{ status: 400 },
+			);
+
+		const parsedPrice = Number(price);
+		if (!Number.isFinite(parsedPrice) || parsedPrice < 0)
+			return NextResponse.json(
+				{ error: "Invalid price" },
+				{ status: 400 },
+			);
+
+		const parsedCurrentPrice =
+			currentPrice != null ? Number(currentPrice) : undefined;
+		if (
+			parsedCurrentPrice !== undefined &&
+			(!Number.isFinite(parsedCurrentPrice) || parsedCurrentPrice < 0)
+		)
+			return NextResponse.json(
+				{ error: "Invalid currentPrice" },
+				{ status: 400 },
+			);
+
+		const parsedQuantity = quantity != null ? Number(quantity) : undefined;
+		if (
+			parsedQuantity !== undefined &&
+			(!Number.isFinite(parsedQuantity) || parsedQuantity < 0)
+		)
+			return NextResponse.json(
+				{ error: "Invalid quantity" },
+				{ status: 400 },
+			);
+
 		await connectDB();
 
 		const estate = await Estate.create({
 			userId: session.userId,
 			type,
 			name: name.trim(),
-			boughtAt: new Date(boughtAt),
-			price: Number(price),
-			...(currentPrice != null && { currentPrice: Number(currentPrice) }),
+			boughtAt: boughtAtDate,
+			price: parsedPrice,
+			...(parsedCurrentPrice !== undefined && {
+				currentPrice: parsedCurrentPrice,
+			}),
 			source: source.trim(),
-			...(quantity != null && { quantity: Number(quantity) }),
-			...(quantityUnit && { quantityUnit: quantityUnit.trim() }),
+			...(parsedQuantity !== undefined && {
+				quantity: parsedQuantity,
+			}),
+			...(quantityUnit && { quantityUnit: String(quantityUnit).trim().slice(0, 30) }),
 		});
 
 		return NextResponse.json({ estate }, { status: 201 });
-	} catch {
+	} catch (err) {
+		console.error("[estates:create] error:", err);
 		return NextResponse.json(
 			{ error: "Internal server error" },
 			{ status: 500 },

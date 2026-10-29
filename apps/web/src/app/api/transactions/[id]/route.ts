@@ -16,6 +16,11 @@ export async function DELETE(
 		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
 	const { id } = await params;
+
+	if (!mongoose.Types.ObjectId.isValid(id)) {
+		return NextResponse.json({ error: "Not found" }, { status: 404 });
+	}
+
 	await connectDB();
 
 	const tx = await Transaction.findOneAndUpdate(

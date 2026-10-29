@@ -81,8 +81,10 @@ export async function PUT(req: NextRequest) {
 		});
 	} catch (err) {
 		console.error("[user:balance] error:", err);
-		const message = err instanceof Error ? err.message : "Internal server error";
-		return NextResponse.json({ error: message }, { status: 500 });
+		return NextResponse.json(
+			{ error: "Internal server error" },
+			{ status: 500 },
+		);
 	}
 }
 

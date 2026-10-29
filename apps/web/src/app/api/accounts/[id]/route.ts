@@ -48,6 +48,24 @@ export async function PUT(
 				{ status: 400 },
 			);
 		}
+		if (name !== undefined && name.trim().length > 50) {
+			return NextResponse.json(
+				{ error: "Name must be 50 characters or fewer" },
+				{ status: 400 },
+			);
+		}
+		if (
+			last4Digits !== undefined &&
+			last4Digits !== null &&
+			last4Digits !== "" &&
+			(typeof last4Digits !== "string" ||
+				!/^\d{1,4}$/.test(last4Digits))
+		) {
+			return NextResponse.json(
+				{ error: "Last 4 digits must be numeric" },
+				{ status: 400 },
+			);
+		}
 
 		const validTypes = ["Debit", "Credit", "Cash", "Transfer"];
 		if (type !== undefined && !validTypes.includes(type)) {
@@ -137,7 +155,7 @@ export async function PUT(
 		const result = await User.findOneAndUpdate(
 			{ _id: session.userId, "paymentSources.id": id },
 			{ $set: update },
-			{ new: true },
+			{ new: true, runValidators: true },
 		)
 			.select("paymentSources")
 			.lean<IUser>();
