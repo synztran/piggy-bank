@@ -46,6 +46,15 @@ export async function PUT(req: NextRequest) {
 				{ status: 404 },
 			);
 
+		if (ps.type === "Credit") {
+			return NextResponse.json(
+				{
+					error: "Credit cards are adjusted through debt payments",
+				},
+				{ status: 400 },
+			);
+		}
+
 		const oldBalance = Number(ps.balance || 0);
 		const diff = parsed - oldBalance;
 

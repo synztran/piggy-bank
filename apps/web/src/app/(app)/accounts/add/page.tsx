@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const accountTypes = [
-	{ id: "Credit", label: "Thẻ tín dụng", icon: CreditCard },
+	{ id: "Credit", label: "Thẻ tín dụng/Khoản nợ", icon: CreditCard },
 	{ id: "Debit", label: "Thẻ ngân hàng", icon: CreditCard },
 	{ id: "Cash", label: "Tiền mặt", icon: Banknote },
 	{ id: "Transfer", label: "Nền tảng khác", icon: ArrowLeftRight },
@@ -28,14 +28,33 @@ export default function AddAccountPage() {
 	);
 	const [last4Digits, setLast4Digits] = useState("");
 	const [debt, setDebt] = useState<string>("0");
+	const [dueDay, setDueDay] = useState<string>("");
 	const [balance, setBalance] = useState<string>("0");
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
+
+	// The optional section only renders when at least one optional field exists.
+	const hasOptionalFields =
+		(type !== "Credit" ? 1 : 0) + // balance
+		(type === "Debit" || type === "Credit" ? 1 : 0) + // last 4 digits
+		(type === "Credit" ? 1 : 0) > // due day
+		0;
 
 	const handleSave = async (e: React.FormEvent) => {
 		e.preventDefault();
 		if (!name.trim()) {
 			setError("Vui lòng nhập tên nguồn tiền");
+			return;
+		}
+
+		const parsedDebt = Number(debt);
+		if (
+			type === "Credit" &&
+			(debt.trim() === "" ||
+				!Number.isFinite(parsedDebt) ||
+				parsedDebt < 0)
+		) {
+			setError("Vui lòng nhập dư nợ hiện tại");
 			return;
 		}
 
@@ -49,8 +68,14 @@ export default function AddAccountPage() {
 					name,
 					type,
 					last4Digits: last4Digits || undefined,
-					debt: debt ? Number(debt) : undefined,
-					balance: balance ? Number(balance) : undefined,
+					...(type === "Credit"
+						? {
+								debt: Number(debt) || 0,
+								dueDay: dueDay
+									? Number(dueDay)
+									: undefined,
+							}
+						: { balance: Number(balance) || 0 }),
 				}),
 			});
 
@@ -149,76 +174,127 @@ export default function AddAccountPage() {
 						</div>
 					</div>
 
-					{/* Balance — shown for all types */}
-					<div className="space-y-2 relative">
-						<label className="block text-sm font-medium text-glacier-on-surface">
-							Số dư ban đầu{" "}
-							<span className="text-glacier-on-surface-variant font-normal">
-								(tùy chọn)
-							</span>
-						</label>
-						<input
-							type="number"
-							value={balance}
-							onChange={(e) => setBalance(e.target.value)}
-							placeholder="0"
-							className="glass-input w-full py-3 px-4 rounded-xl text-glacier-on-surface placeholder:text-[#4a6070]"
-							min="0"
-							step="1000"
-						/>
-						<small className="absolute -bottom-4 right-0 text-orange-400">
-							{formatCurrency(Number(balance))}
-						</small>
-					</div>
-
-					{/* Last 4 Digits + Debt — only for card types */}
-					{(type === "Debit" || type === "Credit") && (
+					{/* Credit-card note — right below the account type */}
+					{type === "Credit" && (
 						<>
-							<div className="space-y-2">
-								<label className="block text-sm font-medium text-glacier-on-surface">
-									4 số cuối{" "}
-									<span className="text-glacier-on-surface-variant font-normal">
-										(không bắt buộc)
-									</span>
-								</label>
-								<input
-									type="text"
-									value={last4Digits}
-									onChange={(e) =>
-										setLast4Digits(
-											e.target.value
-												.replace(/\D/g, "")
-												.slice(0, 4),
-										)
-									}
-									placeholder="vd. 8821"
-									className="glass-input w-full py-3 px-4 rounded-xl text-glacier-on-surface placeholder:text-[#4a6070]"
-									maxLength={4}
-								/>
+							<div className="rounded-xl border border-[rgba(248,113,113,0.2)] bg-[rgba(248,113,113,0.06)] px-4 py-3">
+								<p className="text-xs text-glacier-on-surface-variant">
+									Nợ được theo dõi riêng và không cộng vào
+									tổng tiền chính.
+								</p>
 							</div>
 
+							{/* Required for credit cards */}
 							<div className="space-y-2 relative">
 								<label className="block text-sm font-medium text-glacier-on-surface">
-									Nợ hiện tại{" "}
-									<span className="text-glacier-on-surface-variant font-normal">
-										(tùy chọn)
-									</span>
+									Dư nợ hiện tại
 								</label>
 								<input
 									type="number"
 									value={debt}
-									onChange={(e) => setDebt(e.target.value)}
+									onChange={(e) => {
+										setDebt(e.target.value);
+										setError("");
+									}}
 									onWheel={(e) => e.currentTarget.blur()}
 									placeholder="0"
 									className="glass-input w-full py-3 px-4 rounded-xl text-glacier-on-surface placeholder:text-[#4a6070]"
 									min="0"
 									step="1000"
+									required
 								/>
 								<small className="absolute -bottom-4 right-0 text-orange-400">
 									{formatCurrency(Number(debt))}
 								</small>
 							</div>
 						</>
+					)}
+
+					{/* Optional fields grouped at the bottom */}
+					{hasOptionalFields && (
+						<div className="flex items-center gap-3 pt-1">
+							<span className="text-[10px] font-bold uppercase tracking-widest text-glacier-on-surface-variant">
+								Thông tin tùy chọn
+							</span>
+							<span className="h-px flex-1 bg-[rgba(125,211,252,0.12)]" />
+						</div>
+					)}
+
+					{/* Balance — non-credit sources only */}
+					{type !== "Credit" && (
+						<div className="space-y-2 relative">
+							<label className="block text-sm font-medium text-glacier-on-surface">
+								Số dư ban đầu{" "}
+								<span className="text-glacier-on-surface-variant font-normal">
+									(tùy chọn)
+								</span>
+							</label>
+							<input
+								type="number"
+								value={balance}
+								onChange={(e) => setBalance(e.target.value)}
+								placeholder="0"
+								className="glass-input w-full py-3 px-4 rounded-xl text-glacier-on-surface placeholder:text-[#4a6070]"
+								min="0"
+								step="1000"
+							/>
+							<small className="absolute -bottom-4 right-0 text-orange-400">
+								{formatCurrency(Number(balance))}
+							</small>
+						</div>
+					)}
+
+					{/* Last 4 digits — card types only */}
+					{(type === "Debit" || type === "Credit") && (
+						<div className="space-y-2">
+							<label className="block text-sm font-medium text-glacier-on-surface">
+								4 số cuối{" "}
+								<span className="text-glacier-on-surface-variant font-normal">
+									(không bắt buộc)
+								</span>
+							</label>
+							<input
+								type="text"
+								value={last4Digits}
+								onChange={(e) =>
+									setLast4Digits(
+										e.target.value
+											.replace(/\D/g, "")
+											.slice(0, 4),
+									)
+								}
+								placeholder="vd. 8821"
+								className="glass-input w-full py-3 px-4 rounded-xl text-glacier-on-surface placeholder:text-[#4a6070]"
+								maxLength={4}
+							/>
+						</div>
+					)}
+
+					{/* Credit-card due date — optional */}
+					{type === "Credit" && (
+						<div className="space-y-2">
+							<label className="block text-sm font-medium text-glacier-on-surface">
+								Ngày đến hạn hằng tháng{" "}
+								<span className="text-glacier-on-surface-variant font-normal">
+									(tùy chọn)
+								</span>
+							</label>
+							<input
+								type="number"
+								value={dueDay}
+								onChange={(e) => setDueDay(e.target.value)}
+								onWheel={(e) => e.currentTarget.blur()}
+								placeholder="vd. 15"
+								className="glass-input w-full py-3 px-4 rounded-xl text-glacier-on-surface placeholder:text-[#4a6070]"
+								min="1"
+								max="31"
+								step="1"
+							/>
+							<p className="text-xs text-glacier-on-surface-variant">
+								Ngày trong tháng (1–31). Tháng thiếu ngày sẽ tự
+								lấy ngày cuối tháng.
+							</p>
+						</div>
 					)}
 
 					{error && (

@@ -24,6 +24,8 @@ export interface ITransaction extends Document {
 	isRemove?: boolean;
 	deletedBy?: Types.ObjectId;
 	debtAction?: "charge" | "payment";
+	/** Credit card paymentSource id that a debt payment pays down. */
+	debtTargetId?: string | null;
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -91,6 +93,11 @@ const TransactionSchema = new Schema<ITransaction>(
 		debtAction: {
 			type: String,
 			enum: ["charge", "payment"],
+			required: false,
+			default: null,
+		},
+		debtTargetId: {
+			type: String,
 			required: false,
 			default: null,
 		},

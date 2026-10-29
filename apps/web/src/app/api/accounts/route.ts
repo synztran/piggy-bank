@@ -25,7 +25,8 @@ export async function POST(req: NextRequest) {
 		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
 	try {
-		const { name, type, last4Digits, debt, balance } = await req.json();
+		const { name, type, last4Digits, debt, balance, dueDay } =
+			await req.json();
 
 		if (!name || !type)
 			return NextResponse.json(
@@ -40,9 +41,15 @@ export async function POST(req: NextRequest) {
 				{ status: 400 },
 			);
 
+		const isCredit = type === "Credit";
+
+		const parsedBalance =
+			balance === undefined || balance === null || balance === ""
+				? 0
+				: Number(balance);
 		if (
-			typeof balance !== "number" &&
-			(isNaN(Number(balance)) || Number(balance) < 0)
+			!isCredit &&
+			(!Number.isFinite(parsedBalance) || parsedBalance < 0)
 		) {
 			return NextResponse.json(
 				{ error: "Balance must be a non-negative number" },
@@ -50,25 +57,47 @@ export async function POST(req: NextRequest) {
 			);
 		}
 
-		if (
-			typeof debt !== "number" &&
-			(isNaN(Number(debt)) || Number(debt) < 0)
-		) {
+		const parsedDebt =
+			debt === undefined || debt === null || debt === ""
+				? 0
+				: Number(debt);
+		if (!Number.isFinite(parsedDebt) || parsedDebt < 0) {
 			return NextResponse.json(
 				{ error: "Debt must be a non-negative number" },
 				{ status: 400 },
 			);
 		}
 
+		const parsedDueDay =
+			dueDay === undefined || dueDay === null || dueDay === ""
+				? null
+				: Number(dueDay);
+		if (
+			isCredit &&
+			parsedDueDay !== null &&
+			(!Number.isInteger(parsedDueDay) ||
+				parsedDueDay < 1 ||
+				parsedDueDay > 31)
+		) {
+			return NextResponse.json(
+				{ error: "Due day must be an integer between 1 and 31" },
+				{ status: 400 },
+			);
+		}
+
 		await connectDB();
 
-		const newSource: any = {
+		const newSource: IPaymentSource = {
 			id: new Types.ObjectId().toString(),
 			name: name.trim(),
 			type,
 			...(last4Digits ? { last4Digits: last4Digits.trim() } : {}),
-			debt: debt,
-			balance: balance,
+			debt: isCredit ? parsedDebt : 0,
+			// Credit cards are liabilities; their balance is not part of total money.
+			balance: isCredit ? 0 : parsedBalance,
+			...(isCredit && parsedDueDay !== null
+				? { dueDay: parsedDueDay }
+				: {}),
 		};
 
 		await User.findByIdAndUpdate(session.userId, {

@@ -3,6 +3,11 @@
 import EditAccountDrawer from "@/components/EditAccountDrawer";
 import PullToRefresh from "@/components/PullToRefresh";
 import {
+	dueStatusLabel,
+	getCreditDebtInfo,
+} from "@/lib/debt";
+import { formatCurrency } from "@/lib/utils";
+import {
 	ArrowLeftRight,
 	Banknote,
 	CirclePower,
@@ -23,6 +28,7 @@ interface PaymentSource {
 	last4Digits?: string;
 	debt?: number;
 	balance?: number;
+	dueDay?: number;
 }
 
 const accountIcon = {
@@ -49,7 +55,7 @@ const accountBackgroundGradient: Record<PaymentSource["type"], string> = {
 const accountTypeLabel = {
 	Cash: "Tiền mặt",
 	Debit: "Thẻ ngân hàng",
-	Credit: "Thẻ tín dụng",
+	Credit: "Thẻ tín dụng/Khoản nợ",
 	Transfer: "Nền tảng khác",
 };
 
@@ -132,6 +138,14 @@ export default function AccountsPage() {
 
 					{accounts.map((account) => {
             const cardBgColor = accountBackgroundGradient[account.type] || accountBackgroundGradient.Cash;
+						const debtInfo = getCreditDebtInfo(account);
+						const dueColor =
+							debtInfo.status === "overdue"
+								? "text-red-400"
+								: debtInfo.status === "due-today" ||
+									  debtInfo.status === "due-soon"
+									? "text-orange-300"
+									: "text-glacier-on-surface-variant";
 
 						return (
 							<div
@@ -150,37 +164,31 @@ export default function AccountsPage() {
 													account.type
 												] || account.type}
 											</p>
-											{account.debt &&
-											account.debt > 0 ? (
-												<p className="text-xs text-red-400 mt-1">
-													Dư nợ:{" "}
-													{new Intl.NumberFormat(
-														"vi-VN",
-														{
-															style: "currency",
-															currency: "VND",
-															maximumFractionDigits: 0,
-														},
-													).format(
-														Number(account.debt),
-													)}
-												</p>
-											) : null}
-											{account.type !== "Credit" ? (
+											{account.type === "Credit" ? (
+												<div className="mt-1 space-y-0.5">
+													<p
+														className={`text-xs ${debtInfo.debt > 0 ? "text-red-400" : "text-emerald-400"}`}>
+														{debtInfo.debt > 0
+															? `Dư nợ: ${formatCurrency(debtInfo.debt)}`
+															: "Không có dư nợ"}
+													</p>
+													<p
+														className={`text-[11px] ${dueColor}`}>
+														{dueStatusLabel(
+															debtInfo,
+														)}
+													</p>
+												</div>
+											) : (
 												<p className="text-xs text-green-400 mt-1">
 													Số dư:{" "}
-													{new Intl.NumberFormat(
-														"vi-VN",
-														{
-															style: "currency",
-															currency: "VND",
-															maximumFractionDigits: 0,
-														},
-													).format(
-														Number(account.balance),
+													{formatCurrency(
+														Number(
+															account.balance,
+														),
 													)}
 												</p>
-											) : null}
+											)}
 									</div>
 								</div>
                 <div className="absolute -bottom-4 left-2 w-full space-x-1">

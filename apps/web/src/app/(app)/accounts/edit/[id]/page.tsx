@@ -28,10 +28,17 @@ export default function EditAccountPage() {
 	);
 	const [last4Digits, setLast4Digits] = useState("");
 	const [debt, setDebt] = useState<string>("0");
+	const [dueDay, setDueDay] = useState<string>("");
 	const [balance, setBalance] = useState<string>("0");
 	const [loading, setLoading] = useState(false);
 	const [fetching, setFetching] = useState(true);
 	const [error, setError] = useState("");
+
+	const hasOptionalFields =
+		(type !== "Credit" ? 1 : 0) + // balance
+		(type === "Debit" || type === "Credit" ? 1 : 0) + // last 4 digits
+		(type === "Credit" ? 1 : 0) > // due day
+		0;
 
 	const fetchAccount = useCallback(async () => {
 		try {
@@ -43,6 +50,7 @@ export default function EditAccountPage() {
 				setType(a.type);
 				setLast4Digits(a.last4Digits || "");
 				setDebt(a.debt != null ? String(a.debt) : "0");
+				setDueDay(a.dueDay != null ? String(a.dueDay) : "");
 				setBalance(a.balance != null ? String(a.balance) : "0");
 			} else {
 				router.push("/accounts");
@@ -62,6 +70,16 @@ export default function EditAccountPage() {
 			setError("Vui lòng nhập tên tài khoản");
 			return;
 		}
+		const parsedDebt = Number(debt);
+		if (
+			type === "Credit" &&
+			(debt.trim() === "" ||
+				!Number.isFinite(parsedDebt) ||
+				parsedDebt < 0)
+		) {
+			setError("Vui lòng nhập dư nợ hiện tại");
+			return;
+		}
 		setLoading(true);
 		setError("");
 		try {
@@ -72,8 +90,14 @@ export default function EditAccountPage() {
 					name,
 					type,
 					last4Digits: last4Digits || undefined,
-					debt: debt ? Number(debt) : undefined,
-					balance: balance ? Number(balance) : undefined,
+					...(type === "Credit"
+						? {
+								debt: Number(debt) || 0,
+								dueDay: dueDay
+									? Number(dueDay)
+									: null,
+							}
+						: { balance: Number(balance) || 0 }),
 				}),
 			});
 
@@ -158,67 +182,116 @@ export default function EditAccountPage() {
 						</div>
 					</div>
 
-					{(type === "Debit" || type === "Credit") && (
+					{type === "Credit" && (
 						<>
-							<div className="space-y-2">
-								<label className="block text-sm font-medium text-glacier-on-surface">
-									4 số cuối{" "}
-									<span className="text-glacier-on-surface-variant font-normal">
-										(không bắt buộc)
-									</span>
-								</label>
-								<input
-									type="text"
-									value={last4Digits}
-									onChange={(e) =>
-										setLast4Digits(
-											e.target.value
-												.replace(/\D/g, "")
-												.slice(0, 4),
-										)
-									}
-									placeholder="vd. 8821"
-									className="glass-input w-full py-3 px-4 rounded-xl text-glacier-on-surface placeholder:text-[#4a6070]"
-									maxLength={4}
-								/>
+							<div className="rounded-xl border border-[rgba(248,113,113,0.2)] bg-[rgba(248,113,113,0.06)] px-4 py-3">
+								<p className="text-xs text-glacier-on-surface-variant">
+									Nợ được theo dõi riêng và không cộng vào
+									tổng tiền chính.
+								</p>
 							</div>
 
 							<div className="space-y-2">
 								<label className="block text-sm font-medium text-glacier-on-surface">
-									Nợ hiện tại{" "}
-									<span className="text-glacier-on-surface-variant font-normal">
-										(tùy chọn)
-									</span>
+									Dư nợ hiện tại
 								</label>
 								<input
 									type="number"
 									value={debt}
-									onChange={(e) => setDebt(e.target.value)}
+									onChange={(e) => {
+										setDebt(e.target.value);
+										setError("");
+									}}
+									onWheel={(e) => e.currentTarget.blur()}
 									placeholder="0"
 									className="glass-input w-full py-3 px-4 rounded-xl text-glacier-on-surface placeholder:text-[#4a6070]"
 									min="0"
 									step="1000"
-								/>
-							</div>
-
-							<div className="space-y-2">
-								<label className="block text-sm font-medium text-glacier-on-surface">
-									Số dư hiện tại{" "}
-									<span className="text-glacier-on-surface-variant font-normal">
-										(tùy chọn)
-									</span>
-								</label>
-								<input
-									type="number"
-									value={balance}
-									onChange={(e) => setBalance(e.target.value)}
-									placeholder="0"
-									className="glass-input w-full py-3 px-4 rounded-xl text-glacier-on-surface placeholder:text-[#4a6070]"
-									min="0"
-									step="1000"
+									required
 								/>
 							</div>
 						</>
+					)}
+
+					{/* Optional fields grouped at the bottom */}
+					{hasOptionalFields && (
+						<div className="flex items-center gap-3 pt-1">
+							<span className="text-[10px] font-bold uppercase tracking-widest text-glacier-on-surface-variant">
+								Thông tin tùy chọn
+							</span>
+							<span className="h-px flex-1 bg-[rgba(125,211,252,0.12)]" />
+						</div>
+					)}
+
+					{type !== "Credit" && (
+						<div className="space-y-2">
+							<label className="block text-sm font-medium text-glacier-on-surface">
+								Số dư hiện tại{" "}
+								<span className="text-glacier-on-surface-variant font-normal">
+									(tùy chọn)
+								</span>
+							</label>
+							<input
+								type="number"
+								value={balance}
+								onChange={(e) => setBalance(e.target.value)}
+								placeholder="0"
+								className="glass-input w-full py-3 px-4 rounded-xl text-glacier-on-surface placeholder:text-[#4a6070]"
+								min="0"
+								step="1000"
+							/>
+						</div>
+					)}
+
+					{(type === "Debit" || type === "Credit") && (
+						<div className="space-y-2">
+							<label className="block text-sm font-medium text-glacier-on-surface">
+								4 số cuối{" "}
+								<span className="text-glacier-on-surface-variant font-normal">
+									(không bắt buộc)
+								</span>
+							</label>
+							<input
+								type="text"
+								value={last4Digits}
+								onChange={(e) =>
+									setLast4Digits(
+										e.target.value
+											.replace(/\D/g, "")
+											.slice(0, 4),
+									)
+								}
+								placeholder="vd. 8821"
+								className="glass-input w-full py-3 px-4 rounded-xl text-glacier-on-surface placeholder:text-[#4a6070]"
+								maxLength={4}
+							/>
+						</div>
+					)}
+
+					{type === "Credit" && (
+						<div className="space-y-2">
+							<label className="block text-sm font-medium text-glacier-on-surface">
+								Ngày đến hạn hằng tháng{" "}
+								<span className="text-glacier-on-surface-variant font-normal">
+									(tùy chọn)
+								</span>
+							</label>
+							<input
+								type="number"
+								value={dueDay}
+								onChange={(e) => setDueDay(e.target.value)}
+								onWheel={(e) => e.currentTarget.blur()}
+								placeholder="vd. 15"
+								className="glass-input w-full py-3 px-4 rounded-xl text-glacier-on-surface placeholder:text-[#4a6070]"
+								min="1"
+								max="31"
+								step="1"
+							/>
+							<p className="text-xs text-glacier-on-surface-variant">
+								Ngày trong tháng (1–31). Tháng thiếu ngày sẽ tự
+								lấy ngày cuối tháng.
+							</p>
+						</div>
 					)}
 
 					{error && (

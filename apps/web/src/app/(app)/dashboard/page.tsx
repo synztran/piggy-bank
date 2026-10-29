@@ -1,11 +1,14 @@
 "use client";
 
+import DebtPaymentModal from "@/components/DebtPaymentModal";
 import PullToRefresh from "@/components/PullToRefresh";
 import QuickPaymentModal from "@/components/QuickPaymentModal";
 import UpdateBalanceDrawer from "@/components/UpdateBalanceDrawer";
+import DebtSection from "@/components/dashboard/DebtSection";
 import HeroBalanceCard from "@/components/dashboard/HeroBalanceCard";
 import RecentTransactionsList from "@/components/dashboard/RecentTransactionsList";
 import SpendingInsights from "@/components/dashboard/SpendingInsights";
+import type { CreditDebtInfo } from "@/lib/debt";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 interface PaymentSource {
@@ -39,6 +42,8 @@ interface Summary {
 	recentTransactions: Transaction[];
 	accountCount: number;
 	memberBalances: { name: string; balance: number; isCurrentUser: boolean }[];
+	creditDebts: CreditDebtInfo[];
+	totalDebt: number;
 }
 
 export default function DashboardPage() {
@@ -46,6 +51,10 @@ export default function DashboardPage() {
 	const [accounts, setAccounts] = useState<PaymentSource[]>([]);
 	const [showUpdateBalance, setShowUpdateBalance] = useState(false);
 	const [showQuickPayment, setShowQuickPayment] = useState(false);
+	const [showDebtPayment, setShowDebtPayment] = useState(false);
+	const [selectedDebt, setSelectedDebt] = useState<CreditDebtInfo | null>(
+		null,
+	);
 	const iosKeyboardTriggerRef = useRef<HTMLInputElement>(null);
 	const [loading, setLoading] = useState(true);
 
@@ -89,6 +98,14 @@ export default function DashboardPage() {
 		() => setShowUpdateBalance(true),
 		[],
 	);
+	const handleCloseDebtPayment = useCallback(
+		() => setShowDebtPayment(false),
+		[],
+	);
+	const handlePayDebt = useCallback((debt: CreditDebtInfo) => {
+		setSelectedDebt(debt);
+		setShowDebtPayment(true);
+	}, []);
 
 	return (
 		<PullToRefresh onRefresh={fetchData}>
@@ -121,12 +138,21 @@ export default function DashboardPage() {
 					<HeroBalanceCard
 						totalBalance={summary?.totalBalance ?? 0}
 						memberBalances={summary?.memberBalances ?? []}
-						sourceCount={accounts.length}
+						sourceCount={
+							accounts.filter((a) => a.type !== "Credit").length
+						}
 						loading={loading}
 						onUpdateBalance={handleOpenUpdateBalance}
 						onQuickPayment={handleOpenQuickPayment}
 					/>
 				)}
+
+				<DebtSection
+					debts={summary?.creditDebts ?? []}
+					totalDebt={summary?.totalDebt ?? 0}
+					loading={loading}
+					onPay={handlePayDebt}
+				/>
 
 				{loading ? (
 					<div className="grid grid-cols-2 gap-4">
@@ -158,6 +184,15 @@ export default function DashboardPage() {
 					onClose={handleCloseQuickPayment}
 					onSuccess={fetchData}
           balance={summary?.totalBalance ?? 0}
+				/>
+
+				<DebtPaymentModal
+					isOpen={showDebtPayment}
+					debts={summary?.creditDebts ?? []}
+					accounts={accounts}
+					initialDebtId={selectedDebt?.id ?? null}
+					onClose={handleCloseDebtPayment}
+					onSuccess={fetchData}
 				/>
 			</div>
 		</PullToRefresh>

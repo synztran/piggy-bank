@@ -52,14 +52,28 @@ export async function DELETE(
 		if (ps) {
 			const beforeDebt = Number(ps.debt || 0);
 			const beforeBalance = Number(ps.balance || 0);
-			const isCardType = ps.type === "Credit" || ps.type === "Debit";
+			const isCardType = ps.type === "Credit";
 
-			ps.balance = beforeBalance - sourceDelta(tx);
+			// Credit card balances never move; only their debt does.
+			if (!isCardType) {
+				ps.balance = beforeBalance - sourceDelta(tx);
+			}
 
-			if (isChargeToCard) {
+			if (debtAction === "payment") {
+				const target =
+					(tx.debtTargetId
+						? user.paymentSources.find(
+								(s: IPaymentSource) =>
+									s.id === tx.debtTargetId,
+							)
+						: undefined) ??
+					(isCardType ? ps : undefined);
+
+				if (target) {
+					target.debt = Number(target.debt || 0) + amount;
+				}
+			} else if (isChargeToCard) {
 				ps.debt = Math.max(0, beforeDebt - amount);
-			} else if (debtAction === "payment") {
-				if (isCardType) ps.debt = beforeDebt + amount;
 			} else if (tx.type === "income") {
 				if (isCardType) ps.debt = beforeDebt + amount;
 			} else if (isCardType) {

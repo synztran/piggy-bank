@@ -96,6 +96,31 @@ export async function GET(req: NextRequest) {
 							},
 						},
 					},
+					debtTargetName: {
+						$let: {
+							vars: {
+								userDoc: { $arrayElemAt: ["$_user", 0] },
+							},
+							in: {
+								$reduce: {
+									input: "$$userDoc.paymentSources",
+									initialValue: null,
+									in: {
+										$cond: [
+											{
+												$eq: [
+													"$$this.id",
+													"$debtTargetId",
+												],
+											},
+											"$$this.name",
+											"$$value",
+										],
+									},
+								},
+							},
+						},
+					},
 				},
 			},
 			{ $project: { _user: 0, _deletedByUser: 0, passwordHash: 0 } },
@@ -125,6 +150,7 @@ export async function POST(req: NextRequest) {
 			paymentSourceId,
 			transactionDate,
 			debtAction,
+			debtTargetId,
 		} = await req.json();
 
 		if (!amount || !type) {
@@ -144,6 +170,17 @@ export async function POST(req: NextRequest) {
 		if (!["expense", "income"].includes(type)) {
 			return NextResponse.json(
 				{ error: "type must be expense or income" },
+				{ status: 400 },
+			);
+		}
+
+		if (
+			debtAction !== undefined &&
+			debtAction !== null &&
+			!["charge", "payment"].includes(debtAction)
+		) {
+			return NextResponse.json(
+				{ error: "debtAction must be charge or payment" },
 				{ status: 400 },
 			);
 		}
@@ -179,6 +216,70 @@ export async function POST(req: NextRequest) {
 				{ status: 404 },
 			);
 
+		const fundingSource = user.paymentSources.find(
+			(s: IPaymentSource) => s.id === paymentSourceId,
+		)!;
+
+		let debtTarget: IPaymentSource | undefined;
+		if (debtAction === "payment") {
+			if (!debtTargetId || typeof debtTargetId !== "string") {
+				return NextResponse.json(
+					{ error: "debtTargetId is required to pay debt" },
+					{ status: 400 },
+				);
+			}
+			if (debtTargetId === paymentSourceId) {
+				return NextResponse.json(
+					{ error: "Debt payment must come from another source" },
+					{ status: 400 },
+				);
+			}
+			if (fundingSource.type === "Credit") {
+				return NextResponse.json(
+					{
+						error: "Debt must be paid from a non-credit source",
+					},
+					{ status: 400 },
+				);
+			}
+			debtTarget = user.paymentSources.find(
+				(s: IPaymentSource) => s.id === debtTargetId,
+			);
+			if (!debtTarget || debtTarget.type !== "Credit") {
+				return NextResponse.json(
+					{ error: "Credit card to pay was not found" },
+					{ status: 404 },
+				);
+			}
+			if (parsedAmount > Number(debtTarget.debt || 0)) {
+				return NextResponse.json(
+					{ error: "Payment exceeds the current debt" },
+					{ status: 400 },
+				);
+			}
+		}
+
+		if (debtAction === "charge" && type !== "expense") {
+			return NextResponse.json(
+				{ error: "debtAction charge must be an expense" },
+				{ status: 400 },
+			);
+		}
+
+		if (debtAction === "charge" && fundingSource.type !== "Credit") {
+			return NextResponse.json(
+				{ error: "debtAction charge is only valid for credit cards" },
+				{ status: 400 },
+			);
+		}
+
+		if (debtAction === "payment" && type !== "expense") {
+			return NextResponse.json(
+				{ error: "Debt payment must be an expense" },
+				{ status: 400 },
+			);
+		}
+
 		// Validate the transaction before touching any money, so a schema
 		// violation can never leave a balance move without a ledger row.
 		const draft = new Transaction({
@@ -190,6 +291,8 @@ export async function POST(req: NextRequest) {
 			category: category || (type === "income" ? "income" : "other"),
 			paymentSourceId,
 			debtAction: debtAction || null,
+			debtTargetId:
+				debtAction === "payment" ? (debtTargetId as string) : null,
 			description: description?.trim() || "",
 			transactionDate: transactionDate
 				? new Date(transactionDate)
@@ -208,28 +311,31 @@ export async function POST(req: NextRequest) {
 				{ status: 400 },
 			);
 
-		// The payment source balance is the only money field — it carries no
-		// independent running counter, so there is nothing else to keep in sync.
-		const ps = user.paymentSources.find(
-			(s: IPaymentSource) => s.id === paymentSourceId,
-		)!;
-		const beforeDebt = Number(ps.debt || 0);
-		const beforeBalance = Number(ps.balance || 0);
-		const isCardType = ps.type === "Credit" || ps.type === "Debit";
+		// Credit cards are liabilities: their balance never moves. Only debt
+		// changes, which keeps them out of the main total by construction.
+		const beforeDebt = Number(fundingSource.debt || 0);
+		const beforeBalance = Number(fundingSource.balance || 0);
+		const isCardType = fundingSource.type === "Credit";
+		const delta = isCardType ? 0 : sourceDelta(draft);
 
-		const delta = sourceDelta(draft);
-		ps.balance = beforeBalance + delta;
+		fundingSource.balance = beforeBalance + delta;
 
-		if (debtAction === "charge" && type === "expense") {
-			ps.debt = beforeDebt + parsedAmount;
-		} else if (debtAction === "payment") {
-			if (isCardType) ps.debt = Math.max(0, beforeDebt - parsedAmount);
-		} else {
-			if (type === "income") {
-				if (isCardType) ps.debt = Math.max(0, beforeDebt - parsedAmount);
-			} else if (isCardType) {
-				ps.debt = beforeDebt + parsedAmount;
+		if (debtAction === "payment" && debtTarget) {
+			debtTarget.debt = Math.max(
+				0,
+				Number(debtTarget.debt || 0) - parsedAmount,
+			);
+		} else if (debtAction === "charge" && type === "expense") {
+			fundingSource.debt = beforeDebt + parsedAmount;
+		} else if (type === "income") {
+			if (isCardType) {
+				fundingSource.debt = Math.max(
+					0,
+					beforeDebt - parsedAmount,
+				);
 			}
+		} else if (isCardType) {
+			fundingSource.debt = beforeDebt + parsedAmount;
 		}
 
 		// Persist the balance move and the ledger row together, so a failure in
@@ -287,9 +393,11 @@ export async function POST(req: NextRequest) {
 		const masked = maskAmount(fmtAmount);
 		const who = user.name;
 		const title =
-			type === "expense"
-				? `${emoji} ${who} đã chi ${masked}`
-				: `${emoji} ${who} đã nhận ${masked}`;
+			debtAction === "payment"
+				? `💳 ${who} đã trả nợ ${masked}`
+				: type === "expense"
+					? `${emoji} ${who} đã chi ${masked}`
+					: `${emoji} ${who} đã nhận ${masked}`;
 		const body = description?.trim()
 			? `Danh mục: ${description.trim()}`
 			: catLabel;
