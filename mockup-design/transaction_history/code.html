@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "tertiary-fixed-dim": "#c8a0f0",
+              "on-error-container": "#ffb3b3",
+              "primary-fixed-dim": "#7dd3fc",
+              "secondary-fixed": "#c0d8e8",
+              "inverse-on-surface": "#0a0e1a",
+              "on-secondary": "#001f2e",
+              "on-primary-fixed-variant": "#004d73",
+              "tertiary-fixed": "#e8d0ff",
+              "outline-variant": "#2a3a48",
+              "surface-container-high": "#1a2438",
+              "surface-dim": "#0f1524",
+              "on-error": "#1a0000",
+              "error-container": "#3d1414",
+              "surface-bright": "#1a2438",
+              "error": "#ff6b6b",
+              "on-secondary-container": "#c0d8e8",
+              "primary-container": "#0e4d6e",
+              "on-tertiary": "#1a002e",
+              "on-secondary-fixed-variant": "#2a4a5e",
+              "outline": "#4a6070",
+              "on-tertiary-fixed-variant": "#4d2a73",
+              "surface-container": "#141c2e",
+              "on-tertiary-fixed": "#1a002e",
+              "on-primary-container": "#c8eaff",
+              "surface-tint": "#7dd3fc",
+              "tertiary": "#c8a0f0",
+              "secondary": "#88b4cc",
+              "inverse-surface": "#e0e8f0",
+              "surface-container-highest": "#202c42",
+              "surface-container-lowest": "#0a0e1a",
+              "primary-fixed": "#c8eaff",
+              "primary": "#7dd3fc",
+              "on-primary-fixed": "#001f2e",
+              "secondary-container": "#1a3a4e",
+              "on-surface": "#e0e8f0",
+              "tertiary-container": "#3d2060",
+              "surface": "#0f1524",
+              "on-tertiary-container": "#e8d0ff",
+              "inverse-primary": "#0a4c6e",
+              "surface-container-low": "#111828",
+              "on-secondary-fixed": "#0d1f2b",
+              "on-primary": "#001f2e",
+              "surface-variant": "#1a2438",
+              "background": "#0a0e1a",
+              "secondary-fixed-dim": "#88b4cc",
+              "on-surface-variant": "#a0b4c4",
+              "on-background": "#e0e8f0"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0a0e1a;
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-panel {
+            background: rgba(15, 21, 36, 0.6);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(125, 211, 252, 0.1);
+        }
+        .glass-panel-elevated {
+            background: rgba(15, 21, 36, 0.75);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(125, 211, 252, 0.15);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-surface selection:bg-primary/30 min-h-screen">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-slate-950/60 backdrop-blur-xl border-b border-sky-400/10 shadow-[0_0_30px_rgba(125,211,252,0.05)]">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full overflow-hidden border border-sky-400/20 active:scale-95 duration-200 cursor-pointer">
+<img alt="Profile" data-alt="close up portrait of a professional man with friendly expression in soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCewBMBd_Bd5VedDF5gtzEqBclKspy_H6vm37T-SQ-m8mOvsTvHPhY46HO0Fz0l9P_g1oJfl7r7SUzbzNcJztl6V1fSztJ_eDf99-E0GZtzm6aE4lH_KL2mdUr4ihaSyTVunEdTyFY-uADmBBwftvF0NMCFHb3vHrR7en0l3aPu0GZSwrf5GV9s-HlZstYpt-rtLkhmkL50ny4QHt3C7pyMW_-hgZ-hhfsSypbtko6Qgv4h7nl4JtK8LDTdwxevsgI33FQ7sX4l7SgT"/>
+</div>
+<h1 class="text-xl font-bold text-sky-300 drop-shadow-[0_0_10px_rgba(125,211,252,0.3)] font-inter tracking-tight">Glacier Pay</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-xl text-slate-400 hover:bg-sky-400/10 transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-2xl mx-auto">
+<!-- History Header & Stats -->
+<div class="mb-8">
+<h2 class="text-3xl font-extrabold text-on-surface mb-2 tracking-tight">History</h2>
+<p class="text-on-surface-variant text-sm">Review all activity across your shared accounts.</p>
+</div>
+<!-- Summary Bento Grid -->
+<div class="grid grid-cols-2 gap-4 mb-10">
+<div class="glass-panel p-5 rounded-xl">
+<div class="flex items-center gap-2 text-sky-300 mb-2">
+<span class="material-symbols-outlined text-sm" data-icon="account_balance">account_balance</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Total Spent</span>
+</div>
+<div class="text-2xl font-bold text-on-surface">$2,440.50</div>
+<div class="text-[10px] text-on-surface-variant mt-1">This Month</div>
+</div>
+<div class="glass-panel p-5 rounded-xl">
+<div class="flex items-center gap-2 text-tertiary mb-2">
+<span class="material-symbols-outlined text-sm" data-icon="group">group</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Top Member</span>
+</div>
+<div class="text-2xl font-bold text-on-surface">Mom</div>
+<div class="text-[10px] text-on-surface-variant mt-1">60% of activity</div>
+</div>
+</div>
+<!-- Transactions List -->
+<div class="space-y-4">
+<!-- Day Group -->
+<div>
+<h3 class="text-[11px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4 ml-1">Today</h3>
+<div class="space-y-3">
+<!-- Transaction Item -->
+<div class="glass-panel p-4 rounded-xl flex items-center justify-between hover:bg-sky-400/5 transition-colors group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+<span class="material-symbols-outlined" data-icon="shopping_bag">shopping_bag</span>
+</div>
+<div>
+<div class="text-on-surface font-semibold text-sm">Grocery Store</div>
+<div class="text-[11px] text-on-surface-variant flex items-center gap-1.5 mt-0.5">
+<span class="font-medium text-sky-300">Mom</span> updated this expense
+                                </div>
+</div>
+</div>
+<div class="text-right">
+<div class="text-on-surface font-bold text-base">-$84.20</div>
+<div class="text-[10px] text-slate-500">2:14 PM</div>
+</div>
+</div>
+<!-- Transaction Item -->
+<div class="glass-panel p-4 rounded-xl flex items-center justify-between hover:bg-sky-400/5 transition-colors group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-tertiary/10 flex items-center justify-center text-tertiary border border-tertiary/20">
+<span class="material-symbols-outlined" data-icon="bolt">bolt</span>
+</div>
+<div>
+<div class="text-on-surface font-semibold text-sm">Utility Bill</div>
+<div class="text-[11px] text-on-surface-variant flex items-center gap-1.5 mt-0.5">
+<span class="font-medium text-sky-300">Dad</span> paid from Glacier Main
+                                </div>
+</div>
+</div>
+<div class="text-right">
+<div class="text-on-surface font-bold text-base">-$142.00</div>
+<div class="text-[10px] text-slate-500">9:45 AM</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Day Group -->
+<div class="pt-6">
+<h3 class="text-[11px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4 ml-1">Yesterday</h3>
+<div class="space-y-3">
+<!-- Transaction Item -->
+<div class="glass-panel p-4 rounded-xl flex items-center justify-between hover:bg-sky-400/5 transition-colors group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-emerald-400/10 flex items-center justify-center text-emerald-400 border border-emerald-400/20">
+<span class="material-symbols-outlined" data-icon="add_card" style="font-variation-settings: 'FILL' 1;">add_card</span>
+</div>
+<div>
+<div class="text-on-surface font-semibold text-sm">Account Top-up</div>
+<div class="text-[11px] text-on-surface-variant flex items-center gap-1.5 mt-0.5">
+<span class="font-medium text-sky-300">Dad</span> added funds
+                                </div>
+</div>
+</div>
+<div class="text-right">
+<div class="text-emerald-400 font-bold text-base">+$500.00</div>
+<div class="text-[10px] text-slate-500">Nov 14</div>
+</div>
+</div>
+<!-- Transaction Item -->
+<div class="glass-panel p-4 rounded-xl flex items-center justify-between hover:bg-sky-400/5 transition-colors group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-sky-400/10 flex items-center justify-center text-sky-400 border border-sky-400/20">
+<span class="material-symbols-outlined" data-icon="restaurant">restaurant</span>
+</div>
+<div>
+<div class="text-on-surface font-semibold text-sm">The Bistro</div>
+<div class="text-[11px] text-on-surface-variant flex items-center gap-1.5 mt-0.5">
+<span class="font-medium text-sky-300">Mom</span> updated from card ending 4202
+                                </div>
+</div>
+</div>
+<div class="text-right">
+<div class="text-on-surface font-bold text-base">-$68.50</div>
+<div class="text-[10px] text-slate-500">Nov 14</div>
+</div>
+</div>
+<!-- Transaction Item -->
+<div class="glass-panel p-4 rounded-xl flex items-center justify-between hover:bg-sky-400/5 transition-colors group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-slate-400/10 flex items-center justify-center text-slate-400 border border-slate-400/20">
+<span class="material-symbols-outlined" data-icon="subscriptions">subscriptions</span>
+</div>
+<div>
+<div class="text-on-surface font-semibold text-sm">Streaming Service</div>
+<div class="text-[11px] text-on-surface-variant flex items-center gap-1.5 mt-0.5">
+                                    System automated renewal
+                                </div>
+</div>
+</div>
+<div class="text-right">
+<div class="text-on-surface font-bold text-base">-$14.99</div>
+<div class="text-[10px] text-slate-500">Nov 14</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-slate-900/75 backdrop-blur-[24px] border-t border-sky-400/15 shadow-[0_-4px_20px_rgba(0,0,0,0.5)] rounded-t-3xl">
+<a class="flex flex-col items-center justify-center text-slate-500 font-inter text-[10px] font-medium hover:text-sky-200 active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="home">home</span>
+<span>Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 font-inter text-[10px] font-medium hover:text-sky-200 active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span>Accounts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-sky-300 bg-sky-400/10 rounded-xl px-4 py-1 font-inter text-[10px] font-medium active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="history" style="font-variation-settings: 'FILL' 1;">history</span>
+<span>History</span>
+</a>
+</nav>
+</body></html>

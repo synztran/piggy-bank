@@ -1,0 +1,106 @@
+/* ── Glacier theme overrides for goey-toast ── */
+
+/* Font */
+.gooey-wrapper {
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif !important;
+}
+
+/* ── Title colours (dark theme) ── */
+.gooey-wrapper[data-theme=dark] .gooey-titleDefault {
+  color: #e0e8f0 !important;
+}
+.gooey-wrapper[data-theme=dark] .gooey-titleSuccess {
+  color: #6ee7b7 !important;
+}
+.gooey-wrapper[data-theme=dark] .gooey-titleError {
+  color: #fca5a5 !important;
+}
+.gooey-wrapper[data-theme=dark] .gooey-titleWarning {
+  color: #fcd34d !important;
+}
+.gooey-wrapper[data-theme=dark] .gooey-titleInfo {
+  color: #7dd3fc !important;
+}
+
+/* Title weight */
+.gooey-title {
+  font-weight: 700 !important;
+  font-size: 0.8rem !important;
+  letter-spacing: 0.01em !important;
+}
+
+/* ── Description (dark theme) ── */
+.gooey-wrapper[data-theme=dark] .gooey-description {
+  color: #a0b4c4 !important;
+  font-size: 0.76rem !important;
+}
+
+/* ── Action buttons (dark theme) ── */
+.gooey-wrapper[data-theme=dark] .gooey-actionDefault,
+.gooey-wrapper[data-theme=dark] .gooey-actionInfo {
+  background: rgba(125, 211, 252, 0.1) !important;
+  color: #7dd3fc !important;
+  border: 1px solid rgba(125, 211, 252, 0.25) !important;
+}
+.gooey-wrapper[data-theme=dark] .gooey-actionDefault:hover,
+.gooey-wrapper[data-theme=dark] .gooey-actionInfo:hover {
+  background: rgba(125, 211, 252, 0.2) !important;
+}
+
+.gooey-wrapper[data-theme=dark] .gooey-actionSuccess {
+  background: rgba(52, 211, 153, 0.1) !important;
+  color: #6ee7b7 !important;
+  border: 1px solid rgba(52, 211, 153, 0.25) !important;
+}
+.gooey-wrapper[data-theme=dark] .gooey-actionSuccess:hover {
+  background: rgba(52, 211, 153, 0.2) !important;
+}
+
+.gooey-wrapper[data-theme=dark] .gooey-actionError {
+  background: rgba(248, 113, 113, 0.1) !important;
+  color: #fca5a5 !important;
+  border: 1px solid rgba(248, 113, 113, 0.25) !important;
+}
+.gooey-wrapper[data-theme=dark] .gooey-actionError:hover {
+  background: rgba(248, 113, 113, 0.2) !important;
+}
+
+.gooey-wrapper[data-theme=dark] .gooey-actionWarning {
+  background: rgba(251, 191, 36, 0.1) !important;
+  color: #fcd34d !important;
+  border: 1px solid rgba(251, 191, 36, 0.25) !important;
+}
+.gooey-wrapper[data-theme=dark] .gooey-actionWarning:hover {
+  background: rgba(251, 191, 36, 0.2) !important;
+}
+
+/* Shared action button shape */
+.gooey-actionButton {
+  border-radius: 9999px !important;
+  font-weight: 600 !important;
+  font-size: 0.72rem !important;
+  padding: 4px 12px !important;
+}
+
+/* ── Timestamp ── */
+.gooey-wrapper[data-theme=dark] .gooey-timestamp {
+  color: #4a6070 !important;
+}
+
+/* ── Light-mode fallback: mute the action button so it never looks jarring ── */
+.gooey-wrapper .gooey-actionWarning {
+  background: rgba(120, 90, 0, 0.12) !important;
+  color: #92600a !important;
+  border: 1px solid rgba(180, 130, 0, 0.25) !important;
+}
+.gooey-wrapper .gooey-actionWarning:hover {
+  background: rgba(120, 90, 0, 0.2) !important;
+}
+.gooey-wrapper .gooey-actionDefault {
+  background: rgba(0, 0, 0, 0.06) !important;
+  color: inherit !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+}
+.gooey-wrapper .gooey-actionDefault:hover {
+  background: rgba(0, 0, 0, 0.1) !important;
+}

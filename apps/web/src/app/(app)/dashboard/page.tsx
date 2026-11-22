@@ -1,0 +1,200 @@
+"use client";
+
+import DebtPaymentModal from "@/components/DebtPaymentModal";
+import PullToRefresh from "@/components/PullToRefresh";
+import QuickPaymentModal from "@/components/QuickPaymentModal";
+import UpdateBalanceDrawer from "@/components/UpdateBalanceDrawer";
+import DebtSection from "@/components/dashboard/DebtSection";
+import HeroBalanceCard from "@/components/dashboard/HeroBalanceCard";
+import RecentTransactionsList from "@/components/dashboard/RecentTransactionsList";
+import SpendingInsights from "@/components/dashboard/SpendingInsights";
+import type { CreditDebtInfo } from "@/lib/debt";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+interface PaymentSource {
+	id: string;
+	name: string;
+	type: "Debit" | "Credit" | "Cash" | "Transfer";
+	last4Digits?: string;
+	debt?: number;
+	balance?: number;
+}
+
+interface SpendingItem {
+	category: string;
+	amount: number;
+	percentage: number;
+}
+
+interface Transaction {
+	_id: string;
+	description: string;
+	amount: number;
+	category: string;
+	type: "expense" | "income";
+	transactionDate: string;
+}
+
+interface Summary {
+	totalBalance: number;
+	totalSpentThisMonth: number;
+	spending: SpendingItem[];
+	recentTransactions: Transaction[];
+	accountCount: number;
+	memberBalances: { name: string; balance: number; isCurrentUser: boolean }[];
+	creditDebts: CreditDebtInfo[];
+	totalDebt: number;
+}
+
+export default function DashboardPage() {
+	const [summary, setSummary] = useState<Summary | null>(null);
+	const [accounts, setAccounts] = useState<PaymentSource[]>([]);
+	const [showUpdateBalance, setShowUpdateBalance] = useState(false);
+	const [showQuickPayment, setShowQuickPayment] = useState(false);
+	const [showDebtPayment, setShowDebtPayment] = useState(false);
+	const [selectedDebt, setSelectedDebt] = useState<CreditDebtInfo | null>(
+		null,
+	);
+	const iosKeyboardTriggerRef = useRef<HTMLInputElement>(null);
+	const [loading, setLoading] = useState(true);
+
+	const fetchData = useCallback(async () => {
+		try {
+			const [summaryRes, accountsRes] = await Promise.all([
+				fetch("/api/summary"),
+				fetch("/api/accounts"),
+			]);
+			if (summaryRes.ok) {
+				const data = await summaryRes.json();
+				setSummary(data);
+			}
+			if (accountsRes.ok) {
+				const data = await accountsRes.json();
+				setAccounts(data.accounts || []);
+			}
+		} finally {
+			setLoading(false);
+		}
+	}, []);
+
+	useEffect(() => {
+		fetchData();
+	}, [fetchData]);
+
+	const handleOpenQuickPayment = useCallback(() => {
+		iosKeyboardTriggerRef.current?.focus();
+		setShowQuickPayment(true);
+	}, []);
+
+	const handleCloseQuickPayment = useCallback(
+		() => setShowQuickPayment(false),
+		[],
+	);
+	const handleCloseUpdateBalance = useCallback(
+		() => setShowUpdateBalance(false),
+		[],
+	);
+	const handleOpenUpdateBalance = useCallback(
+		() => setShowUpdateBalance(true),
+		[],
+	);
+	const handleCloseDebtPayment = useCallback(
+		() => setShowDebtPayment(false),
+		[],
+	);
+	const handlePayDebt = useCallback((debt: CreditDebtInfo) => {
+		setSelectedDebt(debt);
+		setShowDebtPayment(true);
+	}, []);
+
+	return (
+		<PullToRefresh onRefresh={fetchData}>
+			{/* Hidden input to keep iOS keyboard open */}
+			<input
+				ref={iosKeyboardTriggerRef}
+				className="sr-only"
+				aria-hidden="true"
+				readOnly
+				tabIndex={-1}
+			/>
+
+			<div className="space-y-4">
+				{loading ? (
+					<div className="relative p-4 space-y-4">
+						<div className="flex gap-2">
+							<div className="flex-1 h-16 rounded-xl bg-white/5 animate-pulse" />
+							<div className="flex-1 h-16 rounded-xl bg-white/5 animate-pulse" />
+						</div>
+						<div className="space-y-2">
+							<div className="h-4 w-16 rounded bg-white/5 animate-pulse" />
+							<div className="h-12 w-48 rounded bg-white/5 animate-pulse" />
+						</div>
+						<div className="flex gap-2">
+							<div className="h-9 w-28 rounded-full bg-white/5 animate-pulse" />
+							<div className="h-9 w-24 rounded-full bg-white/5 animate-pulse" />
+						</div>
+					</div>
+				) : (
+					<HeroBalanceCard
+						totalBalance={summary?.totalBalance ?? 0}
+						memberBalances={summary?.memberBalances ?? []}
+						sourceCount={
+							accounts.filter((a) => a.type !== "Credit").length
+						}
+						loading={loading}
+						onUpdateBalance={handleOpenUpdateBalance}
+						onQuickPayment={handleOpenQuickPayment}
+					/>
+				)}
+
+				<DebtSection
+					debts={summary?.creditDebts ?? []}
+					totalDebt={summary?.totalDebt ?? 0}
+					loading={loading}
+					onPay={handlePayDebt}
+				/>
+
+				{loading ? (
+					<div className="grid grid-cols-2 gap-4">
+						{[0, 1].map((i) => (
+							<div
+								key={i}
+								className="glass-panel p-5 rounded-xl h-14 animate-pulse"
+							/>
+						))}
+					</div>
+				) : <SpendingInsights spending={summary?.spending ?? []} />}
+
+				<RecentTransactionsList
+					transactions={summary?.recentTransactions ?? []}
+					loading={loading}
+				/>
+
+				<UpdateBalanceDrawer
+					currentBalance={summary?.totalBalance ?? 0}
+					accounts={accounts}
+					onClose={handleCloseUpdateBalance}
+					onUpdated={fetchData}
+					isOpen={showUpdateBalance}
+				/>
+
+				<QuickPaymentModal
+					isOpen={showQuickPayment}
+					accounts={accounts}
+					onClose={handleCloseQuickPayment}
+					onSuccess={fetchData}
+          balance={summary?.totalBalance ?? 0}
+				/>
+
+				<DebtPaymentModal
+					isOpen={showDebtPayment}
+					debts={summary?.creditDebts ?? []}
+					accounts={accounts}
+					initialDebtId={selectedDebt?.id ?? null}
+					onClose={handleCloseDebtPayment}
+					onSuccess={fetchData}
+				/>
+			</div>
+		</PullToRefresh>
+	);
+}

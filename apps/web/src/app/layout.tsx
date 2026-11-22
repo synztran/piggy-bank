@@ -1,0 +1,46 @@
+import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
+import ToastProvider from "@/components/ToastProvider";
+import "./globals.css";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+
+export const metadata: Metadata = {
+  title: "HaJa Piggy Bank",
+  description: "Where your savings don't melt away.",
+  manifest: "/manifest.json",
+  applicationName: "HaJa",
+  appleWebApp: {
+    capable: true,
+    title: "HaJa",
+    statusBarStyle: "black-translucent",
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: "cover",
+  themeColor: "#0a0e1a",
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en" data-theme="dark" suppressHydrationWarning>
+      <head>
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon.png" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/icon.png" />
+        <link rel="icon" type="image/png" sizes="512x512" href="/icon.png" />
+      </head>
+      <body className={`${inter.variable} font-sans`}>
+        {children}
+        <ToastProvider />
+      </body>
+    </html>
+  );
+}

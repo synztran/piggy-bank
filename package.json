@@ -1,0 +1,19 @@
+{
+	"name": "pigy-bank",
+	"private": true,
+	"workspaces": [
+		"apps/*",
+		"packages/*"
+	],
+	"devDependencies": {
+		"turbo": "^2.3.3"
+	},
+	"scripts": {
+		"dev": "turbo dev",
+		"build": "turbo build",
+		"lint": "turbo lint",
+		"typecheck": "turbo typecheck",
+		"format": "turbo format"
+	},
+	"packageManager": "yarn@3.8.7"
+}

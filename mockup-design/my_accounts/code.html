@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "tertiary-fixed-dim": "#c8a0f0",
+              "on-error-container": "#ffb3b3",
+              "primary-fixed-dim": "#7dd3fc",
+              "secondary-fixed": "#c0d8e8",
+              "inverse-on-surface": "#0a0e1a",
+              "on-secondary": "#001f2e",
+              "on-primary-fixed-variant": "#004d73",
+              "tertiary-fixed": "#e8d0ff",
+              "outline-variant": "#2a3a48",
+              "surface-container-high": "#1a2438",
+              "surface-dim": "#0f1524",
+              "on-error": "#1a0000",
+              "error-container": "#3d1414",
+              "surface-bright": "#1a2438",
+              "error": "#ff6b6b",
+              "on-secondary-container": "#c0d8e8",
+              "primary-container": "#0e4d6e",
+              "on-tertiary": "#1a002e",
+              "on-secondary-fixed-variant": "#2a4a5e",
+              "outline": "#4a6070",
+              "on-tertiary-fixed-variant": "#4d2a73",
+              "surface-container": "#141c2e",
+              "on-tertiary-fixed": "#1a002e",
+              "on-primary-container": "#c8eaff",
+              "surface-tint": "#7dd3fc",
+              "tertiary": "#c8a0f0",
+              "secondary": "#88b4cc",
+              "inverse-surface": "#e0e8f0",
+              "surface-container-highest": "#202c42",
+              "surface-container-lowest": "#0a0e1a",
+              "primary-fixed": "#c8eaff",
+              "primary": "#7dd3fc",
+              "on-primary-fixed": "#001f2e",
+              "secondary-container": "#1a3a4e",
+              "on-surface": "#e0e8f0",
+              "tertiary-container": "#3d2060",
+              "surface": "#0f1524",
+              "on-tertiary-container": "#e8d0ff",
+              "inverse-primary": "#0a4c6e",
+              "surface-container-low": "#111828",
+              "on-secondary-fixed": "#0d1f2b",
+              "on-primary": "#001f2e",
+              "surface-variant": "#1a2438",
+              "background": "#0a0e1a",
+              "secondary-fixed-dim": "#88b4cc",
+              "on-surface-variant": "#a0b4c4",
+              "on-background": "#e0e8f0"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0e1a;
+            color: #e0e8f0;
+        }
+        .glass-card {
+            background: rgba(15, 21, 36, 0.6);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(125, 211, 252, 0.1);
+        }
+        .glass-card-elevated {
+            background: rgba(15, 21, 36, 0.75);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(125, 211, 252, 0.15);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background min-h-screen text-on-background">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-slate-950/60 backdrop-blur-xl border-b border-sky-400/10 shadow-[0_0_30px_rgba(125,211,252,0.05)]">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full overflow-hidden border border-sky-400/20 bg-surface-container">
+<img alt="Profile" class="w-full h-full object-cover" data-alt="Close up portrait of a young professional with soft cinematic lighting and a clean neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBu30BWBHtHxk8asQIvDu2TERRbi_ElU7mZz_szNqxy6mbSzynIbKgRtimR3iLcgVVov9zd7BCfmxYeQW9HvTrB052fzYd42aKCghOfIiMYqPUdYfC19MibaKVgUXnc3uHMIPA0xHBu4v8K3QolyfcoWsAzY5RVrzV1lIuQlMWqM7mPkRgYh0ouEKMYpkJ0-A5sI55QNPkGbEDJCxyjEamUUNrxt-ZIUhxYALZPvCZ7GrI77GIjHW74bOOSoUv5z3WUe4Z3zjYlqErs"/>
+</div>
+<h1 class="text-xl font-bold text-sky-300 drop-shadow-[0_0_10px_rgba(125,211,252,0.3)] font-inter tracking-tight">Glacier Pay</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-slate-400 hover:bg-sky-400/10 transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-lg mx-auto">
+<!-- Header Section -->
+<section class="mb-8">
+<div class="flex justify-between items-end mb-6">
+<div>
+<h2 class="text-2xl font-semibold text-on-surface tracking-tight">Accounts</h2>
+<p class="text-on-surface-variant text-sm mt-1">Manage your liquidity sources</p>
+</div>
+<button class="bg-primary/10 border border-primary/20 text-primary px-4 py-2 rounded-xl flex items-center gap-2 font-medium active:scale-95 transition-all hover:bg-primary/20">
+<span class="material-symbols-outlined text-[20px]" data-icon="add">add</span>
+<span class="text-sm">Add New</span>
+</button>
+</div>
+</section>
+<!-- Payment Entities Grid/List -->
+<div class="space-y-4">
+<!-- Cash Account Card -->
+<div class="glass-card p-6 rounded-xl relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl transition-all group-hover:bg-primary/10"></div>
+<div class="flex justify-between items-start relative z-10">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
+<span class="material-symbols-outlined text-primary" data-icon="payments">payments</span>
+</div>
+<div>
+<h3 class="font-semibold text-on-surface">Cash</h3>
+<p class="text-xs text-on-surface-variant">Primary Wallet</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]" data-icon="more_vert">more_vert</span>
+</div>
+<div class="mt-8 relative z-10">
+<p class="text-xs text-on-surface-variant uppercase tracking-widest font-medium mb-1">Available Balance</p>
+<h4 class="text-3xl font-bold text-on-surface">$12,450.00</h4>
+</div>
+</div>
+<!-- Bank Account Card -->
+<div class="glass-card p-6 rounded-xl relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-tertiary/5 rounded-full -mr-16 -mt-16 blur-3xl transition-all group-hover:bg-tertiary/10"></div>
+<div class="flex justify-between items-start relative z-10">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-xl bg-tertiary/10 flex items-center justify-center border border-tertiary/20">
+<span class="material-symbols-outlined text-tertiary" data-icon="account_balance">account_balance</span>
+</div>
+<div>
+<h3 class="font-semibold text-on-surface">Global Bank Corp</h3>
+<p class="text-xs text-on-surface-variant">Checking •••• 8821</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]" data-icon="more_vert">more_vert</span>
+</div>
+<div class="mt-8 relative z-10">
+<p class="text-xs text-on-surface-variant uppercase tracking-widest font-medium mb-1">Current Balance</p>
+<h4 class="text-3xl font-bold text-on-surface">$48,201.85</h4>
+</div>
+</div>
+<!-- Debit Card -->
+<div class="glass-card-elevated p-6 rounded-xl relative overflow-hidden group shadow-[0_0_30px_rgba(125,211,252,0.08)] border-primary/20">
+<div class="absolute inset-0 opacity-10" data-alt="Abstract subtle dot pattern over a deep navy background with blue highlights" style="background-image: radial-gradient(circle at 2px 2px, #7dd3fc 1px, transparent 0); background-size: 24px 24px;"></div>
+<div class="flex justify-between items-start relative z-10">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-xl bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary" data-icon="credit_card">credit_card</span>
+</div>
+<div>
+<h3 class="font-semibold text-on-surface">Sapphire Debit</h3>
+<p class="text-xs text-on-surface-variant">Active Virtual Card</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="settings">settings</span>
+</div>
+<div class="mt-8 relative z-10">
+<div class="flex justify-between items-end">
+<div>
+<p class="text-xs text-on-surface-variant uppercase tracking-widest font-medium mb-1">Total Limit</p>
+<h4 class="text-3xl font-bold text-on-surface">$5,000.00</h4>
+</div>
+<div class="text-right">
+<p class="text-[10px] text-on-surface-variant mb-1">EXPIRY</p>
+<p class="text-sm font-bold text-on-surface">09/27</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Empty State / Add Action -->
+<button class="w-full p-8 border-2 border-dashed border-sky-400/10 rounded-xl flex flex-col items-center justify-center gap-2 hover:bg-sky-400/5 transition-colors group">
+<div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-slate-400" data-icon="add_circle">add_circle</span>
+</div>
+<span class="text-sm font-medium text-slate-400">Connect another source</span>
+</button>
+</div>
+<!-- Quick Stats Bento Section -->
+<section class="mt-10 grid grid-cols-2 gap-4">
+<div class="glass-card p-4 rounded-xl col-span-2">
+<p class="text-xs text-on-surface-variant font-medium mb-2 uppercase tracking-tight">Net Liquidity</p>
+<div class="flex items-center justify-between">
+<span class="text-2xl font-bold text-sky-300">$65,651.85</span>
+<div class="flex items-center gap-1 text-emerald-400 text-xs font-bold bg-emerald-400/10 px-2 py-1 rounded-lg">
+<span class="material-symbols-outlined text-[14px]" data-icon="trending_up">trending_up</span>
+                        2.4%
+                    </div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-slate-900/75 backdrop-blur-[24px] border-t border-sky-400/15 shadow-[0_-4px_20px_rgba(0,0,0,0.5)]">
+<a class="flex flex-col items-center justify-center text-slate-500 hover:text-sky-200 active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-inter text-[10px] font-medium mt-1">Home</span>
+</a>
+<!-- ACTIVE STATE: Accounts Page -->
+<a class="flex flex-col items-center justify-center text-sky-300 bg-sky-400/10 rounded-xl px-4 py-1 active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+<span class="font-inter text-[10px] font-medium mt-1">Accounts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 hover:text-sky-200 active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-inter text-[10px] font-medium mt-1">History</span>
+</a>
+</nav>
+</body></html>
