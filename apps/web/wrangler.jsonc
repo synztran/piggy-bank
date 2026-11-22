@@ -3,7 +3,11 @@
 	"name": "piggy-bank",
 	"main": ".open-next/worker.js",
 	"compatibility_date": "2025-03-01",
-	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+	"compatibility_flags": [
+		"nodejs_compat",
+		"nodejs_compat_populate_process_env",
+		"global_fetch_strictly_public"
+	],
 	"assets": {
 		"directory": ".open-next/assets",
 		"binding": "ASSETS"
@@ -13,5 +17,22 @@
 			"binding": "WORKER_SELF_REFERENCE",
 			"service": "piggy-bank"
 		}
-	]
+	],
+	"observability": {
+		"enabled": true,
+		"logs": {
+			"enabled": true,
+			"head_sampling_rate": 1,
+			"invocation_logs": true,
+			"persist": true
+		},
+		"traces": {
+			"enabled": true,
+			"head_sampling_rate": 1,
+			"persist": true
+		},
+		"issues": {
+			"enabled": true
+		}
+	}
 }
